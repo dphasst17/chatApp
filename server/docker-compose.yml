@@ -7,6 +7,8 @@ services:
       - "3000:3000"
     volumes:
       - ./api-gateway:/app/
+    env_file:
+     - .env
     command: npm run start:dev
     environment:
       - PORT=3000
@@ -14,21 +16,29 @@ services:
     build: ./auth
     volumes:
       - ./auth:/app/
+    env_file:
+     - .env
     command: npm run start:dev
   chat_service:
     build: ./chat
     volumes:
       - ./chat:/app/
+    env_file:
+     - .env
     command: npm run start:dev
   user_service:
     build: ./user
     volumes:
       - ./user:/app/
+    env_file:
+     - .env
     command: npm run start:dev
   socket_service:
     build: ./socket
     volumes:
       - ./socket:/app/
+    env_file:
+     - .env
     command: npm run start:dev
   nats:
     image: nats

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import mongoose from 'mongoose';
 
 async function bootstrap() {
   console.log('Auth Microservice is Running!');
@@ -13,6 +14,7 @@ async function bootstrap() {
       },
     },
   );
+  setTimeout(() => { console.log(mongoose.connection.readyState); }, 5000)
   await app.listen();
 }
 bootstrap();
