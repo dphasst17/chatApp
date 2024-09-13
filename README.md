@@ -31,7 +31,7 @@ This is a chat application built with modern web technologies. The client side i
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/chat-app.git
+   git clone https://github.com/dphasst17/chatApp.git
    cd chat-app
    ```
 2. Install dependencies for the client:
