@@ -42,6 +42,12 @@ export class AuthService {
         }
         const token = this.generateToken(getData.idUser, "a")
         const refreshToken = this.generateToken(getData.idUser, "r")
+        const update = await firstValueFrom(this.natsClient.send({
+            cmd: 'user_update'
+        }, { idUser: getData.idUser, data: { online: true } }))
+        if (!update) {
+            return { status: 500, message: "Login is failed" }
+        }
         return {
             status: 200, data: {
                 ...token,

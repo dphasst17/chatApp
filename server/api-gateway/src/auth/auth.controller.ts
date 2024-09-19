@@ -22,17 +22,20 @@ export class AuthController {
     }
 
     @Post('register')
-    authRegister(@Body() data: AuthLoginRequest) {
-        return this.natsClient.send({ cmd: 'register' }, data);
+    async authRegister(@Body() data: AuthLoginRequest, @Res() res: Response) {
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'register' }, data))
+        return res.status(result.status).json(result)
     }
     @Put('token')
-    token(@Req() req: RequestCustom) {
+    async token(@Req() req: RequestCustom, @Res() res: Response) {
         const id = req.idUser
-        return this.natsClient.send({ cmd: 'token' }, id);
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'token' }, id))
+        return res.status(result.status).json(result)
     }
     @Patch('password')
-    password(@Req() req: RequestCustom, @Body() data: { current: string, password: string }) {
+    async password(@Req() req: RequestCustom, @Res() res: Response, @Body() data: { current: string, password: string }) {
         const id = req.idUser
-        return this.natsClient.send({ cmd: 'password' }, { id, data });
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'password' }, { id, data }))
+        return res.status(result.status).json(result)
     }
 }

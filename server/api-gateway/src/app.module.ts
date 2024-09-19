@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot(),
     JwtModule.register({ global: true, secret: process.env.SECRET }),
-    AuthModule, UserModule/* ChatModule, UserModule */
+    AuthModule, UserModule/*, ChatModule */
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -27,7 +27,9 @@ export class AppModule {
         { path: 'api/auth/token', method: RequestMethod.PUT },
         { path: 'api/auth/password', method: RequestMethod.PATCH },
         { path: 'api/user', method: RequestMethod.GET },
-        { path: 'api/user', method: RequestMethod.PATCH }
+        { path: 'api/user', method: RequestMethod.PATCH },
+        { path: 'api/user/friend', method: RequestMethod.POST },
+        { path: 'api/user/friend/:status', method: RequestMethod.GET },
       );
   }
 }

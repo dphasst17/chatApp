@@ -41,8 +41,8 @@ export class UserController {
     }
 
     @EventPattern({ cmd: 'friend_status' })
-    async friendGetByStatus(idUser: string, status: string) {
-        return this.userService.friendGetByStatus(idUser, status)
+    async friendGetByStatus(data: { idUser: string, status: string }) {
+        return this.userService.friendGetByStatus(data.idUser, data.status)
     }
 
     @EventPattern({ cmd: 'friend_add' })
@@ -51,8 +51,8 @@ export class UserController {
     }
 
     @EventPattern({ cmd: 'friend_update' })
-    async updateFriend(id: string, data: { [key: string]: string }) {
-        return this.userService.updateFriend(id, data)
+    async updateFriend(data: { [key: string]: string }) {
+        return this.userService.updateFriend(data)
     }
 
     @EventPattern({ cmd: 'friend_remove' })

@@ -57,11 +57,12 @@ export class UserService {
         if (!create) {
             return { status: 403, message: "Add friend is failed" }
         }
-        return { status: 200, message: "Add friend is success" }
+        return { status: 201, message: "Add friend is success", data: create }
     }
 
-    async updateFriend(id: string, data: { [key: string]: string }) {
-        const update = await this.userRepository.updateFriend(id, data)
+    async updateFriend(data: { [key: string]: string | any }) {
+        const update = await this.userRepository.updateFriend(data.id, data.detail)
+        console.log(update)
         if (!update) {
             return { status: 403, message: "Update friend is failed" }
         }

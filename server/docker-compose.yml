@@ -33,13 +33,6 @@ services:
     env_file:
      - .env
     command: npm run start:dev
-  socket_service:
-    build: ./socket
-    volumes:
-      - ./socket:/app/
-    env_file:
-     - .env
-    command: npm run start:dev
   nats:
     image: nats
     ports:

@@ -35,22 +35,43 @@ export class UserRepository {
     }
     async getData(idUser: string) {
         const info = await this.user.findOne({ idUser: idUser }).lean()
-        const friend = await this.friend.find({ $or: [{ idUser: idUser }, { idFriend: idUser }] }).lean()
-        return { ...info, friend: friend }
+        return info
     }
     async update(idUser: string, data: { [key: string]: string | number | boolean | any }) {
         return await this.user.findOneAndUpdate({ idUser: idUser }, data)
     }
     async friendGetByStatus(idUser: string, status: string) {
-        return this.friend.find({ $or: [{ idUser: idUser }, { idFriend: idUser }], status: status })
+        const dataFilter = { $or: [{ idUser: idUser }, { idFriend: idUser }], status: status };
+        return this.friend.aggregate([
+            { $match: dataFilter },
+            {
+                $lookup: {
+                    from: 'user',
+                    let: { friendId: { $cond: [{ $eq: ["$idUser", idUser] }, "$idFriend", "$idUser"] } },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$idUser", "$$friendId"] } } },
+                        { $project: { idUser: 1, name: 1, avatar: 1, online: 1, _id: 0 } }
+                    ],
+                    as: 'friend'
+                }
+            },
+            { $project: { _id: 1, idUser: 1, idFriend: 1, status: 1, created_at: 1, updated_at: 1, friend: { $arrayElemAt: ['$friend', 0] } } }
+        ]);
     }
+
     async addFriend(data: { idUser: string, idFriend: string, status: string, created_at: Date, updated_at: Date }) {
-        return this.friend.create(data)
+        //create data and return _id
+        const create = await this.friend.create(data)
+        if (!create) {
+            return { status: 403, message: "Add friend is failed" }
+        }
+        return create
     }
     async updateFriend(id: string, data: { [key: string]: string }) {
-        return this.friend.findByIdAndUpdate(id, data)
+        console.log(id, data)
+        return await this.friend.findByIdAndUpdate(id, data)
     }
     async removeFriend(id: string) {
-        return this.friend.findByIdAndDelete(id)
+        return await this.friend.findByIdAndDelete(id)
     }
 }
