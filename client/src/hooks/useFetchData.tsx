@@ -21,7 +21,6 @@ export const useFetch = (handle: any, key?: any, token?: boolean) => {
                 }
 
                 const resData = await convertHandle;
-                if (resData.status !== 200 || resData.status !== 201) throw new Error(resData.message);
                 setData(resData.data);
             } catch (err: any) {
                 setError(err);

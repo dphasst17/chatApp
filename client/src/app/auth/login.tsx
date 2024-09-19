@@ -1,8 +1,10 @@
 'use client'
 import { login } from '@/api/auth'
+import { StateContext } from '@/context/state'
 import { save } from '@/utils/cookie'
 import { Button, Input } from '@nextui-org/react'
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { use, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 interface LoginData {
@@ -10,15 +12,19 @@ interface LoginData {
     password: string
 }
 const Login = ({ setForm }: { setForm: React.Dispatch<React.SetStateAction<string>> }) => {
+    const { setIsLog } = use(StateContext)
     const { register, handleSubmit } = useForm()
     const [isShow, setIsShow] = useState<boolean>(false)
+    const router = useRouter()
     const onSubmit: any = (data: LoginData) => {
         login(data.username, data.password).then((res) => {
             if (res.status === 200) {
                 toast.success("Login success")
+                setIsLog(true)
                 save('c-atk', res.data.a, res.data.ea)
                 save('c-rtk', res.data.r, res.data.er)
                 save('c-log', 'true', res.data.er)
+                router.push('/')
             }
             else {
                 toast.error(res.message)

@@ -10,7 +10,7 @@ interface MessageProps {
     truncate?: boolean,
     online?: boolean
 }
-const Message = ({ classContent, title, avatar, content, time, reverse, truncate, online }: MessageProps) => {
+const Message = ({ classContent, title, avatar, content, reverse, truncate, online }: MessageProps) => {
     return <div className={classContent}>
         <div className={`w-full h-full grid grid-cols-12 p-1 justify-center`}>
             <div className={`col-span-2 ${reverse ? 'order-2' : 'order-1'} flex justify-center items-center`}>
