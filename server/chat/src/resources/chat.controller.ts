@@ -28,4 +28,13 @@ export class ChatController {
     async getChatDetail(idChat: string, page: number, limit: number) {
         return await this.chatService.getChatDetail(idChat, page, limit)
     }
+
+    @EventPattern({ cmd: 'chat_update' })
+    async chatUpdate(id: string, data: any) {
+        return await this.chatService.chatUpdate(id, data)
+    }
+    @EventPattern({ cmd: 'chat_insert' })
+    async chatInsert(data: any) {
+        return await this.chatService.chatInsert(data)
+    }
 }

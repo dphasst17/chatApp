@@ -32,6 +32,8 @@ export class AppModule {
         { path: 'api/user/friend/:status', method: RequestMethod.GET },
         { path: 'api/chat', method: RequestMethod.GET },
         { path: 'api/chat', method: RequestMethod.POST },
+        { path: 'api/chat/:id', method: RequestMethod.PATCH },
+        { path: 'api/chat/:id', method: RequestMethod.POST },
       );
   }
 }

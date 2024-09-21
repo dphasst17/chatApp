@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Response } from 'express';
 import { firstValueFrom } from 'rxjs';
@@ -34,5 +34,15 @@ export class ChatController {
     async chatCreate(@Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
         const create = await firstValueFrom(this.natsClient.send({ cmd: 'create_chat' }, { ...data, user: [req.idUser, ...data.user] }))
         return res.status(create.status).json(create)
+    }
+    @Post(':id')
+    async chatInsert(@Param('id') idChat: string, @Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const insert = await firstValueFrom(this.natsClient.send({ cmd: 'chat_insert' }, { ...data, sender: req.idUser, idChat }))
+        return res.status(insert.status).json(insert)
+    }
+    @Patch(':id')
+    async chatUpdate(@Param('id') idChat: string, @Res() res: Response, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const update = await firstValueFrom(this.natsClient.send({ cmd: 'chat_update' }, { ...data, _id: idChat }))
+        return res.status(update.status).json(update)
     }
 }

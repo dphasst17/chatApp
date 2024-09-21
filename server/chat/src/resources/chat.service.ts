@@ -32,6 +32,10 @@ export class ChatService {
         return { status: 201, data: result }
     }
 
+    async chatInsert(data: any) {
+        const result = await this.chatRepository.chatInsert(data)
+        return { status: 201, data: result }
+    }
     async getChatByUser(idUser: string) {
         try {
             const data = await this.chatRepository.getChatByUser(idUser)
