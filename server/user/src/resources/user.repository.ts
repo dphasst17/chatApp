@@ -31,7 +31,7 @@ export class UserRepository {
 
     }
     async getInfo(idUser: string) {
-        return this.user.findOne({ idUser: idUser }, { _id: 1, idUser: 1, name: 1, avatar: 1 })
+        return await this.user.find({ idUser: idUser }, { _id: 1, idUser: 1, name: 1, avatar: 1 }).exec()
     }
     async getData(idUser: string) {
         const info = await this.user.findOne({ idUser: idUser }).lean()

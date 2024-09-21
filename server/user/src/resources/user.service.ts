@@ -62,7 +62,6 @@ export class UserService {
 
     async updateFriend(data: { [key: string]: string | any }) {
         const update = await this.userRepository.updateFriend(data.id, data.detail)
-        console.log(update)
         if (!update) {
             return { status: 403, message: "Update friend is failed" }
         }

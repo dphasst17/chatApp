@@ -9,13 +9,15 @@ export interface ChatRequest {
 }
 
 export interface ChatInfoRequest {
+    _id?: string
+    name?: string
+    avatar?: string
+    user: string[]
     created_at: Date
     updated_at: Date
     time: Date
-    name: string
-    message: string
-    avatar: string
     type: string
+    notification: string
 }
 export interface ChatImageRequest {
     idChat: string

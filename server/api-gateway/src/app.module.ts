@@ -1,18 +1,18 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ChatModule } from './chat/chat.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthMiddleware } from './middleware/token.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     JwtModule.register({ global: true, secret: process.env.SECRET }),
-    AuthModule, UserModule/*, ChatModule */
+    AuthModule, UserModule, ChatModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -30,6 +30,8 @@ export class AppModule {
         { path: 'api/user', method: RequestMethod.PATCH },
         { path: 'api/user/friend', method: RequestMethod.POST },
         { path: 'api/user/friend/:status', method: RequestMethod.GET },
+        { path: 'api/chat', method: RequestMethod.GET },
+        { path: 'api/chat', method: RequestMethod.POST },
       );
   }
 }

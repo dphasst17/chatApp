@@ -10,27 +10,56 @@ export class ChatService {
         private readonly chatRepository: ChatRepository
     ) { }
     private getUserInfo = async (idUser: string, value: any) => {
-        return firstValueFrom(this.natsClient.send({ cmd: 'user_get_info' }, { idUser })).then((result: any) => result[value])
+        try {
+            const result = await firstValueFrom(this.natsClient.send({ cmd: 'user_get_info' }, { idUser, rValue: value }))
+            return result
+        }
+        catch (error) {
+            return error
+        }
     }
     async chatChecked() {
         return this.chatRepository.chatChecked();
     }
 
     async createChat(data: any) {
-        return this.chatRepository.createChat(data)
+        const _id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+
+        const result = await this.chatRepository.createChat({
+            ...data,
+            _id: _id
+        })
+        return { status: 201, data: result }
     }
 
     async getChatByUser(idUser: string) {
-        const data = await this.chatRepository.getChatByUser(idUser)
-        const result = data.map((item: any) => ({
-            ...item,
-            name: item.type === "group" ? item.name : this.getUserInfo(item.user.filter((item: any) => item !== idUser)[0], "name"),
-            avatar: item.type === "group" ? item.avatar : this.getUserInfo(item.user.filter((item: any) => item !== idUser)[0], "avatar"),
-        }))
+        try {
+            const data = await this.chatRepository.getChatByUser(idUser)
+            const result = await Promise.all(
+                data.map(async (item: any) => {
+                    const name = await this.getUserInfo(item.user[0], 'name');
+                    const avatar = await this.getUserInfo(item.user[0], 'avatar');
+                    return {
+                        ...item,
+                        name: name,
+                        avatar: avatar
+                    };
+                })
+            );
 
-        return result
+            return { status: 200, data: result }
+        }
+        catch (error) {
+            return { status: 500, message: error }
+        }
     }
-    /* async getChatDetail(idChat: string) {
-        return this.chatRepository.getChatDetail(idChat)
-    } */
+    async getChatDetail(idChat: string, page: number, limit: number) {
+        const result = await this.chatRepository.getChatDetail(idChat, page, limit)
+
+        return { status: 200, data: result }
+    }
+    async chatUpdate(id: string, data: any) {
+        const update = await this.chatRepository.chatUpdate(id, data)
+        return { status: 200, message: "Update chat is success" }
+    }
 }

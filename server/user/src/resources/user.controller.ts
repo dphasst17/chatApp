@@ -26,8 +26,9 @@ export class UserController {
     }
 
     @EventPattern({ cmd: 'user_get_info' })
-    async getInfo(idUser: string) {
-        return this.userService.getInfo(idUser)
+    async getInfo(value: { idUser: string, rValue: string }) {
+        const result = await this.userService.getInfo(value.idUser)
+        return result.data[0][value.rValue]
     }
 
     @EventPattern({ cmd: 'user_update' })

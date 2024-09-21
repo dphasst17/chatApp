@@ -6,13 +6,15 @@ export class Chat extends Document {
     @Prop({ required: true })
     _id: string
     @Prop({ required: true })
+    idChat: string
+    @Prop({ required: true })
     sender: string
     @Prop({ required: false })
     replayMessage: string
     @Prop({ required: true })
     message: string
-    @Prop({ required: false })
-    emoji: any
+    @Prop({ type: [String], required: false }) // Specify the type here
+    emoji: string | string[];
     @Prop({ required: true })
     date: Date
     @Prop({ required: true })
@@ -34,11 +36,11 @@ export class ChatInfo {
     time: Date
     @Prop({ required: false })
     name: string
-    @Prop({ required: true })
-    message: string
     @Prop({ required: false })
     avatar: string
     @Prop({ required: false })
+    notification: string
+    @Prop({ required: true })
     type: string
 }
 @Schema({ collection: 'chat-image', versionKey: false })
