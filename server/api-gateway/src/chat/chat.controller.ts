@@ -3,11 +3,13 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Response } from 'express';
 import { firstValueFrom } from 'rxjs';
 import { RequestCustom } from 'src/interface/custom.interface';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @Controller('api/chat')
 export class ChatController {
     constructor(
-        @Inject('NATS_SERVICE') private natsClient: ClientProxy
+        @Inject('NATS_SERVICE') private natsClient: ClientProxy,
+        private readonly socketGateway: SocketGateway
     ) { }
 
     @Get('checked')
@@ -38,6 +40,7 @@ export class ChatController {
     @Post(':id')
     async chatInsert(@Param('id') idChat: string, @Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
         const insert = await firstValueFrom(this.natsClient.send({ cmd: 'chat_insert' }, { ...data, sender: req.idUser, idChat }))
+        this.socketGateway.emitData('s_g_r_chat', { ...insert.data, idChat })
         return res.status(insert.status).json(insert)
     }
     @Patch(':id')

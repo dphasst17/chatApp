@@ -7,12 +7,13 @@ import { JwtAuthMiddleware } from './middleware/token.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { ChatModule } from './chat/chat.module';
+import { ImagesModule } from './images/images/images.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     JwtModule.register({ global: true, secret: process.env.SECRET }),
-    AuthModule, UserModule, ChatModule
+    AuthModule, UserModule, ChatModule, ImagesModule
   ],
   controllers: [AppController],
   providers: [AppService],

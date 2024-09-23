@@ -14,6 +14,11 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
     credentials: true,
   });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true // Transform is recomended configuration for avoind issues with arrays of files transformations
+    })
+  );
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
