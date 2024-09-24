@@ -12,11 +12,13 @@ export class ImagesController {
     return result
   }
   @EventPattern({ cmd: 'create-image' })
-  async createImage(data: { folder: string, file: FileUpload }) {
-    const file: Express.Multer.File = {
-      ...data.file,
-      buffer: Buffer.from(data.file.buffer, 'base64')
-    }
+  async createImage(data: { folder: string, file: FileUpload[] }) {
+    const file: Express.Multer.File[] = data.file.map((f: FileUpload) => {
+      return {
+        ...f,
+        buffer: Buffer.from(f.buffer, 'base64')
+      }
+    });
     const isCreate = await this.imagesService.createImage(data.folder, file);
     return isCreate
   }

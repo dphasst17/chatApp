@@ -41,37 +41,40 @@ export class ImagesService {
     async checked() {
         return { status: 200, message: "Images service is running" }
     }
-    async createImage(folder: string, file: Express.Multer.File) {
-        if (!file || !file.buffer) {
-            throw new Error('File or file buffer is undefined');
+    async createImage(folder: string, file: Express.Multer.File[]) {
+        for (let i = 0; i < file.length; i++) {
+            const f = file[i];
+            if (!f || !f.buffer) {
+                throw new Error('File or file buffer is undefined');
+            }
+            const fileData = f.buffer;
+            const uploadParams = {
+                Bucket: this.bucket,
+                Key: `${folder}/${f.originalname}`, // Sử dụng originalname thay với name nếu cần
+                Body: fileData,
+                ContentType: f.mimetype,
+                ACL: 'public-read',
+                ContentDisposition: 'inline',
+                CreateBucketConfiguration: {
+                    LocationConstraint: this.s3Region,
+                },
+            };
+            try {
+                const data = await this.s3.upload(uploadParams).promise();
+                if (!data) {
+                    throw new Error('Upload image is failed')
+                }
+            } catch (err) {
+                console.log(err)
+                return {
+                    status: 400,
+                    message: err
+                }
+            }
         }
-        const fileData = file.buffer;
-        const uploadParams = {
-            Bucket: this.bucket,
-            Key: `${folder}/${file.originalname}`, // Sử dụng originalname thay vì name nếu cần
-            Body: fileData,
-            ContentType: file.mimetype,
-            ACL: 'public-read',
-            ContentDisposition: 'inline',
-            CreateBucketConfiguration: {
-                LocationConstraint: this.s3Region,
-            },
-        };
-        try {
-            const data = await this.s3.upload(uploadParams).promise();
-            if (!data) {
-                throw new Error('Upload image is failed')
-            }
-            return {
-                status: 201,
-                message: "Upload image is success"
-            }
-        } catch (err) {
-            console.log(err)
-            return {
-                status: 400,
-                message: err
-            }
+        return {
+            status: 201,
+            message: "Upload image is success"
         }
     }
 }
