@@ -16,7 +16,6 @@ const Home = () => {
             console.log(data)
         })
         socket.on('s_g_r_friend', (data: any) => {
-            console.log(data)
             if (account && friendPending && data.idFriend === account.idUser) {
                 setFriendPending([...friendPending, data])
                 toast.success(`${data.friend.name} sent you a friend request`)
@@ -28,9 +27,6 @@ const Home = () => {
             socket.off('s_g_r_friend')
         }
     }, [account, friendPending])
-    useEffect(() => {
-        friendPending && console.log(friendPending)
-    }, [friendPending])
     return account ? <div className='w-full h-screen overflow-hidden grid grid-cols-8 gap-2 py-1 px-2'>
         <User />
         <Chat />

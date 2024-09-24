@@ -53,7 +53,7 @@ export const addFriend = async (token: string, data: FriendRequest) => {
         .then((res) => res.json())
 }
 
-export const friendUpdate = async (data: { [key: string]: string | Date | number | {} }) => {
+export const friendUpdate = async (data: { [key: string]: string | Date | number | any }) => {
     return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend`, {
         method: "PATCH",
         headers: {

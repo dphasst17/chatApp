@@ -8,18 +8,18 @@ interface MessageProps {
     time?: string
     reverse: boolean,
     truncate?: boolean,
-    online?: boolean
+    onClick?: () => void
 }
-const Message = ({ classContent, title, avatar, content, reverse, truncate, online }: MessageProps) => {
-    return <div className={classContent}>
-        <div className={`w-full h-full grid grid-cols-12 p-1 justify-center`}>
-            <div className={`col-span-2 ${reverse ? 'order-2' : 'order-1'} flex justify-center items-center`}>
-                <Avatar isBordered color={online ? 'success' : 'default'} alt={`avatar-${title}`} src={avatar} size='md' radius="sm" />
+const Message = ({ onClick, classContent, title, avatar, content, reverse, truncate, time }: MessageProps) => {
+    return <div onClick={onClick} className={classContent}>
+        <div className={`w-full h-full grid grid-cols-10 gap-1 p-1 justify-center`}>
+            <div className={`col-span-1 ${reverse ? 'order-2' : 'order-1'} flex justify-center items-center`}>
+                <Avatar alt={`avatar-${title}`} src={avatar} size='md' radius="sm" />
             </div>
-            <div className={`cursor-pointer col-span-10 ${reverse ? 'order-1' : 'order-2'}`}>
-                <Code className="w-full h-full !text-white">
-                    <p>{title}</p>
-                    <p className={`${truncate ? 'truncate' : ''}`}>{content}</p>
+            <div className={`cursor-pointer col-span-9 ${reverse ? 'order-1' : 'order-2'}`}>
+                <Code className="w-full h-auto !text-white">
+                    <p className="text-zinc-300 text-[13px]">{title} {time ? `- ${time}` : ''}</p>
+                    <p className={`${truncate ? 'truncate' : ''}`} dangerouslySetInnerHTML={{ __html: content }} />
                 </Code>
             </div>
         </div>

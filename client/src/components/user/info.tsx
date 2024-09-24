@@ -9,18 +9,18 @@ import { useRouter } from 'next/navigation'
 import { friendRemove, friendUpdate, searchUser } from '@/api/account'
 import { Friend, Search } from '@/interface/account'
 import socket from '@/utils/socket'
-import FriendConfirm from '../modal/friend.confirm'
 import SearchModal from '../modal/search'
+import FriendList from '../modal/friend.list'
 /* import { toast } from 'react-toastify' */
 
 const UserInfo = () => {
     const { setIsLog } = use(StateContext)
-    const { account, friend, friendPending, setAccount, setFriendPending } = accountStore()
+    const { account, friend, friendPending, setAccount, setFriendPending, setFriend } = accountStore()
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [search, setSearch] = useState<string>('')
     const [searchData, setSearchData] = useState<Search[] | null>(null)
     const { isOpen: isOpenModal, onOpen, onClose, onOpenChange } = useDisclosure()
-    /* const [modal, setModal] = useState<string>('') */
+    const [modal, setModal] = useState<string>('')
     const router = useRouter()
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
     let timeout: any = null
@@ -56,7 +56,8 @@ const UserInfo = () => {
                 .then((res) => {
                     if (res.status === 200) {
                         const dataFriend = friendPending && friendPending.filter((f: Friend) => f._id === id)[0]
-                        friend && dataFriend && setFriendPending(friendPending.filter((f: Friend) => f._id !== id))
+                        friend && dataFriend && setFriend([...friend, dataFriend]);
+                        dataFriend && setFriendPending(friendPending.filter((f: Friend) => f._id !== id))
                     }
                 })
         }
@@ -74,8 +75,8 @@ const UserInfo = () => {
         <div className='w-4/5 h-full flex flex-col items-center justify-center'>
             <div className='info w-full grid grid-cols-9 gap-x-2 mb-1 px-1'>
                 <p className='col-span-6 truncate text-lg font-semibold'>{account.name}</p>
-                <UserEdit className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
-                <GroupLine className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <Popover>
                     <PopoverTrigger>
                         <div className='col-span-1 rounded-md cursor-pointer'>
@@ -119,7 +120,7 @@ const UserInfo = () => {
                             </div>
                         </div>)}
                         {searchData && searchData.length > 1 && <div className='w-full flex justify-center'>
-                            <Button onPress={onOpen} size="sm" className='!mx-auto mt-1 mb-4'>Show all</Button>
+                            <Button onPress={() => { setModal('search'), onOpen() }} size="sm" className='!mx-auto mt-1 mb-4'>Show all</Button>
                         </div>}
                     </div>}
                 </div>
@@ -127,7 +128,8 @@ const UserInfo = () => {
             </div>
         </div>
         <Modal isOpen={isOpenModal} onOpenChange={onOpenChange} size="3xl">
-            <SearchModal data={searchData} onClose={onClose} />
+            {modal === 'search' && <SearchModal data={searchData} setModal={setModal} onClose={onClose} />}
+            {modal === 'friend' && <FriendList setModal={setModal} onClose={onClose} />}
         </Modal>
     </div >
 }

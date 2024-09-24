@@ -1,5 +1,5 @@
 'use client'
-import UserFriend from '@/components/user/friend'
+import ListChat from '@/components/user/chat'
 import UserInfo from '@/components/user/info'
 import React from 'react'
 
@@ -9,7 +9,7 @@ const User = () => {
             <UserInfo />
         </div>
         <div className='friend h-[84vh] py-1'>
-            <UserFriend />
+            <ListChat />
         </div>
     </div>
 

@@ -25,12 +25,12 @@ const SearchModal = ({ data, setModal, onClose }: { data: any, setModal?: React.
             created_at: new Date(),
             updated_at: new Date(),
         }
-        const info = {
-            avatar: account?.avatar!,
-            name: account?.name!,
-            online: account?.online!
+        const info = account && {
+            avatar: account?.avatar,
+            name: account?.name,
+            online: account?.online
         }
-        account && token && addFriend(token, { data, info }).then((res) => {
+        info && token && addFriend(token, { data, info }).then((res) => {
             if (res.status === 201) {
                 toast.success(res.message)
                 /* friendPending && setFriendPending([...friendPending, res.data]) */
@@ -62,9 +62,6 @@ const SearchModal = ({ data, setModal, onClose }: { data: any, setModal?: React.
                 }
             })
     }
-    useEffect(() => {
-        console.log(friendList)
-    }, [friendList])
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
     return <ModalContent>
         <ModalHeader>Friend Request</ModalHeader>
