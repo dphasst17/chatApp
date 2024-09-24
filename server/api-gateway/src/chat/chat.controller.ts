@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Response } from 'express';
 import { firstValueFrom } from 'rxjs';
@@ -28,8 +28,13 @@ export class ChatController {
     }
 
     @Get(':id')
-    async getChatDetail(@Param('id') idChat: string, @Res() res: Response) {
-        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail' }, idChat))
+    async getChatDetail(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 100,
+        @Param('id') idChat: string,
+        @Res() res: Response
+    ) {
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail' }, { idChat, page, limit }))
         return res.status(result.status).json(result)
     }
     @Post('')
@@ -38,9 +43,25 @@ export class ChatController {
         return res.status(create.status).json(create)
     }
     @Post(':id')
-    async chatInsert(@Param('id') idChat: string, @Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+    async chatInsert(
+        @Param('id') idChat: string,
+        @Res() res: Response,
+        @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
         const insert = await firstValueFrom(this.natsClient.send({ cmd: 'chat_insert' }, { ...data, sender: req.idUser, idChat }))
         this.socketGateway.emitData('s_g_r_chat', { ...insert.data, idChat })
+        return res.status(insert.status).json(insert)
+    }
+    @Post('images/:id')
+    async chatImages(@Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const idUser = req.idUser
+        const idChat = req.params.id
+        const convertData = {
+            images: data.images,
+            idUser,
+            idChat,
+            name: data.name
+        }
+        const insert = await firstValueFrom(this.natsClient.send({ cmd: 'chat_images' }, convertData))
         return res.status(insert.status).json(insert)
     }
     @Patch(':id')
