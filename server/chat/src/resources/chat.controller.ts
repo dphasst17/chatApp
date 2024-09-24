@@ -1,6 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { ChatRequest } from 'src/chat.interface';
 
 @Controller('chat')
 export class ChatController {
@@ -25,8 +26,8 @@ export class ChatController {
     }
 
     @EventPattern({ cmd: 'get_chat_detail' })
-    async getChatDetail(idChat: string, page: number, limit: number) {
-        return await this.chatService.getChatDetail(idChat, page, limit)
+    async getChatDetail(data: { idChat: string, page: number, limit: number }) {
+        return await this.chatService.getChatDetail(data.idChat, data.page, data.limit)
     }
 
     @EventPattern({ cmd: 'chat_update' })
@@ -34,7 +35,11 @@ export class ChatController {
         return await this.chatService.chatUpdate(id, data)
     }
     @EventPattern({ cmd: 'chat_insert' })
-    async chatInsert(data: any) {
+    async chatInsert(data: ChatRequest) {
         return await this.chatService.chatInsert(data)
+    }
+    @EventPattern({ cmd: 'chat_images' })
+    async chatImages(data: { images: string[], idChat: string, idUser: string, name: string }) {
+        return await this.chatService.chatImages(data)
     }
 }

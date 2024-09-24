@@ -1,6 +1,7 @@
 export interface ChatRequest {
     _id?: string
-    sender: string
+    idChat: string
+    sender?: string
     message: string
     emoji: any
     date: Date

@@ -4,8 +4,6 @@ export type ChatDocument = HydratedDocument<Chat>;
 @Schema({ collection: 'chat', versionKey: false })
 export class Chat extends Document {
     @Prop({ required: true })
-    _id: string
-    @Prop({ required: true })
     idChat: string
     @Prop({ required: true })
     sender: string
@@ -18,8 +16,8 @@ export class Chat extends Document {
     @Prop({ required: true })
     date: Date
     @Prop({ required: true })
-    time: Date
-    @Prop({ required: true })
+    time: string
+    @Prop({ required: false })
     status: string
 }
 @Schema({ collection: 'chat-info', versionKey: false })
@@ -46,15 +44,15 @@ export class ChatInfo {
 @Schema({ collection: 'chat-image', versionKey: false })
 export class ChatImage {
     @Prop({ required: true })
-    _id: string
-    @Prop({ required: true })
     idChat: string
     @Prop({ required: true })
     idUser: string
     @Prop({ required: true })
+    name: string
+    @Prop({ required: true })
     image: string
     @Prop({ required: true })
-    date: string
+    date: Date
 
 }
 

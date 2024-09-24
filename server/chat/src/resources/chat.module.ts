@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatInfoSchema, ChatSchema } from 'src/chat.schema';
+import { ChatImageSchema, ChatInfoSchema, ChatSchema } from 'src/chat.schema';
 import { ChatRepository } from './chat.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NatsClientModule } from 'src/nats-client/nats-client.module';
@@ -13,7 +13,7 @@ import { NatsClientModule } from 'src/nats-client/nats-client.module';
   imports: [
     MongooseModule.forFeature([{ name: 'chat', schema: ChatSchema }]),
     MongooseModule.forFeature([{ name: 'chat-info', schema: ChatInfoSchema }]),
-    MongooseModule.forFeature([{ name: 'chat-image', schema: ChatInfoSchema }]),
+    MongooseModule.forFeature([{ name: 'chat-image', schema: ChatImageSchema }]),
     ClientsModule.register([
       {
         name: 'CHAT_SERVICE',

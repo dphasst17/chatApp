@@ -38,21 +38,31 @@ export class ChatRepository {
             },
             {
                 $addFields: {
-                    lastMessage: { $ifNull: [{ $arrayElemAt: ['$lastMessage', 0] }, null] }
+                    lastMessage: { $ifNull: [{ $arrayElemAt: ['$lastMessage', -1] }, null] }
                 }
             }
         ]);
         return data;
-
     }
-
+    async getCountChatDetail(idChat: string) {
+        const data = await this.chat.aggregate([
+            { $match: { idChat: idChat } },
+            { $count: "count" }
+        ])
+        return data
+    }
     async getChatDetail(id: string, page: number, limit: number) {
-        const getData = await this.chatInfo.findById({ _id: id }).skip(page * limit).limit(limit)
-        return getData
+        const getData = await this.chat.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+        return getData.reverse()
     }
+
 
     async chatUpdate(id: string, data: { [key: string]: string | number | boolean | [] | {} }) {
         return this.chat.findByIdAndUpdate({ _id: id }, data)
     }
 
+    async chatImages(data: ChatImage[]) {
+        const insert = await this.chatImage.insertMany(data)
+        return insert
+    }
 }
