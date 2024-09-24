@@ -33,6 +33,13 @@ services:
     env_file:
      - .env
     command: npm run start:dev
+  images_service:
+    build: ./images
+    volumes:
+      - ./images:/app/
+    env_file:
+     - .env
+    command: npm run start:dev
   nats:
     image: nats
     ports:
