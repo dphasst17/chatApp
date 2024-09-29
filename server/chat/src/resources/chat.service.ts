@@ -43,16 +43,49 @@ export class ChatService {
             const data = await this.chatRepository.getChatByUser(idUser)
             const result = await Promise.all(
                 data.map(async (item: any) => {
-                    const name = await this.getUserInfo(item.user[0], 'name');
-                    const avatar = await this.getUserInfo(item.user[0], 'avatar');
+                    const id = item.user.filter((u: string) => u !== idUser)[0];
+                    const name = id && await this.getUserInfo(id, 'name');
+                    const avatar = id && await this.getUserInfo(id, 'avatar');
                     return {
                         ...item,
-                        name: name,
-                        avatar: avatar
+                        lastMessage: item.lastMessage
+                            ? (item.lastMessage.message.includes('<p') ? item.lastMessage.message : 'Images')
+                            : (item.type === "group" ? `<p class="text-zinc-300">${item.notification}</p>` : '<p class="text-zinc-300">No message</p>'),
+                        name: item.name ? item.name : name,
+                        avatar: item.avatar ? item.avatar : avatar
                     };
                 })
             );
-
+            return { status: 200, data: result }
+        }
+        catch (error) {
+            return { status: 500, message: error }
+        }
+    }
+    async getChatDetailInfo(idChat: string) {
+        try {
+            const data = await this.chatRepository.getChatDetailInfo(idChat)
+            const result = {
+                _id: data._id,
+                name: data.name,
+                avatar: data.avatar,
+                createdAt: data.created_at,
+                updatedAt: data.updated_at,
+                time: data.time,
+                type: data.type,
+                notification: data.notification,
+                user: data.type === "group" ? data.user : await Promise.all(
+                    data.user.map(async (idUser: string) => {
+                        const name = await this.getUserInfo(idUser, 'name');
+                        const avatar = await this.getUserInfo(idUser, 'avatar');
+                        return {
+                            idUser: idUser,
+                            name: name,
+                            avatar: avatar
+                        }
+                    })
+                )
+            }
             return { status: 200, data: result }
         }
         catch (error) {
@@ -60,20 +93,58 @@ export class ChatService {
         }
     }
     async getChatDetail(idChat: string, page: number, limit: number) {
-        const count = await this.chatRepository.getCountChatDetail(idChat)
+        const count = await this.chatRepository.getCountChatDetail(idChat, "chat")
         const result = await this.chatRepository.getChatDetail(idChat, page, limit)
         return {
             status: 200, data: {
-                total: count[0].count,
-                data: result
+                total: count ? count[0]?.count : 0,
+                data: result ? result : []
             }
         }
     }
-    async chatUpdate(id: string, data: any) {
-        const update = await this.chatRepository.chatUpdate(id, data)
-        return { status: 200, message: "Update chat is success" }
+    async getChatImageById(idChat: string, page: number, limit: number) {
+        const count = await this.chatRepository.getCountChatDetail(idChat, "image")
+        const result = await this.chatRepository.getChatImageById(idChat, page, limit)
+        return {
+            status: 200, data: {
+                total: count ? count[0]?.count : 0,
+                data: result
+            }
+        }
+
     }
 
+    /* 
+        body data for reaction message:
+        {
+            type?: string
+            detail?: this is old array emoji [
+                {
+                    emoji?: string
+                    idUser?: string
+                },...
+            ]
+            emoji?: string
+        }
+    */
+    async chatUpdate(id: string, idUser: string, data: any) {
+        const convertData = data.type === "chat" && [
+            ...data.detail,
+            {
+                emoji: data.emoji,
+                idUser: idUser
+            }
+        ]
+        const query = data.type === "chat" ? this.chatRepository.chatUpdate(id, { emoji: convertData }) : this.chatRepository.chatInfoUpdate(id, data)
+        const update = await query
+        if (!update) {
+            return {
+                status: 400,
+                message: "Update chat is failed"
+            }
+        }
+        return { status: 200, message: "Update chat is success", data: data.type === "chat" ? convertData : update }
+    }
     async chatImages(data: { images: string[], idChat: string, idUser: string, name: string, }) {
         const convertData = data.images.map((item: any) => {
             return {
@@ -84,7 +155,6 @@ export class ChatService {
                 date: new Date()
             }
         })
-        console.log("start")
         const insert = await this.chatRepository.chatImages(convertData)
         return { status: 201, data: insert }
     }

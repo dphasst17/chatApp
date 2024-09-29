@@ -11,9 +11,7 @@ export class UserController {
     ) { }
     @EventPattern({ cmd: 'user_index' })
     async index(data?: string) {
-        console.log(data)
-        return this.userService.index()/* "User service is up and running!"; */
-        /* return this.userService.index() */
+        return this.userService.index()
     }
     @EventPattern({ cmd: 'user_create' })
     async create(data: { [key: string]: string | number | Date }): Promise<boolean> {
@@ -24,7 +22,7 @@ export class UserController {
     async search(key: string) {
         return this.userService.search(key)
     }
-
+    //get info user with id user and return name,avatar and idUser
     @EventPattern({ cmd: 'user_get_info' })
     async getInfo(value: { idUser: string, rValue: string }) {
         const result = await this.userService.getInfo(value.idUser)
@@ -35,7 +33,7 @@ export class UserController {
     async update({ idUser, data }: { idUser: string, data: { [key: string]: string | number | boolean | any } }): Promise<{ status: number, message: string }> {
         return this.userService.update(idUser, data)
     }
-
+    //get info user when login or user access the website
     @EventPattern({ cmd: 'user_get' })
     async getData(idUser: string) {
         return this.userService.getData(idUser)

@@ -8,7 +8,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
                 name: 'NATS_SERVICE',
                 transport: Transport.NATS,
                 options: {
-                    servers: ['nats://nats'],
+                    servers: [`nats://${process.env.NATS_URL ? process.env.NATS_URL : 'nats'}`],
                 },
             },
         ]),
@@ -19,7 +19,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
                 name: 'NATS_SERVICE',
                 transport: Transport.NATS,
                 options: {
-                    servers: ['nats://nats'],
+                    servers: [process.env.NATS_URL],
                 },
             },
         ]),

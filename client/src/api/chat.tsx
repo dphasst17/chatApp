@@ -23,8 +23,16 @@ export const createChat = async (token: string, data: { [key: string]: string | 
     })
         .then(res => res.json())
 }
-export const getChatById = async (id: string, page: number = 1, limit: number = 100) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page}&limit=${limit}`)
+export const getChatInfoById = async (id: string) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/info/${id}`)
+        .then(res => res.json())
+}
+export const getChatById = async (id: string, page?: number, limit?: number) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page ? page : 1}&limit=${limit ? limit : 100}`)
+        .then(res => res.json())
+}
+export const getChatImageById = async (id: string, page?: number, limit?: number) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/image/${id}?page=${page ? page : 1}&limit=${limit ? limit : 20}`)
         .then(res => res.json())
 }
 export const insertChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {
@@ -49,8 +57,8 @@ export const updateChat = async (token: string, id: string, data: { [key: string
     })
         .then(res => res.json())
 }
-export const uploadImages = async (files: FormData) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/chat`, {
+export const uploadImages = async (files: FormData, folder?: string) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/${folder ? folder : "chat"}`, {
         method: "POST",
         body: files
     })

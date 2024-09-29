@@ -10,20 +10,6 @@ export class ImagesService {
     })
     s3Region = process.env.AWS_REGION
 
-    /* async upload(data: any) {
-        const params = {
-            Bucket: this.bucket,
-            Key: data.key,
-            Body: data.buffer
-        };
-        try {
-            await this.s3.upload(params).promise();
-            return true;
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    } */
 
     async delete(key: string) {
         const params = {

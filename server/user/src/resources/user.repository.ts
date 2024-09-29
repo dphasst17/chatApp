@@ -68,7 +68,6 @@ export class UserRepository {
         return create
     }
     async updateFriend(id: string, data: { [key: string]: string }) {
-        console.log(id, data)
         return await this.friend.findByIdAndUpdate(id, data)
     }
     async removeFriend(id: string) {

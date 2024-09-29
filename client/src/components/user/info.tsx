@@ -11,7 +11,6 @@ import { Friend, Search } from '@/interface/account'
 import socket from '@/utils/socket'
 import SearchModal from '../modal/search'
 import FriendList from '../modal/friend.list'
-/* import { toast } from 'react-toastify' */
 
 const UserInfo = () => {
     const { setIsLog } = use(StateContext)
@@ -35,6 +34,7 @@ const UserInfo = () => {
         remove('c-log')
         setIsLog(false)
         setAccount(null)
+        account && socket.emit('u_disconnect', account.idUser)
         router.push('/auth')
     }
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,10 +107,10 @@ const UserInfo = () => {
                 </Popover>
             </div>
             <div className='icon w-full grid grid-cols-6 gap-x-2 px-1'>
-                <div className='relative col-span-5'>
+                <div className='relative col-span-5 '>
                     <Input onChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' defaultValue={search}
                         endContent={<SearchIcon className='w-6 h-6 cursor-pointer  rounded-md' />} />
-                    {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[250px] bg-zinc-800 rounded-md'>
+                    {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] bg-zinc-800 rounded-md z-40'>
                         <Button size="sm" isIconOnly color='danger' className='m-1' onClick={() => { setSearch(''); setIsOpen(false) }}>X</Button>
                         {!searchData && <p className='text-center'>No data result</p>}
                         {searchData && searchData.slice(0, 5).map((s: Search) => <div className='w-[95%] h-[50px] grid grid-cols-5 mx-auto my-2 rounded-md hover:bg-zinc-700 cursor-pointer transition-all' key={`search-${s._id}`}>

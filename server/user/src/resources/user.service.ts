@@ -31,6 +31,7 @@ export class UserService {
     }
     async getData(idUser: string) {
         const data = await this.userRepository.getData(idUser)
+        const update = await this.userRepository.update(idUser, { online: true })
         if (!data) {
             return { status: 404, message: "User not found" }
         }

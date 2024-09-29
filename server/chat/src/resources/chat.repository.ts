@@ -1,5 +1,6 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { skip } from "node:test";
 import { ChatInfoRequest, ChatRequest } from "src/chat.interface";
 import { Chat, ChatImage, ChatInfo } from "src/chat.schema";
 
@@ -15,7 +16,7 @@ export class ChatRepository {
     async createChat(data: ChatInfoRequest) {
         const getChatInfo = await this.chatInfo.find({ user: data.user }).exec();
         if (getChatInfo.length > 0) {
-            return getChatInfo
+            return getChatInfo[0]
         }
         const chatInfo = await this.chatInfo.create(data);
         return chatInfo;
@@ -27,7 +28,6 @@ export class ChatRepository {
     async getChatByUser(idUser: string) {
         const data = await this.chatInfo.aggregate([
             { $match: { user: { $in: [idUser] } } },
-            { $sort: { created_at: -1 } },
             {
                 $lookup: {
                     from: 'chat',
@@ -40,12 +40,26 @@ export class ChatRepository {
                 $addFields: {
                     lastMessage: { $ifNull: [{ $arrayElemAt: ['$lastMessage', -1] }, null] }
                 }
-            }
+            },
+            // Thêm một trường mới "sortField" để sử dụng trong $sort
+            {
+                $addFields: {
+                    sortField: {
+                        $cond: {
+                            if: { $eq: ['$lastMessage', null] }, // Nếu lastMessage là null
+                            then: '$created_at', // Lấy created_at của chính đối tượng chatInfo
+                            else: '$lastMessage.date'  // Ngày từ lastMessage
+                        }
+                    }
+                }
+            },
+            // Sắp xếp theo sortField
+            { $sort: { sortField: -1, _id: -1 } } // Sort theo created_at giảm dần
         ]);
         return data;
     }
-    async getCountChatDetail(idChat: string) {
-        const data = await this.chat.aggregate([
+    async getCountChatDetail(idChat: string, type: "chat" | "image") {
+        const data = await (type === "chat" ? this.chat : this.chatImage).aggregate([
             { $match: { idChat: idChat } },
             { $count: "count" }
         ])
@@ -55,12 +69,25 @@ export class ChatRepository {
         const getData = await this.chat.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
         return getData.reverse()
     }
-
-
-    async chatUpdate(id: string, data: { [key: string]: string | number | boolean | [] | {} }) {
-        return this.chat.findByIdAndUpdate({ _id: id }, data)
+    async getChatImageById(id: string, page: number, limit: number) {
+        const data = await this.chatImage.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+        return data
+    }
+    async getChatDetailInfo(idChat: string) {
+        const data = await this.chatInfo.findById({ _id: idChat })
+        return data
     }
 
+    async chatUpdate(_id: string, data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const update = await this.chat.findByIdAndUpdate(_id, data)
+        if (!update) {
+            return false
+        }
+        return update
+    }
+    async chatInfoUpdate(_id: string, data: { [key: string]: string | number | boolean | [] | {} }) {
+        return await this.chatInfo.findByIdAndUpdate(_id, data)
+    }
     async chatImages(data: ChatImage[]) {
         const insert = await this.chatImage.insertMany(data)
         return insert

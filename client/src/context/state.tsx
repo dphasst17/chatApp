@@ -7,13 +7,15 @@ export const StateContext = createContext<any>({});
 export const StateProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLog, setIsLog] = useState<boolean>(false)
     const [chat, setChat] = useState<ChatDetailInfo | null>(null)
+    const [currentId, setCurrentId] = useState<string>('')
     useEffect(() => {
         setIsLog(JSON.parse(get('c-log') || 'false'))
     }, [])
     return (
         <StateContext.Provider value={{
             isLog, setIsLog,
-            chat, setChat
+            chat, setChat,
+            currentId, setCurrentId
         }}>
             {children}
         </StateContext.Provider>

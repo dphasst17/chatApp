@@ -18,3 +18,99 @@ body {
   background: #454b5a;
   font-family: Arial, Helvetica, sans-serif;
 }
+*::-webkit-scrollbar {
+  width: 4px; 
+}
+
+*::-webkit-scrollbar-track {
+background-color: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+background: #00afce;
+border-radius: 0px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+/* MOZILLA FIREFOX */
+*::-moz-scrollbar {
+  width: 4px; 
+}
+
+*::-moz-scrollbar-track {
+  background-color: #ffffff;
+}
+
+*::-moz-scrollbar-thumb {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-moz-scrollbar-thumb:hover {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-moz-scrollbar-thumb:active {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+
+/* MICROSOFT INTERNET EXPLORER */
+*::-ms-scrollbar {
+  width: 4px; 
+}
+
+*::-ms-scrollbar-track {
+background-color: #ffffff;
+}
+
+*::-ms-scrollbar-thumb {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-ms-scrollbar-thumb:hover {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-ms-scrollbar-thumb:active {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+/* OPERA */
+*::-o-scrollbar {
+  width: 4px; 
+}
+
+*::-o-scrollbar-track {
+background-color: #ffffff;
+}
+
+*::-o-scrollbar-thumb {
+background: #00afce;
+border-radius: 4px;
+}
+
+*::-o-scrollbar-thumb:hover {
+  background: #00afce;
+  border-radius: 4px;
+}
+
+*::-o-scrollbar-thumb:active {
+  background: #00afce;
+  border-radius: 4px;
+}
+

@@ -1,9 +1,9 @@
-import { getChatById, insertChat, insertImages, uploadImages } from '@/api/chat'
+import { getChatById, getChatImageById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat'
 import { StateContext } from '@/context/state'
 import React, { use, useEffect, useRef, useState } from 'react'
-import { EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, TagMore } from '../icon/icon';
+import { EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';
 import EmptyChat from './emptyChat'
-import { Button } from '@nextui-org/react'
+import { Button, Tooltip } from '@nextui-org/react'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { getToken } from '@/utils/cookie';
 import { Chat, ChatByUser } from '@/interface/chat';
@@ -13,10 +13,9 @@ import { accountStore } from '@/stores/account';
 import socket from '@/utils/socket';
 import { chatStore } from '@/stores/chat';
 const ChatDetail = () => {
-    const { chat } = use(StateContext)
+    const { chat, currentId, setCurrentId } = use(StateContext)
     const { account } = accountStore()
     const { list, setList } = chatStore()
-    const [currentId, setCurrentId] = useState<string>('')
     const [data, setData] = useState<Chat[] | null>(null);
     const [count, setCount] = useState<{ total: number, totalPage: number, read: number }>({ total: 0, totalPage: 0, read: 0 })
     const [showPicker, setShowPicker] = useState(false);
@@ -27,7 +26,7 @@ const ChatDetail = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     const handleFetchChat = (firstFetch: boolean, data?: Chat[], page?: number, limit?: number) => {
-        getChatById(chat._id, page || 1, limit || 100)
+        getChatById(chat._id, page || 1, limit || 20)
             .then(res => {
                 firstFetch && res.status === 200 && setData(res.data.data)
                 !firstFetch && data && res.status === 200 && setData([...res.data.data, ...data])
@@ -56,7 +55,6 @@ const ChatDetail = () => {
         for (let i = 0; i < arrFile.length; i++) {
             dataImages.append('files', arrFile[i])
         }
-
         uploadImages(dataImages)
             .then(res => {
                 if (res.status === 201) {
@@ -87,12 +85,15 @@ const ChatDetail = () => {
                                 if (res.status === 201) {
                                     data && setData([...data, res.data])
                                     scrollToBottom()
-                                    list && setList(list.map((c: ChatByUser) => {
-                                        return {
-                                            ...c,
-                                            lastMessage: c._id === chat._id ? res.data : c.lastMessage
-                                        }
-                                    }))
+
+                                    const currentChat = list && list.filter((c: ChatByUser) => c._id === chat._id)
+                                    const newChat = list && list.filter((c: ChatByUser) => c._id !== chat._id)
+                                    currentChat && newChat && setList([{
+                                        ...currentChat[0],
+                                        lastMessage: dataMessage.message
+                                    }, ...newChat])
+
+
                                 }
                             })
                     }
@@ -115,26 +116,26 @@ const ChatDetail = () => {
                 if (res.status === 201) {
                     data && setData([...data, res.data])
                     scrollToBottom()
-                    list && setList(list.map((c: ChatByUser) => {
-                        return {
-                            ...c,
-                            lastMessage: c._id === chat._id ? res.data : c.lastMessage
-                        }
-                    }))
+                    const currentChat = list && list.filter((c: ChatByUser) => c._id === chat._id)
+                    const newChat = list && list.filter((c: ChatByUser) => c._id !== chat._id)
+                    currentChat && newChat && setList([{
+                        ...currentChat[0],
+                        lastMessage: dataMessage.message
+                    }, ...newChat])
                     setValue('')
                 }
             })
     }
+
     const handleScroll = () => {
         if (chatContainerRef.current) {
             const { scrollTop } = chatContainerRef.current;
             if (scrollTop === 0) {
-                const limit = 100
+                const limit = 20
                 const readPage = Math.ceil(count.read / limit)
                 const unread = count.total - count.read
                 unread !== 0 && data && getChatById(chat._id, readPage + 1, limit)
                     .then(res => {
-                        console.log(res.data.data)
                         data && res.status === 200 && setData([...res.data.data, ...data])
                         res.status === 200 && setCount({
                             total: count.total,
@@ -145,16 +146,45 @@ const ChatDetail = () => {
             }
         }
     };
+    const handleReaction = async (emoji: EmojiClickData, id: string, arrayEmoji?: any[]) => {
+        const dataUpdate = {
+            type: "chat",
+            emoji: emoji.emoji,
+            detail: arrayEmoji,
+        }
+        const token = await getToken()
+        updateChat(token, id, dataUpdate)
+            .then(res => {
+                if (res.status === 200) {
+
+                    socket.emit('reaction', {
+                        _id: id,
+                        idChat: chat._id,
+                        emoji: res.data
+                    })
+                }
+            })
+    }
+    //this is function for socket
     useEffect(() => {
         socket.on('s_g_r_chat', (message: any) => {
             if (message.idChat !== chat._id) return
             data && setData([...data, message])
         })
+        socket.on('s_g_r_reaction', (value: { _id: string, idChat: string, emoji: any[] }) => {
+            if (chat && value.idChat !== chat._id) return
+            data && setData(data.map((d: any) => {
+                return d._id !== value._id ? d : {
+                    ...d,
+                    emoji: value.emoji
+                }
+            }))
+        })
         return () => {
             socket.off('s_g_r_chat')
         }
-    }, [data])
-    return <section className='relative w-full h-[89%] rounded-md flex flex-col justify-between'>
+    }, [data, chat])
+    return <section className='relative w-full h-[90%] rounded-md flex flex-col justify-between'>
         <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 bg-zinc-950 bg-opacity-70 rounded-md overflow-auto'>
             {data && data.length === 0 && <div className="my-auto text-white flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -164,19 +194,48 @@ const ChatDetail = () => {
                 </p>
             </div>}
             {
-                account && data && data.length > 0 && data.map((c: Chat) => <div className={`w-full h-auto my-2 flex ${c.sender === account.idUser ? 'justify-end' : 'justify-start'}`} key={c._id}>
-                    <Message reverse={c.sender === account.idUser}
-                        classContent={`w-auto max-w-[70%] h-auto min-h-[20px] ${c.sender === account.idUser ? '' : ''}`}
-                        title={c.sender === account.idUser ? 'You' : 'Contact Name'} avatar={c.sender === account.idUser ? account.avatar : ''}
-                        content={c.message}
-                        time={formatDate(c.time)} />
+                account && data && data.length > 0 && data.map((c: Chat) => <div className={`relative w-full h-auto my-2 flex ${c.sender === account.idUser ? 'justify-end' : 'justify-start'}`} key={c._id}>
+                    <div className='w-auto max-w-[70%] h-auto min-h-[20px]'>
+                        <Message reverse={c.sender === account.idUser}
+                            classContent={`w-full h-auto min-h-[20px] ${c.sender === account.idUser ? '' : ''} my-4`}
+                            title={c.sender === account.idUser ? 'You' : 'Contact Name'} avatar={c.sender === account.idUser ? account.avatar : ''}
+                            content={c.message}
+                            time={formatDate(c.time)}
+                        />
+                        {c.emoji.map((e: any) => e.idUser).filter((e: any) => e.includes(account.idUser)).length === 0 ? <>
+                            <Tooltip
+                                placement={c.sender === account.idUser ? 'top-end' : 'top-start'}
+                                content={
+                                    <EmojiPicker reactions={['2764-fe0f', '1f44d', '1f44e', '1f621', '1f604', '1f622', '1f44c', '1f44b']} reactionsDefaultOpen={true}
+                                        onReactionClick={(e: EmojiClickData) => handleReaction(e, c._id as string, c.emoji)} />
+                                }>
+                                <div
+                                    className={`block absolute -bottom-1 ${c.sender === account.idUser ? 'right-12' : 'left-12'} w-6 cursor-pointer rounded-md bg-zinc-500 transition-all`}>
+                                    <ReactionIcon className="w-5 h-5 mx-auto" />
+                                </div>
+                            </Tooltip>
+                            <div
+                                className={`block absolute -bottom-2 ${c.sender === account.idUser ? 'right-20' : 'left-20'} 
+                            w-6 flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
+                                {c.emoji.map((e: any) => e.emoji)}
+                            </div>
+                        </>
+                            : <div
+                                className={`block absolute -bottom-2 ${c.sender === account.idUser ? 'right-12' : 'left-12'} w-auto flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
+                                {new Set(c.emoji.map((e: any) => e.emoji))}
+                            </div>
+                        }
+
+
+                    </div>
+
                 </div>)
             }
             {!chat && <EmptyChat />}
             <div ref={messagesEndRef} />
         </div>
         {
-            chat ? <div className='message-input w-full h-[7%] grid grid-cols-12 gap-x-5 pt-2'>
+            chat ? <div className='message-input w-full h-[8%] grid grid-cols-12 gap-x-5 pt-2'>
                 <div className='col-span-2 bg-zinc-950 bg-opacity-70 rounded-md flex justify-evenly items-center'>
                     <EmojiIcon onClick={() => setShowPicker(!showPicker)} className='w-7 h-7 cursor-pointer' />
                     {<label>
@@ -198,7 +257,7 @@ const ChatDetail = () => {
                     <MessageUpload className='w-7 h-7 ' />
                 </Button>
             </div>
-                : <div className='message-input w-full h-[7%] bg-zinc-950 bg-opacity-70 rounded-md pt-2'></div>
+                : <div className='message-input w-full h-[8%] bg-zinc-950 bg-opacity-70 rounded-md pt-2'></div>
         }
     </section>
 }

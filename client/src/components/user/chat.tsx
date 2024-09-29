@@ -4,8 +4,10 @@ import { chatStore } from '@/stores/chat'
 import { Chat, ChatByUser } from '@/interface/chat'
 import { StateContext } from '@/context/state'
 import socket from '@/utils/socket'
+import { accountStore } from '@/stores/account'
 
 const ListChat = () => {
+    const { account } = accountStore()
     const { list, setList } = chatStore()
     const { setChat } = use(StateContext)
     const handleClick = (id: string, name: string, avatar: string) => {
@@ -16,27 +18,35 @@ const ListChat = () => {
         })
     }
     useEffect(() => {
+        socket.on('s_g_r_create_group', (data: any) => {
+            account && list
+                && list.filter((c: ChatByUser) => c._id === data._id).length === 0
+                && data.user.includes(account.idUser) && setList([data, ...list])
+        })
         socket.on('s_g_r_chat', (data: Chat) => {
-            list && setList(list.map((c: ChatByUser) => {
-                return {
-                    ...c,
-                    lastMessage: data.idChat === c._id ? data : c.lastMessage
-                }
-            }))
+            console.log("data", data)
+            const currentChat = list && list.filter((c: ChatByUser) => c._id === data.idChat)
+            const newChat = list && list.filter((c: ChatByUser) => c._id !== data.idChat)
+            currentChat && newChat && setList([{
+                ...currentChat[0],
+                lastMessage: data.message
+            }, ...newChat])
+
         })
         return () => {
             socket.off('s_g_r_chat')
+            socket.off('s_g_r_create_group')
         }
-    }, [list])
+    }, [list, account])
     return <div className='w-full h-full bg-zinc-950 bg-opacity-70 rounded-md'>
         <div className='w-[99%] h-full py-2 overflow-y-auto'>
-            {list && list.length > 0 ?
+            {list && list.length > 0 &&
                 list.map((c: ChatByUser) =>
-                    <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={c.user[0] === c.user[1]} classContent="w-full h-[20px]"
+                    <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="w-full h-auto"
                         title={c.name} avatar={c.avatar}
-                        content={c.lastMessage ? c.lastMessage.message.includes('<p') ? c.lastMessage.message : 'Images' : '<p class="text-zinc-300">No message</p>'} />
+                        content={c.lastMessage} />
                 )
-                : <p className='text-center text-white'>No chat</p>}
+            }
         </div>
     </div>
 }

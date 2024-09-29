@@ -11,8 +11,16 @@ export class Chat extends Document {
     replayMessage: string
     @Prop({ required: true })
     message: string
-    @Prop({ type: [String], required: false }) // Specify the type here
-    emoji: string | string[];
+    @Prop({
+        type: [
+            {
+                emoji: { type: String, required: true },
+                idUser: { type: String, required: true },
+            },
+        ],
+        required: false,
+    })// Specify the type here
+    emoji: { emoji: string, idUser: string }[] | [];
     @Prop({ required: true })
     date: Date
     @Prop({ required: true })

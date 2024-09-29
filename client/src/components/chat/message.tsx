@@ -1,5 +1,4 @@
 import { Avatar, Code } from "@nextui-org/react"
-
 interface MessageProps {
     classContent: string
     title: string
@@ -12,7 +11,7 @@ interface MessageProps {
 }
 const Message = ({ onClick, classContent, title, avatar, content, reverse, truncate, time }: MessageProps) => {
     return <div onClick={onClick} className={classContent}>
-        <div className={`w-full h-full grid grid-cols-10 gap-1 p-1 justify-center`}>
+        <div className={`relative group w-full h-full grid grid-cols-10 gap-1 p-1 justify-center`}>
             <div className={`col-span-1 ${reverse ? 'order-2' : 'order-1'} flex justify-center items-center`}>
                 <Avatar alt={`avatar-${title}`} src={avatar} size='md' radius="sm" />
             </div>

@@ -26,15 +26,30 @@ export class ChatController {
         const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_by_user' }, idUser))
         return res.status(result.status).json(result)
     }
-
+    @Get('info/:id')
+    async getChatDetailInfo(@Param('id') idChat: string, @Res() res: Response) {
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail_info' }, idChat))
+        return res.status(result.status).json(result)
+    }
     @Get(':id')
     async getChatDetail(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 100,
+        @Query('page') page: number | 1,
+        @Query('limit') limit: number | 100,
         @Param('id') idChat: string,
         @Res() res: Response
     ) {
         const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail' }, { idChat, page, limit }))
+        return res.status(result.status).json(result)
+    }
+
+    @Get('image/:id')
+    async getChatImageById(
+        @Query('page') page: number | 1,
+        @Query('limit') limit: number | 100,
+        @Param('id') idChat: string,
+        @Res() res: Response
+    ) {
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_image_by_id' }, { idChat, page, limit }))
         return res.status(result.status).json(result)
     }
     @Post('')
@@ -65,8 +80,10 @@ export class ChatController {
         return res.status(insert.status).json(insert)
     }
     @Patch(':id')
-    async chatUpdate(@Param('id') idChat: string, @Res() res: Response, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
-        const update = await firstValueFrom(this.natsClient.send({ cmd: 'chat_update' }, { ...data, _id: idChat }))
+    async chatUpdate(@Param('id') idChat: string,
+        @Req() req: RequestCustom, @Res() res: Response,
+        @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const update = await firstValueFrom(this.natsClient.send({ cmd: 'chat_update' }, { id: idChat, idUser: req.idUser, data }))
         return res.status(update.status).json(update)
     }
 }

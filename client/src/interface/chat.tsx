@@ -7,7 +7,7 @@ export interface ChatByUser {
     _id: string
     user: string[]
     type: string
-    lastMessage: Chat | null
+    lastMessage: string
     avatar: string
     name: string
     time: Date
