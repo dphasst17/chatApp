@@ -52,17 +52,23 @@ This is a chat application built with modern web technologies. The client side i
      -> api-gateway
      -> auth
      -> chat
-     -> shared
-     -> socket
+     -> images
      -> user
      -> .env
+     -> docker-compose.yml
    ```
 5. Env Server :
+
    ```bash
    NAME=name
    PASS=passwordmongo
    DATABASE=database
    SECRET=secretketJWT
+   AWS_ACCESS_KEY_ID=key
+   AWS_SECRET_ACCESS_KEY=key
+   AWS_REGION=region
+   NATS_URL=nats
+   PORT=port
    ```
 
 ## Running the Application
@@ -76,5 +82,5 @@ cd client && bun run dev
 ### Server
 
 ```bash
-cd server && docker compose up -d && docker compose logs -f api_gateway
+cd server && docker compose up -d && docker compose logs -f
 ```
