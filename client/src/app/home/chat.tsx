@@ -1,13 +1,18 @@
 'use client'
 import { getChatImageById, getChatInfoById } from '@/api/chat'
 import ChatDetail from '@/components/chat/chat'
+import ChatInfoDetail from '@/components/chat/chat.info'
 import { ChatInfo, VideoCall } from '@/components/icon/icon'
 import { StateContext } from '@/context/state'
-import { Avatar, Button, Code, Tooltip, } from '@nextui-org/react'
+import { ChatByUser } from '@/interface/chat'
+import { chatStore } from '@/stores/chat'
+import socket from '@/utils/socket'
+import { Avatar, Tooltip, } from '@nextui-org/react'
 import React, { use, useEffect, useState } from 'react'
 
 const ChatComponent = () => {
-    const { chat, currentId } = use(StateContext)
+    const { chat, setChat, currentId } = use(StateContext)
+    const { list, setList } = chatStore()
     const [dataImage, setDataImage] = useState<{ total: number, read: number, data: any[] }>({ total: 0, read: 0, data: [] })
     const [info, setInfo] = useState<any>()
     const [isInfo, setIsInfo] = useState<boolean>(false)
@@ -26,7 +31,19 @@ const ChatComponent = () => {
                     })
                 })
         )
-    }, [chat, currentId])
+        socket.on('s_g_r_chat_info', (data: { idChat: string, data: { [key: string]: string | number | boolean | [] | {} | any[] } }) => {
+            chat && chat._id === data.idChat && (
+                setChat({
+                    ...chat,
+                    ...data.data
+                }),
+                setInfo({ ...info, ...data.data })
+            )
+            list && setList(list.map((c: ChatByUser) => c._id === data.idChat ? { ...c, ...data.data } : c))
+
+
+        })
+    }, [chat, currentId, list])
     const handleLoadMoreImage = () => {
         const unread = dataImage.total - dataImage.read
         const nextPage = Math.ceil(dataImage.read / 20) + 1
@@ -53,7 +70,7 @@ const ChatComponent = () => {
                         <VideoCall className='w-10 h-10' />
                         <Tooltip placement='left-start' offset={-30} crossOffset={100} content={
 
-                            <ChatInfoDetail info={info} dataImage={dataImage} handleLoadMoreImage={handleLoadMoreImage} />
+                            <ChatInfoDetail info={info} dataImage={dataImage} handleLoadMoreImage={handleLoadMoreImage} setInfo={setInfo} />
                         }>
                             <div className='w-10 h-10 '>
                                 <ChatInfo className='w-10 h-10 cursor-pointer' onClick={() => setIsInfo(!isInfo)} />
@@ -69,30 +86,5 @@ const ChatComponent = () => {
     </div >
 }
 
-const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
-    { info: any, dataImage: { total: number, read: number, data: any[] }, handleLoadMoreImage: () => void }
-) => {
-    const { chat } = use(StateContext)
-    return chat && <section className='w-[400px] h-auto max-h-screen sm:max-h-[500px]rounded-md p-2'>
-        <div className='title w-full flex flex-col justify-center items-center'>
-            <Avatar isBordered radius='sm' alt='avatar' src={chat.avatar} size='lg' />
-            <p className='text-center text-black text-xl font-bold mt-4 mb-2'>{chat.name}</p>
-            {info.type === "individual" && <div className='memberList w-full h-auto grid grid-cols-3 gap-2 px-4'>
-                <p className='col-span-3 text-black text-xl font-bold'>Member</p>
-                {info.user.map((u: { idUser: string, name: string, avatar: string }) =>
-                    <div key={`member-${u.idUser}`} className={`h-full flex flex-col justify-center items-center`}>
-                        <Avatar key={u.idUser} isBordered radius='sm' alt='avatar' src={u.avatar} size='lg' />
-                        <Code className='my-1 cursor-pointer'>{u.name}</Code>
-                    </div>
-                )}
-            </div>}
-            <div className='imgList w-full h-auto grid grid-cols-4 gap-2 px-4'>
-                <p className='col-span-4 text-black text-xl font-bold'>Image</p>
-                {dataImage.data.map((i: any) => <img key={i._id} src={i.image} className='w-20 h-20 rounded-md cursor-pointer object-cover' />)}
-                {dataImage.total - dataImage.read > 0 && <Button className='w-full h-full rounded-md' onClick={handleLoadMoreImage}>Load more</Button>}
-            </div>
-        </div>
-    </section>
-}
 
 export default ChatComponent

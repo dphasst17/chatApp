@@ -1,27 +1,30 @@
 export interface ChatDetailInfo {
     _id: string
     name: string,
-    avatar: string
+    avatar: string,
 }
 export interface ChatByUser {
     _id: string
     user: string[]
-    type: string
+    owner?: string
+    type?: string
     lastMessage: string
     avatar: string
     name: string
-    time: Date
+    time?: Date
     created_at?: Date
     updated_at?: Date
-    notification: string
+    notification?: string
 }
 export interface Chat {
     _id?: string
     idChat: string
     sender?: string
+    name?: string
+    avatar?: string
     message: string
     emoji: any
-    date: Date
+    date: string
     time: Date
     status: string
 }

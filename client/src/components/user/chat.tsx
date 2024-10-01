@@ -14,7 +14,7 @@ const ListChat = () => {
         setChat({
             _id: id,
             name: name,
-            avatar: avatar
+            avatar: avatar,
         })
     }
     useEffect(() => {
@@ -24,7 +24,6 @@ const ListChat = () => {
                 && data.user.includes(account.idUser) && setList([data, ...list])
         })
         socket.on('s_g_r_chat', (data: Chat) => {
-            console.log("data", data)
             const currentChat = list && list.filter((c: ChatByUser) => c._id === data.idChat)
             const newChat = list && list.filter((c: ChatByUser) => c._id !== data.idChat)
             currentChat && newChat && setList([{

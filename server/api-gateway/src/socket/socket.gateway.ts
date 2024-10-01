@@ -19,6 +19,9 @@ export class SocketGateway {
     online(idUser: string) {
         this.socket.emit('s_g_r_online', idUser)
     }
+    emitData(url: string, data: any) {
+        this.socket.emit(url, data)
+    }
     @SubscribeMessage('u_create_group')
     async createGroup(client: Socket, data: any) {
         try {
@@ -43,8 +46,9 @@ export class SocketGateway {
     handleReaction(client: Socket, data: any) {
         this.socket.emit('s_g_r_reaction', data);
     }
-    emitData(url: string, data: any) {
-        this.socket.emit(url, data)
+    @SubscribeMessage('chat_info')
+    handleChangeChatInfo(client: Socket, data: any) {
+        this.socket.emit('s_g_r_chat_info', data);
     }
     @SubscribeMessage('s_g_r_checked')
     checkSocket() {

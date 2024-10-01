@@ -53,8 +53,16 @@ export class ChatRepository {
                     }
                 }
             },
-            // Sắp xếp theo sortField
-            { $sort: { sortField: -1, _id: -1 } } // Sort theo created_at giảm dần
+            { $sort: { sortField: -1, _id: -1 } },// Sort theo created_at giảm dần
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    avatar: 1,
+                    user: 1,
+                    lastMessage: 1
+                }
+            }
         ]);
         return data;
     }
@@ -66,7 +74,7 @@ export class ChatRepository {
         return data
     }
     async getChatDetail(id: string, page: number, limit: number) {
-        const getData = await this.chat.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+        const getData = await this.chat.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit).lean()
         return getData.reverse()
     }
     async getChatImageById(id: string, page: number, limit: number) {
@@ -74,7 +82,7 @@ export class ChatRepository {
         return data
     }
     async getChatDetailInfo(idChat: string) {
-        const data = await this.chatInfo.findById({ _id: idChat })
+        const data = await this.chatInfo.findById({ _id: idChat }, { _id: 1, name: 1, avatar: 1, user: 1, time: 1, type: 1, notification: 1, owner: 1 })
         return data
     }
 

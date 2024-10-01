@@ -27,8 +27,10 @@ export interface ChatImageRequest {
     date: string
 }
 export interface ChatResponse {
-    _id: string
+    _id?: string
     sender: string
+    name?: string,
+    avatar?: string
     message: string
     emoji: any
     date: Date

@@ -34,6 +34,8 @@ export class ChatInfo {
     _id: string
     @Prop({ required: true })
     user: string[]
+    @Prop({ required: false })
+    owner: string
     @Prop({ required: true })
     created_at: Date
     @Prop({ required: true })

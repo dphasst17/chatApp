@@ -28,7 +28,7 @@ const FriendList = ({ setModal, onClose }: { setModal: React.Dispatch<React.SetS
             setChat({
                 _id: checkMessage[0]._id,
                 name: name,
-                avatar: avatar
+                avatar: avatar,
             })
             onClose()
             return
@@ -46,7 +46,6 @@ const FriendList = ({ setModal, onClose }: { setModal: React.Dispatch<React.SetS
             const fetchData = async () => {
                 const token = await getToken()
                 token && createChat(token, data).then((res) => {
-                    console.log(res)
                     if (res.status === 201) {
                         setChat({
                             _id: res.data._id,

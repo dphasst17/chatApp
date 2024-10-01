@@ -4,11 +4,10 @@ import ListChat from '@/components/user/chat'
 import UserInfo from '@/components/user/info'
 import { Friend } from '@/interface/account'
 import { accountStore } from '@/stores/account'
-import { chatStore } from '@/stores/chat'
 import { getToken } from '@/utils/cookie'
 import socket from '@/utils/socket'
-import { Avatar, Button, Checkbox, CheckboxGroup, Chip, Input, Link, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure, User } from '@nextui-org/react'
-import React, { useEffect, useState } from 'react'
+import { Avatar, Button, Checkbox, CheckboxGroup, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure, User } from '@nextui-org/react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 const UserComponent = () => {
@@ -36,7 +35,6 @@ const UserComponent = () => {
     </div>
 }
 const ModalCreateGroup = ({ onClose }: { onClose: () => void }) => {
-    const { list, setList } = chatStore()
     const { account } = accountStore()
     const { register, handleSubmit } = useForm()
     const { friend } = accountStore()
@@ -61,7 +59,6 @@ const ModalCreateGroup = ({ onClose }: { onClose: () => void }) => {
                 if (res.status === 201) {
                     //create group
                     createChat(token, dataGroup).then((res) => {
-                        console.log(res)
                         if (res.status === 201) {
                             socket.emit('u_create_group', {
                                 ...res.data,
@@ -73,9 +70,6 @@ const ModalCreateGroup = ({ onClose }: { onClose: () => void }) => {
                 }
             })
     }
-    useEffect(() => {
-        friend && console.log(friend)
-    }, [friend])
     return <ModalContent>
         <ModalHeader>Create group</ModalHeader>
         <ModalBody>

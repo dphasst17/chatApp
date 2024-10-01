@@ -12,6 +12,7 @@ import { formatDate } from '@/utils/util';
 import { accountStore } from '@/stores/account';
 import socket from '@/utils/socket';
 import { chatStore } from '@/stores/chat';
+import { isToday } from '@/utils/util';
 const ChatDetail = () => {
     const { chat, currentId, setCurrentId } = use(StateContext)
     const { account } = accountStore()
@@ -26,6 +27,7 @@ const ChatDetail = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     const handleFetchChat = (firstFetch: boolean, data?: Chat[], page?: number, limit?: number) => {
+        setData(null)
         getChatById(chat._id, page || 1, limit || 20)
             .then(res => {
                 firstFetch && res.status === 200 && setData(res.data.data)
@@ -167,6 +169,7 @@ const ChatDetail = () => {
     }
     //this is function for socket
     useEffect(() => {
+        data && console.log(data)
         socket.on('s_g_r_chat', (message: any) => {
             if (message.idChat !== chat._id) return
             data && setData([...data, message])
@@ -182,6 +185,7 @@ const ChatDetail = () => {
         })
         return () => {
             socket.off('s_g_r_chat')
+            socket.off('s_g_r_reaction')
         }
     }, [data, chat])
     return <section className='relative w-full h-[90%] rounded-md flex flex-col justify-between'>
@@ -198,9 +202,9 @@ const ChatDetail = () => {
                     <div className='w-auto max-w-[70%] h-auto min-h-[20px]'>
                         <Message reverse={c.sender === account.idUser}
                             classContent={`w-full h-auto min-h-[20px] ${c.sender === account.idUser ? '' : ''} my-4`}
-                            title={c.sender === account.idUser ? 'You' : 'Contact Name'} avatar={c.sender === account.idUser ? account.avatar : ''}
+                            title={c.sender === account.idUser ? 'You' : c.name!} avatar={c.sender === account.idUser ? account.avatar : c.avatar!}
                             content={c.message}
-                            time={formatDate(c.time)}
+                            time={`${formatDate(c.time)} - ${isToday(c.date!)}`} //* `${formatDate(c.time)} - ${isToday(c.date)}` */}
                         />
                         {c.emoji.map((e: any) => e.idUser).filter((e: any) => e.includes(account.idUser)).length === 0 ? <>
                             <Tooltip

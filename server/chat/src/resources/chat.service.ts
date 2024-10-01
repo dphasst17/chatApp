@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ChatRequest } from 'src/chat.interface';
-import { ChatImage } from 'src/chat.schema';
+import { ChatRequest, ChatResponse } from 'src/chat.interface';
+import { Chat, ChatImage } from 'src/chat.schema';
 
 @Injectable()
 export class ChatService {
@@ -26,11 +26,12 @@ export class ChatService {
 
     async createChat(data: any) {
         const _id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-
-        const result = await this.chatRepository.createChat({
+        const dataCreate = {
             ...data,
+            owner: data.type === "group" ? data.user[0] : "",
             _id: _id
-        })
+        }
+        const result = await this.chatRepository.createChat(dataCreate)
         return { status: 201, data: result }
     }
 
@@ -69,12 +70,11 @@ export class ChatService {
                 _id: data._id,
                 name: data.name,
                 avatar: data.avatar,
-                createdAt: data.created_at,
-                updatedAt: data.updated_at,
+                owner: data.owner,
                 time: data.time,
                 type: data.type,
                 notification: data.notification,
-                user: data.type === "group" ? data.user : await Promise.all(
+                user: await Promise.all(
                     data.user.map(async (idUser: string) => {
                         const name = await this.getUserInfo(idUser, 'name');
                         const avatar = await this.getUserInfo(idUser, 'avatar');
@@ -98,7 +98,15 @@ export class ChatService {
         return {
             status: 200, data: {
                 total: count ? count[0]?.count : 0,
-                data: result ? result : []
+                data: result ? await Promise.all(
+                    result.map(async (r: Chat) => {
+                        return {
+                            ...r,
+                            name: await this.getUserInfo(r.sender, 'name'),
+                            avatar: await this.getUserInfo(r.sender, 'avatar')
+                        }
+                    })
+                ) : []
             }
         }
     }
@@ -143,7 +151,7 @@ export class ChatService {
                 message: "Update chat is failed"
             }
         }
-        return { status: 200, message: "Update chat is success", data: data.type === "chat" ? convertData : update }
+        return { status: 200, message: "Update chat is success", data: data.type === "chat" ? convertData : [] }
     }
     async chatImages(data: { images: string[], idChat: string, idUser: string, name: string, }) {
         const convertData = data.images.map((item: any) => {

@@ -42,3 +42,8 @@ export interface FriendRequest {
         online: boolean
     }
 }
+export interface ChatInfoUser {
+    idUser: string,
+    name: string,
+    avatar: string
+}
