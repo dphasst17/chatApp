@@ -30,7 +30,7 @@ export class UserController {
     }
     @Patch()
     async updateUser(@Req() req: RequestCustom, @Res() res: Response, @Body() data: ObjectCustom) {
-        const result = await firstValueFrom(this.natsClient.send({ cmd: 'user_update' }, { idUser: req.idUser, data }))
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'user_update' }, { idUser: req.idUser, data: data.data }))
         return res.status(result.status).json(result)
     }
     @Get('friend/:status')

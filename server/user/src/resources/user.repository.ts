@@ -38,7 +38,11 @@ export class UserRepository {
         return info
     }
     async update(idUser: string, data: { [key: string]: string | number | boolean | any }) {
-        return await this.user.findOneAndUpdate({ idUser: idUser }, data)
+        const update = await this.user.findOneAndUpdate({ idUser: idUser }, data)
+        if (!update) {
+            return { status: 404, message: "Update is failed" }
+        }
+        return { status: 200, message: "Update is success" }
     }
     async friendGetByStatus(idUser: string, status: string) {
         const dataFilter = { $or: [{ idUser: idUser }, { idFriend: idUser }], status: status };

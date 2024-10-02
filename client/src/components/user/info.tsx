@@ -1,7 +1,7 @@
 'use client'
 import { Avatar, Badge, Button, Input, Modal, Popover, PopoverContent, PopoverTrigger, useDisclosure } from '@nextui-org/react'
 import React, { use, useEffect, useState } from 'react'
-import { FriendAdd, GroupLine, SearchIcon, UserEdit } from '../icon/icon'
+import { EditImageIcon, FriendAdd, GroupLine, SearchIcon, UserEdit } from '../icon/icon'
 import { accountStore } from '@/stores/account'
 import { remove } from '@/utils/cookie'
 import { StateContext } from '@/context/state'
@@ -11,6 +11,8 @@ import { Friend, Search } from '@/interface/account'
 import socket from '@/utils/socket'
 import SearchModal from '../modal/search'
 import FriendList from '../modal/friend.list'
+import AccountEdit from '../modal/account.edit'
+import AvatarEdit from '../modal/account.avatar.edit'
 
 const UserInfo = () => {
     const { setIsLog } = use(StateContext)
@@ -71,7 +73,12 @@ const UserInfo = () => {
         }
     }
     return account && <div className='w-full h-full bg-zinc-950 bg-opacity-70 rounded-md flex flex-wrap justify-around items-center'>
-        <Avatar alt='' src={account.avatar ? account.avatar : emptyAvatar} radius='sm' size='lg' />
+        <Badge classNames={{ badge: 'rounded-md !ml-12 bg-transparent border-none' }}
+            content={<EditImageIcon onClick={() => { setModal('avatar'), onOpen() }} className='w-7 h-7 cursor-pointer' />
+            }
+            shape='rectangle' placement='bottom-right'>
+            <Avatar alt='' src={account.avatar ? account.avatar : emptyAvatar} radius='sm' size='lg' />
+        </Badge>
         <div className='w-4/5 h-full flex flex-col items-center justify-center'>
             <div className='info w-full grid grid-cols-9 gap-x-2 mb-1 px-1'>
                 <p className='col-span-6 truncate text-lg font-semibold'>{account.name}</p>
@@ -130,6 +137,8 @@ const UserInfo = () => {
         <Modal isOpen={isOpenModal} onOpenChange={onOpenChange} size="3xl">
             {modal === 'search' && <SearchModal data={searchData} setModal={setModal} onClose={onClose} />}
             {modal === 'friend' && <FriendList setModal={setModal} onClose={onClose} />}
+            {modal === 'edit' && <AccountEdit onClose={onClose} setModal={setModal} />}
+            {modal === 'avatar' && <AvatarEdit onClose={onClose} setModal={setModal} />}
         </Modal>
     </div >
 }
