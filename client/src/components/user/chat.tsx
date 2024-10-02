@@ -19,7 +19,16 @@ const ListChat = () => {
     }
     useEffect(() => {
         socket.on('s_g_r_create_group', (data: any) => {
-            account && list
+            if (data.type && data.type === "add") {
+                const includesMessage = list && list.filter((c: ChatByUser) => c._id === data.data._id)
+                includesMessage?.length === 0 && list && setList([data.data, ...list])
+            }
+
+            if (data.type && data.type === "remove") {
+                list && setList(list.filter((c: ChatByUser) => c._id !== data.data._id))
+            }
+
+            !data.type && account && list
                 && list.filter((c: ChatByUser) => c._id === data._id).length === 0
                 && data.user.includes(account.idUser) && setList([data, ...list])
         })

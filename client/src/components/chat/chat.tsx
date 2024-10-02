@@ -169,7 +169,6 @@ const ChatDetail = () => {
     }
     //this is function for socket
     useEffect(() => {
-        data && console.log(data)
         socket.on('s_g_r_chat', (message: any) => {
             if (message.idChat !== chat._id) return
             data && setData([...data, message])
