@@ -7,7 +7,7 @@ import { JwtAuthMiddleware } from './middleware/token.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { ChatModule } from './chat/chat.module';
-import { ImagesModule } from './images/images/images.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
