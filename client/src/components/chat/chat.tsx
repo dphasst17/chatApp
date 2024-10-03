@@ -1,4 +1,4 @@
-import { getChatById, getChatImageById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat'
+import { getChatById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat'
 import { StateContext } from '@/context/state'
 import React, { use, useEffect, useRef, useState } from 'react'
 import { EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';

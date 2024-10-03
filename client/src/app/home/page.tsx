@@ -6,7 +6,6 @@ import { accountStore } from '@/stores/account'
 import socket from '@/utils/socket'
 import { toast } from 'react-toastify'
 import { Friend } from '@/interface/account'
-import { chatStore } from '@/stores/chat'
 
 const Home = () => {
     const { account, friend, setFriend, friendPending, setFriendPending } = accountStore()

@@ -10,8 +10,8 @@ import socket from "@/utils/socket"
 import { chatStore } from "@/stores/chat"
 import { ChatByUser } from "@/interface/chat"
 
-const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage, setInfo }:
-    { info: any, dataImage: { total: number, read: number, data: any[] }, handleLoadMoreImage: () => void, setInfo: React.Dispatch<any> }
+const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
+    { info: any, dataImage: { total: number, read: number, data: any[] }, handleLoadMoreImage: () => void }
 ) => {
     const { chat } = use(StateContext)
     const { account, friend } = accountStore()

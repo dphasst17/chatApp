@@ -2,7 +2,7 @@ import { updateUser } from '@/api/account'
 import { uploadImages } from '@/api/chat'
 import { accountStore } from '@/stores/account'
 import { getToken } from '@/utils/cookie'
-import { Avatar, Button, Input, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react'
+import { Avatar, Button, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 

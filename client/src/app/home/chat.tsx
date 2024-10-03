@@ -31,7 +31,7 @@ const ChatComponent = () => {
                     })
                 })
         )
-        socket.on('s_g_r_chat_info', (data: { idChat: string, data: { [key: string]: string | number | boolean | [] | {} | any[] } }) => {
+        socket.on('s_g_r_chat_info', (data: { idChat: string, data: { [key: string]: string | number | boolean | [] | any[] | any } }) => {
             chat && chat._id === data.idChat && (
                 setChat({
                     ...chat,
@@ -70,7 +70,7 @@ const ChatComponent = () => {
                         <VideoCall className='w-10 h-10' />
                         <Tooltip placement='left-start' offset={-30} crossOffset={100} content={
 
-                            <ChatInfoDetail info={info} dataImage={dataImage} handleLoadMoreImage={handleLoadMoreImage} setInfo={setInfo} />
+                            <ChatInfoDetail info={info} dataImage={dataImage} handleLoadMoreImage={handleLoadMoreImage} />
                         }>
                             <div className='w-10 h-10 '>
                                 <ChatInfo className='w-10 h-10 cursor-pointer' onClick={() => setIsInfo(!isInfo)} />
