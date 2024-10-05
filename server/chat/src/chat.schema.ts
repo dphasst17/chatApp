@@ -34,6 +34,16 @@ export class ChatInfo {
     _id: string
     @Prop({ required: true })
     user: string[]
+    @Prop({
+        type: [
+            {
+                idUser: { type: String, required: false },
+                isDelete: { type: Boolean, default: false, required: false },
+                date: { type: Date || String, default: null, required: false },
+            },
+        ], required: false
+    })
+    userAction: { idUser: string, isDelete: boolean, date: Date | string | null }[] | []
     @Prop({ required: false })
     owner: string
     @Prop({ required: true })

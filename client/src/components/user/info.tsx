@@ -79,14 +79,14 @@ const UserInfo = () => {
             shape='rectangle' placement='bottom-right'>
             <Avatar alt='' src={account.avatar ? account.avatar : emptyAvatar} radius='sm' size='lg' />
         </Badge>
-        <div className='w-4/5 h-full flex flex-col items-center justify-center'>
-            <div className='info w-full grid grid-cols-9 gap-x-2 mb-1 px-1'>
-                <p className='col-span-6 truncate text-lg font-semibold'>{account.name}</p>
-                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
-                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+        <div className='w-4/5 min-w-[265px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
+            <div className='info w-full grid grid-cols-10 gap-x-2 mb-1 px-1'>
+                <p className='col-span-4 truncate text-lg font-semibold'>{account.name}</p>
+                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 w-8 h-8 rounded-md cursor-pointer' />
+                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 w-8 h-8 rounded-md cursor-pointer' />
                 <Popover>
                     <PopoverTrigger>
-                        <div className='col-span-1 rounded-md cursor-pointer'>
+                        <div className='col-span-2 rounded-md cursor-pointer'>
                             <Badge content={friendPending ? friendPending.filter((f: Friend) => f.idFriend === account.idUser).length : 0} color='danger' placement='top-right' classNames={{ badge: 'w-4 h-4 ml-10' }}>
                                 <FriendAdd className='w-8 h-8' />
                             </Badge>
@@ -113,8 +113,8 @@ const UserInfo = () => {
                     </PopoverContent>
                 </Popover>
             </div>
-            <div className='icon w-full grid grid-cols-6 gap-x-2 px-1'>
-                <div className='relative col-span-5 '>
+            <div className='icon w-full grid grid-cols-8 gap-x-2 px-1'>
+                <div className='relative col-span-6'>
                     <Input onChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' defaultValue={search}
                         endContent={<SearchIcon className='w-6 h-6 cursor-pointer  rounded-md' />} />
                     {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] bg-zinc-800 rounded-md z-40'>

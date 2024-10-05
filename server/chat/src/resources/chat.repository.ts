@@ -1,6 +1,5 @@
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { skip } from "node:test";
+import { Model, Types } from "mongoose";
 import { ChatInfoRequest, ChatRequest } from "src/chat.interface";
 import { Chat, ChatImage, ChatInfo } from "src/chat.schema";
 
@@ -27,7 +26,9 @@ export class ChatRepository {
     }
     async getChatByUser(idUser: string) {
         const data = await this.chatInfo.aggregate([
-            { $match: { user: { $in: [idUser] } } },
+            {
+                $match: { user: { $in: [idUser] } }
+            },
             {
                 $lookup: {
                     from: 'chat',
@@ -38,7 +39,45 @@ export class ChatRepository {
             },
             {
                 $addFields: {
-                    lastMessage: { $ifNull: [{ $arrayElemAt: ['$lastMessage', -1] }, null] }
+                    userAction: {
+                        $filter: {
+                            input: '$userAction',
+                            as: 'action',
+                            cond: { $eq: ['$$action.idUser', idUser] }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    deleteDate: {
+                        $arrayElemAt: ['$userAction.date', 0]
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    lastMessage: {
+                        $arrayElemAt: [{
+                            $filter: {
+                                input: '$lastMessage',
+                                as: 'message',
+                                cond: {
+                                    $cond: {
+                                        if: { $eq: ['$type', 'group'] },
+                                        then: {
+                                            $cond: {
+                                                if: { $ne: ['$deleteDate', null] },
+                                                then: { $lt: ['$$message.date', '$deleteDate'] },
+                                                else: { $gte: ['$$message.date', '$deleteDate'] }
+                                            }
+                                        },
+                                        else: { $gte: ['$$message.date', '$deleteDate'] }
+                                    }
+                                }
+                            }
+                        }, -1]
+                    }
                 }
             },
             // Thêm một trường mới "sortField" để sử dụng trong $sort
@@ -60,10 +99,15 @@ export class ChatRepository {
                     name: 1,
                     avatar: 1,
                     user: 1,
-                    lastMessage: 1
+                    lastMessage: 1,
+                    userAction: 1,
+                    notification: 1,
+                    type: 1,
+                    deleteDate: 1
                 }
             }
         ]);
+        /* console.log(data) */
         return data;
     }
     async getCountChatDetail(idChat: string, type: "chat" | "image") {
@@ -73,12 +117,24 @@ export class ChatRepository {
         ])
         return data
     }
-    async getChatDetail(id: string, page: number, limit: number) {
-        const getData = await this.chat.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit).lean()
-        return getData.reverse()
+    async getChatDetail(idUser: string, id: string, page: number, limit: number) {
+        const getInfo = await this.chatInfo.findOne({ _id: id }).exec();
+        const dateFilter = getInfo.userAction.filter((item: any) => item.idUser === idUser)[0]
+        const objDate = getInfo.type === "group" ? { $lte: dateFilter.date } : { $gte: dateFilter.date }
+        const filterValue = dateFilter.date ? { idChat: id, date: objDate } : { idChat: id }
+        const getItem = await this.chat.find(filterValue)
+            .sort({ _id: -1 }).skip((page - 1) * limit).limit(limit).lean()
+
+        return getItem.reverse();
     }
-    async getChatImageById(id: string, page: number, limit: number) {
-        const data = await this.chatImage.find({ idChat: id }).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+
+
+    async getChatImageById(idUser: string, id: string, page: number, limit: number) {
+        const getInfo = await this.chatInfo.findOne({ _id: id }).exec();
+        const dateFilter = getInfo.userAction.filter((item: any) => item.idUser === idUser)[0]
+        const objDate = getInfo.type === "group" ? { $lte: dateFilter.date } : { $gte: dateFilter.date }
+        const filterValue = dateFilter.date ? { idChat: id, date: objDate } : { idChat: id }
+        const data = await this.chatImage.find(filterValue).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
         return data
     }
     async getChatDetailInfo(idChat: string) {

@@ -50,7 +50,7 @@ const ListChat = () => {
         <div className='w-[99%] h-full py-2 overflow-y-auto'>
             {list && list.length > 0 &&
                 list.map((c: ChatByUser) =>
-                    <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="w-full h-auto"
+                    c.lastMessage && <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="w-full h-auto"
                         title={c.name} avatar={c.avatar}
                         content={c.lastMessage} />
                 )

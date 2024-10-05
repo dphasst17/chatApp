@@ -17,6 +17,7 @@ const ChatDetail = () => {
     const { chat, currentId, setCurrentId } = use(StateContext)
     const { account } = accountStore()
     const { list, setList } = chatStore()
+    const [isPending, setIsPending] = useState<boolean>(false)
     const [data, setData] = useState<Chat[] | null>(null);
     const [count, setCount] = useState<{ total: number, totalPage: number, read: number }>({ total: 0, totalPage: 0, read: 0 })
     const [showPicker, setShowPicker] = useState(false);
@@ -26,10 +27,13 @@ const ChatDetail = () => {
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
-    const handleFetchChat = (firstFetch: boolean, data?: Chat[], page?: number, limit?: number) => {
+    const handleFetchChat = async (firstFetch: boolean, data?: Chat[], page?: number, limit?: number) => {
+        setIsPending(true)
         setData(null)
-        getChatById(chat._id, page || 1, limit || 20)
+        const token = await getToken()
+        getChatById(token, chat._id, page || 1, limit || 20)
             .then(res => {
+                setIsPending(false)
                 firstFetch && res.status === 200 && setData(res.data.data)
                 !firstFetch && data && res.status === 200 && setData([...res.data.data, ...data])
                 firstFetch && res.status === 200 && setCount({
@@ -92,7 +96,7 @@ const ChatDetail = () => {
                                     const newChat = list && list.filter((c: ChatByUser) => c._id !== chat._id)
                                     currentChat && newChat && setList([{
                                         ...currentChat[0],
-                                        lastMessage: dataMessage.message
+                                        lastMessage: "Sent images"
                                     }, ...newChat])
 
 
@@ -129,14 +133,16 @@ const ChatDetail = () => {
             })
     }
 
-    const handleScroll = () => {
+    const handleScroll = async () => {
         if (chatContainerRef.current) {
             const { scrollTop } = chatContainerRef.current;
+
             if (scrollTop === 0) {
+                const token = await getToken()
                 const limit = 20
                 const readPage = Math.ceil(count.read / limit)
                 const unread = count.total - count.read
-                unread !== 0 && data && getChatById(chat._id, readPage + 1, limit)
+                unread !== 0 && data && getChatById(token, chat._id, readPage + 1, limit)
                     .then(res => {
                         data && res.status === 200 && setData([...res.data.data, ...data])
                         res.status === 200 && setCount({
@@ -187,8 +193,10 @@ const ChatDetail = () => {
             socket.off('s_g_r_reaction')
         }
     }, [data, chat])
-    return <section className='relative w-full h-[90%] rounded-md flex flex-col justify-between'>
-        <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 bg-zinc-950 bg-opacity-70 rounded-md overflow-auto'>
+    return <section className='relative w-full h-[90%] rounded-md flex flex-col justify-between overflow-hidden'>
+        <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 bg-zinc-950 bg-opacity-70 rounded-md 
+        overflow-y-auto overflow-x-hidden'>
+            {isPending && <div className="my-auto text-zinc-300 flex-1 flex flex-col items-center justify-center p-1 text-center">Loading... </div>}
             {data && data.length === 0 && <div className="my-auto text-white flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
@@ -203,7 +211,7 @@ const ChatDetail = () => {
                             classContent={`w-full h-auto min-h-[20px] ${c.sender === account.idUser ? '' : ''} my-4`}
                             title={c.sender === account.idUser ? 'You' : c.name!} avatar={c.sender === account.idUser ? account.avatar : c.avatar!}
                             content={c.message}
-                            time={`${formatDate(c.time)} - ${isToday(c.date!)}`} //* `${formatDate(c.time)} - ${isToday(c.date)}` */}
+                            time={`${formatDate(c.time)} - ${isToday(c.date!)}`}
                         />
                         {c.emoji.map((e: any) => e.idUser).filter((e: any) => e.includes(account.idUser)).length === 0 ? <>
                             <Tooltip
@@ -239,7 +247,7 @@ const ChatDetail = () => {
         </div>
         {
             chat ? <div className='message-input w-full h-[8%] grid grid-cols-12 gap-x-5 pt-2'>
-                <div className='col-span-2 bg-zinc-950 bg-opacity-70 rounded-md flex justify-evenly items-center'>
+                <div className='col-span-4 xl:col-span-2 bg-zinc-950 bg-opacity-70 rounded-md flex justify-evenly items-center'>
                     <EmojiIcon onClick={() => setShowPicker(!showPicker)} className='w-7 h-7 cursor-pointer' />
                     {<label>
                         <ImageIcon className='w-7 h-7 cursor-pointer' />
@@ -250,13 +258,13 @@ const ChatDetail = () => {
                     <TagMore className='w-7 h-7 cursor-pointer' />
                 </div>
                 {showPicker && <EmojiPicker style={{ position: 'absolute', bottom: '60px', left: '0' }} onEmojiClick={onEmojiClick} />}
-                <div className='col-span-9'>
+                <div className='col-span-6 xl:col-span-9'>
                     <input placeholder='Message...'
                         onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                         value={value} onChange={(e) => setValue(e.target.value)}
                         type="text" className='w-full h-full bg-zinc-900 bg-opacity-70 rounded-md text-white px-1 border border-solid border-zinc-400' />
                 </div>
-                <Button color='primary' className='col-span-1 h-full rounded-md text-white px-1' onClick={handleSendMessage}>
+                <Button color='primary' className='col-span-2 xl:col-span-1 h-full rounded-md text-white px-1' onClick={handleSendMessage}>
                     <MessageUpload className='w-7 h-7 ' />
                 </Button>
             </div>

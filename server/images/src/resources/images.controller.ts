@@ -5,7 +5,8 @@ import { FileUpload } from 'src/images.interface';
 
 @Controller()
 export class ImagesController {
-  constructor(private readonly imagesService: ImagesService) { }
+  constructor(private readonly imagesService: ImagesService) {
+  }
   @EventPattern({ cmd: 'checked' })
   async checked() {
     const result = await this.imagesService.checked();

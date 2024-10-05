@@ -1,14 +1,15 @@
-import { Controller, Inject } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { EventPattern } from '@nestjs/microservices';
 import { ChatRequest } from 'src/chat.interface';
 
 @Controller('chat')
 export class ChatController {
     constructor(
-        @Inject('NATS_SERVICE') private natsClient: ClientProxy,
         private readonly chatService: ChatService
-    ) { }
+    ) {
+        console.log('Controller', process.memoryUsage())
+    }
     @EventPattern({ cmd: 'chat_checked' })
     async chatChecked() {
         return "Chat service is up and running!";
@@ -31,13 +32,13 @@ export class ChatController {
     }
 
     @EventPattern({ cmd: 'get_chat_detail' })
-    async getChatDetail(data: { idChat: string, page: number, limit: number }) {
-        return await this.chatService.getChatDetail(data.idChat, data.page, data.limit)
+    async getChatDetail(data: { idUser: string, idChat: string, page: number, limit: number }) {
+        return await this.chatService.getChatDetail(data.idUser, data.idChat, data.page, data.limit)
     }
 
     @EventPattern({ cmd: 'get_chat_image_by_id' })
-    async getChatImageById(data: { idChat: string, page: number, limit: number }) {
-        return await this.chatService.getChatImageById(data.idChat, data.page, data.limit)
+    async getChatImageById(data: { idUser: string, idChat: string, page: number, limit: number }) {
+        return await this.chatService.getChatImageById(data.idUser, data.idChat, data.page, data.limit)
     }
 
     @EventPattern({ cmd: 'chat_update' })

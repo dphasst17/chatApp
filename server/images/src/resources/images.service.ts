@@ -1,66 +1,61 @@
 import { Injectable } from '@nestjs/common';
-import * as AWS from 'aws-sdk';
-import * as fs from 'fs';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
 @Injectable()
 export class ImagesService {
-    bucket = 'express-image-upload'
-    s3 = new AWS.S3({
+  private readonly bucket = 'express-image-upload';
+  private readonly s3Client: S3Client;
+
+  constructor() {
+    // Khởi tạo S3Client với cấu hình từ environment variables
+    this.s3Client = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    })
-    s3Region = process.env.AWS_REGION
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    });
 
+  }
 
-    async delete(key: string) {
-        const params = {
-            Bucket: this.bucket,
-            Key: key
-        };
-        try {
-            await this.s3.deleteObject(params).promise();
-            return true;
-        } catch (error) {
-            console.log(error);
-            return false;
+  async checked() {
+    return { status: 200, message: 'Images service is running' };
+  }
+
+  async createImage(folder: string, files: Express.Multer.File[]) {
+    for (const file of files) {
+      if (!file || !file.buffer) {
+        throw new Error('File or file buffer is undefined');
+      }
+
+      const uploadParams = {
+        Bucket: this.bucket,
+        Key: `${folder}/${file.originalname}`,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+        // Sử dụng 'as const' để chỉ định giá trị là một ObjectCannedACL
+        ACL: 'public-read' as const, // Chỉnh sửa ở đây
+        ContentDisposition: 'inline',
+      };
+
+      try {
+        // Sử dụng lệnh PutObjectCommand để upload file lên S3
+        const data = await this.s3Client.send(new PutObjectCommand(uploadParams));
+        if (!data) {
+          throw new Error('Upload image failed');
         }
-    }
-    async checked() {
-        return { status: 200, message: "Images service is running" }
-    }
-    async createImage(folder: string, file: Express.Multer.File[]) {
-        for (let i = 0; i < file.length; i++) {
-            const f = file[i];
-            if (!f || !f.buffer) {
-                throw new Error('File or file buffer is undefined');
-            }
-            const fileData = f.buffer;
-            const uploadParams = {
-                Bucket: this.bucket,
-                Key: `${folder}/${f.originalname}`, // Sử dụng originalname thay với name nếu cần
-                Body: fileData,
-                ContentType: f.mimetype,
-                ACL: 'public-read',
-                ContentDisposition: 'inline',
-                CreateBucketConfiguration: {
-                    LocationConstraint: this.s3Region,
-                },
-            };
-            try {
-                const data = await this.s3.upload(uploadParams).promise();
-                if (!data) {
-                    throw new Error('Upload image is failed')
-                }
-            } catch (err) {
-                console.log(err)
-                return {
-                    status: 400,
-                    message: err
-                }
-            }
-        }
+      } catch (err) {
+        console.log(err);
         return {
-            status: 201,
-            message: "Upload image is success"
-        }
+          status: 400,
+          message: err.message,
+        };
+      }
     }
+
+    return {
+      status: 201,
+      message: 'Upload image is successful',
+    };
+  }
 }

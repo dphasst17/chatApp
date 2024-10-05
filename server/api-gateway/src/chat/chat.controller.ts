@@ -36,9 +36,11 @@ export class ChatController {
         @Query('page') page: number | 1,
         @Query('limit') limit: number | 100,
         @Param('id') idChat: string,
-        @Res() res: Response
+        @Res() res: Response,
+        @Req() req: RequestCustom
     ) {
-        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail' }, { idChat, page, limit }))
+        const idUser = req.idUser
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_detail' }, { idUser, idChat, page, limit }))
         return res.status(result.status).json(result)
     }
 
@@ -47,9 +49,11 @@ export class ChatController {
         @Query('page') page: number | 1,
         @Query('limit') limit: number | 100,
         @Param('id') idChat: string,
-        @Res() res: Response
+        @Res() res: Response,
+        @Req() req: RequestCustom
     ) {
-        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_image_by_id' }, { idChat, page, limit }))
+        const idUser = req.idUser
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_image_by_id' }, { idUser, idChat, page, limit }))
         return res.status(result.status).json(result)
     }
     @Post('')

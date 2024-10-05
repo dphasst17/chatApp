@@ -10,8 +10,10 @@ import React from 'react'
 const UserComponent = () => {
     const { friend } = accountStore()
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
-    return <div className='col-span-2 h-[99%] text-white grid grid-cols-1 gap-y-1 items-start'>
-        <div className='user h-[15vh]'>
+    return <div className='fixed md:relative w-[90vw] sm:w-[60vw] h-screen md:h-[99%] md:w-auto top-0 left-0 col-span-0 md:col-span-3 xl:col-span-2  text-white 
+    bg-zinc-900 md:bg-transparent 
+    grid grid-cols-1 gap-y-1 md:p-0 p-1 rounded-md items-start z-50'>
+        <div className='user h-[15vh] md:h-[18vh] lg:h-[15vh]'>
             <UserInfo />
         </div>
         <div className='chat h-[13vh] bg-zinc-950 bg-opacity-70 rounded-md p-2'>
@@ -23,7 +25,7 @@ const UserComponent = () => {
                 </div>)}
             </div>
         </div>
-        <div className='friend h-[70vh] py-1'>
+        <div className='friend h-[70vh] md:h-[67vh] lg:h-[70vh] py-1'>
             <ListChat />
         </div>
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl">

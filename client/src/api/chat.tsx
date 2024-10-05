@@ -8,10 +8,12 @@ export const getChatList = async (token: string) => {
     })
         .then(res => res.json())
 }
+//remove it
 export const getChatDetail = async (id: string) => {
     return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`)
         .then(res => res.json())
 }
+//
 export const createChat = async (token: string, data: { [key: string]: string | number | boolean | [] | any }) => {
     return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, {
         method: "POST",
@@ -27,12 +29,26 @@ export const getChatInfoById = async (id: string) => {
     return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/info/${id}`)
         .then(res => res.json())
 }
-export const getChatById = async (id: string, page?: number, limit?: number) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page ? page : 1}&limit=${limit ? limit : 100}`)
+export const getChatById = async (token: string, id: string, page?: number, limit?: number) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page ? page : 1}&limit=${limit ? limit : 100}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        }
+    )
         .then(res => res.json())
 }
-export const getChatImageById = async (id: string, page?: number, limit?: number) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/image/${id}?page=${page ? page : 1}&limit=${limit ? limit : 20}`)
+export const getChatImageById = async (token: string, id: string, page?: number, limit?: number) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/image/${id}?page=${page ? page : 1}&limit=${limit ? limit : 20}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        }
+    })
         .then(res => res.json())
 }
 export const insertChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {

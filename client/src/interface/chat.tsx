@@ -15,6 +15,7 @@ export interface ChatByUser {
     created_at?: Date
     updated_at?: Date
     notification?: string
+    userAction: { idUser: string, date: Date | string | null }[]
 }
 export interface Chat {
     _id?: string

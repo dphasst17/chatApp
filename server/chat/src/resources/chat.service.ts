@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ChatRequest, ChatResponse } from 'src/chat.interface';
-import { Chat, ChatImage } from 'src/chat.schema';
+import { ChatRequest } from 'src/chat.interface';
+import { Chat } from 'src/chat.schema';
 
 @Injectable()
 export class ChatService {
@@ -29,6 +29,12 @@ export class ChatService {
         const dataCreate = {
             ...data,
             owner: data.type === "group" ? data.user[0] : "",
+            userAction: data.user.map((u: string) => {
+                return {
+                    idUser: u,
+                    date: null
+                }
+            }),
             _id: _id
         }
         const result = await this.chatRepository.createChat(dataCreate)
@@ -47,11 +53,12 @@ export class ChatService {
                     const id = item.user.filter((u: string) => u !== idUser)[0];
                     const name = id && await this.getUserInfo(id, 'name');
                     const avatar = id && await this.getUserInfo(id, 'avatar');
+                    const nullMessage = item.type === "group" ? `<p class="text-zinc-300">${item.notification}</p>` : null
                     return {
                         ...item,
                         lastMessage: item.lastMessage
-                            ? (item.lastMessage.message.includes('<p') ? item.lastMessage.message : 'Images')
-                            : (item.type === "group" ? `<p class="text-zinc-300">${item.notification}</p>` : '<p class="text-zinc-300">No message</p>'),
+                            ? item.lastMessage.message.includes('<p') ? item.lastMessage.message : 'Images'
+                            : (nullMessage),
                         name: item.name ? item.name : name,
                         avatar: item.avatar ? item.avatar : avatar
                     };
@@ -60,6 +67,7 @@ export class ChatService {
             return { status: 200, data: result }
         }
         catch (error) {
+            console.log(error)
             return { status: 500, message: error }
         }
     }
@@ -92,9 +100,9 @@ export class ChatService {
             return { status: 500, message: error }
         }
     }
-    async getChatDetail(idChat: string, page: number, limit: number) {
+    async getChatDetail(idUser: string, idChat: string, page: number, limit: number) {
         const count = await this.chatRepository.getCountChatDetail(idChat, "chat")
-        const result = await this.chatRepository.getChatDetail(idChat, page, limit)
+        const result = await this.chatRepository.getChatDetail(idUser, idChat, page, limit)
         return {
             status: 200, data: {
                 total: count ? count[0]?.count : 0,
@@ -110,9 +118,9 @@ export class ChatService {
             }
         }
     }
-    async getChatImageById(idChat: string, page: number, limit: number) {
+    async getChatImageById(idUser: string, idChat: string, page: number, limit: number) {
         const count = await this.chatRepository.getCountChatDetail(idChat, "image")
-        const result = await this.chatRepository.getChatImageById(idChat, page, limit)
+        const result = await this.chatRepository.getChatImageById(idUser, idChat, page, limit)
         return {
             status: 200, data: {
                 total: count ? count[0]?.count : 0,
