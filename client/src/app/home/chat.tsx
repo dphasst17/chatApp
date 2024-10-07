@@ -2,7 +2,7 @@
 import { getChatImageById, getChatInfoById } from '@/api/chat'
 import ChatDetail from '@/components/chat/chat'
 import ChatInfoDetail from '@/components/chat/chat.info'
-import { ChatInfo, VideoCall } from '@/components/icon/icon'
+import { BackIcon, ChatInfo, VideoCall } from '@/components/icon/icon'
 import { StateContext } from '@/context/state'
 import { ChatByUser } from '@/interface/chat'
 import { chatStore } from '@/stores/chat'
@@ -60,31 +60,35 @@ const ChatComponent = () => {
                 })
             })
     }
-    return <div className='col-span-8 md:col-span-5 xl:col-span-6 h-[99vh] rounded-md text-red-500 overflow-x-hidden'>
-        <div className='w-full h-full rounded-md flex flex-col justify-between'>
-            <section className='w-full h-[8%] min-h-[80px] grid grid-cols-11 bg-zinc-950 bg-opacity-70 rounded-md' >
-                {chat && <>
-                    <div className='col-span-1 h-full flex items-center justify-center'>
-                        <Avatar radius='sm' alt='avatar' src={chat.avatar} size='lg' />
+    return <div className={`fixed md:relative md:z-50 w-screen md:w-auto md:bg-transparent bg-white top-0 left-0 shadow-none md:shadow-2xl
+        ${chat ? 'translate-x-0' : 'translate-x-[100%] md:translate-x-0'} 
+        col-span-0 md:col-span-5 xl:col-span-6 h-screen md:h-[99vh] rounded-none md:rounded-md text-red-500 overflow-x-hidden transition-all`}>
+        <div className='w-full h-full rounded-md flex flex-col justify-between p-1'>
+            {chat ? <section className='w-full h-[14%] sm:h-[8%] min-h-[80px] flex flex-wrap justify-around items-center shadow-custom rounded-md' >
+                <div className='w-2/5 sm:w-1/5 lg:w-[11%] xl:w-[5%] h-full flex items-center justify-around md:justify-start'>
+                    <BackIcon className='w-10 h-10 block md:hidden cursor-pointer' onClick={() => setChat(null)} />
+                    <Avatar radius='sm' alt='avatar' src={chat.avatar} size='lg' />
+                </div>
+                <div className='w-3/5 sm:w-3/4 lg:w-[88%] xl:w-[93%] h-full flex flex-wrap items-center justify-start'>
+                    <div className='w-full sm:w-3/4 h-2/4 sm:h-full flex justify-start items-center text-xl font-bold'>
+                        <span className='truncate text-zinc-950'>{chat.name}</span>
                     </div>
-                    <div className='col-span-9 flex items-center'>
-                        <p className='text-xl font-bold'>{chat.name}</p>
-                    </div>
-                    <div className='col-span-1 h-full flex justify-around items-center'>
-                        <VideoCall className='w-10 h-10' />
+                    <div className='w-full sm:w-1/4 h-2/4 sm:h-full flex justify-start md:justify-end items-center'>
+                        <VideoCall className='w-10 h-10 mx-1' />
                         <Tooltip placement='left-start' offset={-30} crossOffset={100} content={
 
                             <ChatInfoDetail info={info} dataImage={dataImage} handleLoadMoreImage={handleLoadMoreImage} />
                         }>
-                            <div className='w-10 h-10 '>
+                            <div className='w-10 h-10 mx-1'>
                                 <ChatInfo className='w-10 h-10 cursor-pointer' onClick={() => setIsInfo(!isInfo)} />
                             </div>
                         </Tooltip>
-
-
                     </div>
-                </>}
+                </div>
+
             </section>
+                : <section className='w-full h-[8%] min-h-[80px]'></section>
+            }
             <ChatDetail />
         </div>
     </div >

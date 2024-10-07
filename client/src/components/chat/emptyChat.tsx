@@ -5,9 +5,9 @@ export default function EmptyChat() {
         <div className="flex flex-col items-center justify-center p-4 text-center">
             <ChatSquare className="w-20 h-20 text-primary mb-8" />
 
-            <h1 className="text-3xl font-bold text-white mb-4">Welcome to Chat App</h1>
+            <h1 className="text-3xl font-bold text-zinc-950 mb-4">Welcome to Chat App</h1>
 
-            <p className="text-white/60 max-w-md mx-auto mb-8">
+            <p className="text-zinc-900 max-w-md mx-auto mb-8">
                 Connect with friends, family, and colleagues in real-time. Start a conversation to get going!
             </p>
 

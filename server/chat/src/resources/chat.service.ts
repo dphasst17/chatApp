@@ -53,7 +53,7 @@ export class ChatService {
                     const id = item.user.filter((u: string) => u !== idUser)[0];
                     const name = id && await this.getUserInfo(id, 'name');
                     const avatar = id && await this.getUserInfo(id, 'avatar');
-                    const nullMessage = item.type === "group" ? `<p class="text-zinc-300">${item.notification}</p>` : null
+                    const nullMessage = item.type === "group" ? `<p>${item.notification}</p>` : null
                     return {
                         ...item,
                         lastMessage: item.lastMessage

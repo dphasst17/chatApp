@@ -72,7 +72,7 @@ const UserInfo = () => {
                 })
         }
     }
-    return account && <div className='w-full h-full bg-zinc-950 bg-opacity-70 rounded-md flex flex-wrap justify-around items-center'>
+    return account && <div className='w-full h-full rounded-md flex flex-wrap justify-around items-center'>
         <Badge classNames={{ badge: 'rounded-md !ml-12 bg-transparent border-none' }}
             content={<EditImageIcon onClick={() => { setModal('avatar'), onOpen() }} className='w-7 h-7 cursor-pointer' />
             }
@@ -80,13 +80,13 @@ const UserInfo = () => {
             <Avatar alt='' src={account.avatar ? account.avatar : emptyAvatar} radius='sm' size='lg' />
         </Badge>
         <div className='w-4/5 min-w-[265px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
-            <div className='info w-full grid grid-cols-10 gap-x-2 mb-1 px-1'>
-                <p className='col-span-4 truncate text-lg font-semibold'>{account.name}</p>
-                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 w-8 h-8 rounded-md cursor-pointer' />
-                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 w-8 h-8 rounded-md cursor-pointer' />
+            <div className='info w-full grid grid-cols-6 ssm:grid-cols-8 gap-x-2 mb-1 px-1'>
+                <p className='col-span-8 ssm:col-span-5 truncate text-center ssm:text-start text-lg font-semibold my-2 ssm:my-0'>{account.name}</p>
+                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <Popover>
                     <PopoverTrigger>
-                        <div className='col-span-2 rounded-md cursor-pointer'>
+                        <div className='col-span-2 mx-auto ssm:col-span-1 rounded-md cursor-pointer'>
                             <Badge content={friendPending ? friendPending.filter((f: Friend) => f.idFriend === account.idUser).length : 0} color='danger' placement='top-right' classNames={{ badge: 'w-4 h-4 ml-10' }}>
                                 <FriendAdd className='w-8 h-8' />
                             </Badge>

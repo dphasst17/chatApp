@@ -46,7 +46,7 @@ const ListChat = () => {
             socket.off('s_g_r_create_group')
         }
     }, [list, account])
-    return <div className='w-full h-full bg-zinc-950 bg-opacity-70 rounded-md'>
+    return <div className='w-full h-full rounded-md'>
         <div className='w-[99%] h-full py-2 overflow-y-auto'>
             {list && list.length > 0 &&
                 list.map((c: ChatByUser) =>

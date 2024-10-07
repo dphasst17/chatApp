@@ -3,7 +3,7 @@ import { StateContext } from '@/context/state'
 import React, { use, useEffect, useRef, useState } from 'react'
 import { EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';
 import EmptyChat from './emptyChat'
-import { Button, Tooltip } from '@nextui-org/react'
+import { Button, Input, Tooltip } from '@nextui-org/react'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { getToken } from '@/utils/cookie';
 import { Chat, ChatByUser } from '@/interface/chat';
@@ -193,11 +193,11 @@ const ChatDetail = () => {
             socket.off('s_g_r_reaction')
         }
     }, [data, chat])
-    return <section className='relative w-full h-[90%] rounded-md flex flex-col justify-between overflow-hidden'>
-        <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 bg-zinc-950 bg-opacity-70 rounded-md 
+    return <section className='relative w-full h-[85%] sm:h-[91%] rounded-md flex flex-col justify-between overflow-hidden'>
+        <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 rounded-md 
         overflow-y-auto overflow-x-hidden'>
-            {isPending && <div className="my-auto text-zinc-300 flex-1 flex flex-col items-center justify-center p-1 text-center">Loading... </div>}
-            {data && data.length === 0 && <div className="my-auto text-white flex-1 flex flex-col items-center justify-center p-6 text-center">
+            {isPending && <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-1 text-center">Loading... </div>}
+            {data && data.length === 0 && <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
@@ -246,8 +246,8 @@ const ChatDetail = () => {
             <div ref={messagesEndRef} />
         </div>
         {
-            chat ? <div className='message-input w-full h-[8%] grid grid-cols-12 gap-x-5 pt-2'>
-                <div className='col-span-4 xl:col-span-2 bg-zinc-950 bg-opacity-70 rounded-md flex justify-evenly items-center'>
+            chat && <div className='message-input w-full h-[8%] grid grid-cols-12 gap-x-2 pt-2'>
+                <div className='col-span-5 xl:col-span-2 rounded-md h-[99%] flex justify-evenly items-center border border-solid border-zinc-400'>
                     <EmojiIcon onClick={() => setShowPicker(!showPicker)} className='w-7 h-7 cursor-pointer' />
                     {<label>
                         <ImageIcon className='w-7 h-7 cursor-pointer' />
@@ -258,17 +258,25 @@ const ChatDetail = () => {
                     <TagMore className='w-7 h-7 cursor-pointer' />
                 </div>
                 {showPicker && <EmojiPicker style={{ position: 'absolute', bottom: '60px', left: '0' }} onEmojiClick={onEmojiClick} />}
-                <div className='col-span-6 xl:col-span-9'>
-                    <input placeholder='Message...'
+                <div className='col-span-7 xl:col-span-10'>
+                    <Input placeholder='Message...'
+                        endContent={
+                            <Button isIconOnly className='h-full rounded-md text-white bg-zinc-950 px-1' onClick={handleSendMessage}>
+                                <MessageUpload className='w-7 h-7 ' />
+                            </Button>
+                        }
                         onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                         value={value} onChange={(e) => setValue(e.target.value)}
-                        type="text" className='w-full h-full bg-zinc-900 bg-opacity-70 rounded-md text-white px-1 border border-solid border-zinc-400' />
+                        radius='sm'
+                        type="text"
+                        classNames={{
+                            inputWrapper: 'w-full h-full rounded-md text-white px-1 border border-solid border-zinc-400 p-1',
+                            base: 'w-full h-[97%]',
+                        }}
+                        className='text-white px-1' />
                 </div>
-                <Button color='primary' className='col-span-2 xl:col-span-1 h-full rounded-md text-white px-1' onClick={handleSendMessage}>
-                    <MessageUpload className='w-7 h-7 ' />
-                </Button>
+
             </div>
-                : <div className='message-input w-full h-[8%] bg-zinc-950 bg-opacity-70 rounded-md pt-2'></div>
         }
     </section>
 }
