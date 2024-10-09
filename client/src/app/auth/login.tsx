@@ -31,7 +31,7 @@ const Login = ({ setForm }: { setForm: React.Dispatch<React.SetStateAction<strin
             }
         })
     }
-    return <div className='xl:w-[300px] 2xl:w-[400px] xl:h-[500px] 2xl:h-[600px] rounded-md px-1'>
+    return <div className='xl:w-[300px] 2xl:w-[400px] xl:h-[500px] 2xl:h-[600px] rounded-md px-1 text-black'>
         <div className='w-full h-[60px] flex items-center justify-center text-5xl font-bold'>Sign In</div>
         <p className='text-center mb-8'>Enter your username and password</p>
         <Input {...register('username', { required: true })} placeholder="Username" variant='bordered' radius='sm' size="lg" className='my-4' />

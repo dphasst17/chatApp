@@ -37,7 +37,7 @@ const Register = ({ setForm }: { setForm: React.Dispatch<React.SetStateAction<st
                 }
             })
     }
-    return <div className='xl:w-[300px] 2xl:w-[400px] xl:h-[500px] 2xl:h-[600px] rounded-md px-1'>
+    return <div className='xl:w-[300px] 2xl:w-[400px] xl:h-[500px] 2xl:h-[600px] rounded-md px-1 text-black'>
         <div className='w-full h-[60px] flex items-center justify-center text-5xl font-bold'>Join us today</div>
         <Input {...register('username', { required: true })} placeholder="Username" variant='bordered' radius='sm' size="lg" className='my-4' />
         <Input {...register('password', { required: true })} type={isShow ? 'text' : 'password'} placeholder="Password" variant='bordered' radius='sm' size="lg" className='my-4' />
