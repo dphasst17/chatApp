@@ -8,7 +8,6 @@ export class ChatController {
     constructor(
         private readonly chatService: ChatService
     ) {
-        console.log('Controller', process.memoryUsage())
     }
     @EventPattern({ cmd: 'chat_checked' })
     async chatChecked() {

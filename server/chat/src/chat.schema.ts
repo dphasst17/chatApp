@@ -19,7 +19,7 @@ export class Chat extends Document {
             },
         ],
         required: false,
-    })// Specify the type here
+    })
     emoji: { emoji: string, idUser: string }[] | [];
     @Prop({ required: true })
     date: Date
@@ -27,6 +27,12 @@ export class Chat extends Document {
     time: string
     @Prop({ required: false })
     status: string
+    @Prop({ required: false })
+    replyId: string
+    @Prop({ required: false })
+    replyContent: string
+    @Prop({ required: false })
+    replyInfo: string
 }
 @Schema({ collection: 'chat-info', versionKey: false })
 export class ChatInfo {

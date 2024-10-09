@@ -1,33 +1,37 @@
 import { getChatById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat'
 import { StateContext } from '@/context/state'
 import React, { use, useEffect, useRef, useState } from 'react'
-import { EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';
+import { CloseIcon, EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';
 import EmptyChat from './emptyChat'
 import { Button, Input, Tooltip } from '@nextui-org/react'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { getToken } from '@/utils/cookie';
 import { Chat, ChatByUser } from '@/interface/chat';
-import Message from './message';
+import Message, { MessageReplyUI } from './message';
 import { formatDate } from '@/utils/util';
 import { accountStore } from '@/stores/account';
 import socket from '@/utils/socket';
 import { chatStore } from '@/stores/chat';
 import { isToday } from '@/utils/util';
+import { toast } from 'react-toastify';
 const ChatDetail = () => {
     const { chat, currentId, setCurrentId } = use(StateContext)
     const { account } = accountStore()
     const { list, setList } = chatStore()
     const [isPending, setIsPending] = useState<boolean>(false)
     const [data, setData] = useState<Chat[] | null>(null);
+    const [reply, setReply] = useState<{ id: string, name: string, content: string, time: any } | null>(null)
     const [count, setCount] = useState<{ total: number, totalPage: number, read: number }>({ total: 0, totalPage: 0, read: 0 })
     const [showPicker, setShowPicker] = useState(false);
     const [value, setValue] = useState<string>('')
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    /* const limitData = 20 */
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     const handleFetchChat = async (firstFetch: boolean, data?: Chat[], page?: number, limit?: number) => {
+        setReply(null)
         setIsPending(true)
         setData(null)
         const token = await getToken()
@@ -47,10 +51,8 @@ const ChatDetail = () => {
     }
     useEffect(() => {
         chat && chat._id !== currentId && handleFetchChat(true)
+        scrollToBottom()
     }, [chat, currentId])
-    useEffect(() => {
-        scrollToBottom();
-    }, [data])
     const onEmojiClick = (emojiData: EmojiClickData) => {
         setValue((prevInput) => prevInput + emojiData.emoji);
     };
@@ -111,6 +113,9 @@ const ChatDetail = () => {
         if (!value) return
         const dataMessage = {
             message: `<p>${value}</p>`,
+            replyId: reply ? reply.id : '',
+            replyContent: reply ? reply.content : '',
+            replyInfo: reply ? `${reply.name} - ${reply.time}` : '',
             date: new Date(),
             time: (new Date()).toTimeString().slice(0, 8),
             emoji: [],
@@ -121,6 +126,7 @@ const ChatDetail = () => {
             .then(res => {
                 if (res.status === 201) {
                     data && setData([...data, res.data])
+                    setReply(null)
                     scrollToBottom()
                     const currentChat = list && list.filter((c: ChatByUser) => c._id === chat._id)
                     const newChat = list && list.filter((c: ChatByUser) => c._id !== chat._id)
@@ -132,7 +138,6 @@ const ChatDetail = () => {
                 }
             })
     }
-
     const handleScroll = async () => {
         if (chatContainerRef.current) {
             const { scrollTop } = chatContainerRef.current;
@@ -154,6 +159,58 @@ const ChatDetail = () => {
             }
         }
     };
+    const handleScrollReply = async (id: string) => {
+        const scrollToMessage = () => {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                chatContainerRef.current?.scrollTo({
+                    top: messageElement.offsetTop,
+                    behavior: 'smooth',
+                });
+            }
+        }
+        const includeCurrentChat = data && data.filter((d: Chat) => d._id === id)
+        if (includeCurrentChat && includeCurrentChat.length === 0) {
+            let isInclude = false; // Dùng để theo dõi xem dữ liệu có hợp lệ không
+            const arrayData: any[] = [];
+            const token = await getToken();
+            const limit = 20;
+            const readPage = Math.ceil(count.read / limit);
+            let currentPage = readPage + 1;
+            while (true) {
+                try {
+                    const response = await getChatById(token, chat._id, currentPage, limit);
+                    if (response.status === 200) {
+                        const { data: resData } = response.data;
+                        arrayData.push(...resData);
+
+                        // Kiểm tra nếu tìm thấy chat hiện tại
+                        const includeCurrentChat = resData.some((d: Chat) => d._id === id);
+                        console.log(includeCurrentChat)
+                        if (includeCurrentChat) {
+                            isInclude = true; // Đánh dấu dữ liệu hợp lệ
+                            break; // Thoát khỏi vòng lặp
+                        }
+                    } else {
+                        break; // Nếu status không phải 200, thoát vòng lặp
+                    }
+                } catch (error) {
+                    console.error("Error fetching chat data:", error);
+                    break; // Thoát vòng lặp nếu có lỗi khi gọi API
+                }
+
+                currentPage++; // Tăng số trang để tiếp tục tìm
+            }
+            if (!isInclude) {
+                toast.error("Can't find chat")
+                return
+            }
+            data && setData([...arrayData, ...data])
+        }
+        setTimeout(() => {
+            scrollToMessage();
+        }, 100);
+    }
     const handleReaction = async (emoji: EmojiClickData, id: string, arrayEmoji?: any[]) => {
         const dataUpdate = {
             type: "chat",
@@ -175,6 +232,7 @@ const ChatDetail = () => {
     }
     //this is function for socket
     useEffect(() => {
+        data && console.log("Data", data)
         socket.on('s_g_r_chat', (message: any) => {
             if (message.idChat !== chat._id) return
             data && setData([...data, message])
@@ -194,8 +252,8 @@ const ChatDetail = () => {
         }
     }, [data, chat])
     return <section className='relative w-full h-[85%] sm:h-[91%] rounded-md flex flex-col justify-between overflow-hidden'>
-        <div ref={chatContainerRef} onScroll={handleScroll} className='message-content w-full h-[92%] max-h-[92%] py-2 rounded-md 
-        overflow-y-auto overflow-x-hidden'>
+        <div ref={chatContainerRef} onScroll={handleScroll} className={`message-content w-full ${!reply ? 'h-[92%]' : 'h-[85%]'} max-h-[92%] py-2 rounded-md 
+        overflow-y-auto overflow-x-hidden transition-all`}>
             {isPending && <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-1 text-center">Loading... </div>}
             {data && data.length === 0 && <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -205,39 +263,46 @@ const ChatDetail = () => {
                 </p>
             </div>}
             {
-                account && data && data.length > 0 && data.map((c: Chat) => <div className={`relative w-full h-auto my-2 flex ${c.sender === account.idUser ? 'justify-end' : 'justify-start'}`} key={c._id}>
+                account && data && data.length > 0 && data.map((c: Chat) => <div key={c._id} id={c._id} className={`relative w-full h-auto my-6 flex ${c.sender === account.idUser ? 'justify-end' : 'justify-start'}`}>
                     <div className='w-auto max-w-[70%] h-auto min-h-[20px]'>
                         <Message reverse={c.sender === account.idUser}
-                            classContent={`w-full h-auto min-h-[20px] ${c.sender === account.idUser ? '' : ''} my-4`}
+                            classContent={`w-full h-auto min-h-[20px] ${reply && reply.id === c._id ? 'bg-blue-700 bg-opacity-30' : ''} rounded-md transition-all mb-4`}
                             title={c.sender === account.idUser ? 'You' : c.name!} avatar={c.sender === account.idUser ? account.avatar : c.avatar!}
                             content={c.message}
                             time={`${formatDate(c.time)} - ${isToday(c.date!)}`}
+                            reply={{ id: c.replyId!, content: c.replyContent!, info: c.replyInfo! }}
+                            handleReply={() => handleScrollReply(c.replyId!)}
                         />
-                        {c.emoji.map((e: any) => e.idUser).filter((e: any) => e.includes(account.idUser)).length === 0 ? <>
-                            <Tooltip
-                                placement={c.sender === account.idUser ? 'top-end' : 'top-start'}
-                                content={
-                                    <EmojiPicker reactions={['2764-fe0f', '1f44d', '1f44e', '1f621', '1f604', '1f622', '1f44c', '1f44b']} reactionsDefaultOpen={true}
-                                        onReactionClick={(e: EmojiClickData) => handleReaction(e, c._id as string, c.emoji)} />
-                                }>
+                        <div className={`block absolute -bottom-1 ${c.sender === account.idUser ? 'right-12' : 'left-12'} flex justify-start items-center`}>
+                            {c.sender === account.idUser && <MessageReplyUI
+                                click={() => setReply({ id: c._id!, content: c.message, name: c.name!, time: `${formatDate(c.time)} - ${isToday(c.date!)}` })}
+                            />}
+                            {c.emoji.map((e: any) => e.idUser).filter((e: any) => e.includes(account.idUser)).length === 0 ? <>
+                                <Tooltip
+                                    placement={c.sender === account.idUser ? 'top-end' : 'top-start'}
+                                    content={
+                                        <EmojiPicker reactions={['2764-fe0f', '1f44d', '1f44e', '1f621', '1f604', '1f622', '1f44c', '1f44b']} reactionsDefaultOpen={true}
+                                            onReactionClick={(e: EmojiClickData) => handleReaction(e, c._id as string, c.emoji)} />
+                                    }>
+                                    <div
+                                        className={`w-6 cursor-pointer rounded-md transition-all`}>
+                                        <ReactionIcon className="w-6 h-6 mx-auto" />
+                                    </div>
+                                </Tooltip>
                                 <div
-                                    className={`block absolute -bottom-1 ${c.sender === account.idUser ? 'right-12' : 'left-12'} w-6 cursor-pointer rounded-md bg-zinc-500 transition-all`}>
-                                    <ReactionIcon className="w-5 h-5 mx-auto" />
+                                    className={`${c.emoji.length > 0 ? 'block' : 'hidden'} w-6 flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
+                                    {c.emoji.map((e: any) => e.emoji)}
                                 </div>
-                            </Tooltip>
-                            <div
-                                className={`block absolute -bottom-2 ${c.sender === account.idUser ? 'right-20' : 'left-20'} 
-                            w-6 flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
-                                {c.emoji.map((e: any) => e.emoji)}
-                            </div>
-                        </>
-                            : <div
-                                className={`block absolute -bottom-2 ${c.sender === account.idUser ? 'right-12' : 'left-12'} w-auto flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
-                                {new Set(c.emoji.map((e: any) => e.emoji))}
-                            </div>
-                        }
-
-
+                            </>
+                                : <div
+                                    className={`w-auto flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
+                                    {new Set(c.emoji.map((e: any) => e.emoji))}
+                                </div>
+                            }
+                            {c.sender !== account.idUser && <MessageReplyUI
+                                click={() => setReply({ id: c._id!, content: c.message, name: c.name!, time: `${formatDate(c.time)} - ${isToday(c.date!)}` })}
+                            />}
+                        </div>
                     </div>
 
                 </div>)
@@ -246,8 +311,16 @@ const ChatDetail = () => {
             <div ref={messagesEndRef} />
         </div>
         {
-            chat && <div className='message-input w-full h-[8%] grid grid-cols-12 gap-x-2 pt-2'>
-                <div className='col-span-5 xl:col-span-2 rounded-md h-[99%] flex justify-evenly items-center border border-solid border-zinc-400'>
+            chat && <div className={`message-input w-full ${!reply ? 'h-[8%]' : 'h-[15%]'} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
+                {reply && <div className='relative bg-zinc-500 bg-opacity-70 col-span-12 row-span-3 h-full p-1 rounded-md overflow-hidden' >
+                    <CloseIcon onClick={() => setReply(null)} className='absolute top-1 right-1 w-5 h-5 cursor-pointer' />
+                    <p className='text-zinc-100 text-sm font-semibold'>Reply {reply.name} - {reply.time}</p>
+                    <div className='w-full h-full max-h-full text-zinc-100'
+                        dangerouslySetInnerHTML={{ __html: reply.content.includes('<p>') ? reply.content : `<p>[Images]</p>` }}
+                    />
+                </div>
+                }
+                <div className={`col-span-5 xl:col-span-2 rounded-md ${reply ? 'row-span-4' : 'row-span-7'} flex justify-evenly items-center border border-solid border-zinc-400`}>
                     <EmojiIcon onClick={() => setShowPicker(!showPicker)} className='w-7 h-7 cursor-pointer' />
                     {<label>
                         <ImageIcon className='w-7 h-7 cursor-pointer' />
@@ -258,7 +331,7 @@ const ChatDetail = () => {
                     <TagMore className='w-7 h-7 cursor-pointer' />
                 </div>
                 {showPicker && <EmojiPicker style={{ position: 'absolute', bottom: '60px', left: '0' }} onEmojiClick={onEmojiClick} />}
-                <div className='col-span-7 xl:col-span-10'>
+                <div className={`col-span-7 xl:col-span-10 ${reply ? 'row-span-4' : 'row-span-7'}`}>
                     <Input placeholder='Message...'
                         endContent={
                             <Button isIconOnly className='h-full rounded-md text-white bg-zinc-950 px-1' onClick={handleSendMessage}>
@@ -271,14 +344,14 @@ const ChatDetail = () => {
                         type="text"
                         classNames={{
                             inputWrapper: 'w-full h-full rounded-md text-white px-1 border border-solid border-zinc-400 p-1',
-                            base: 'w-full h-[97%]',
+                            base: `w-full h-[99%]`,
                         }}
                         className='text-white px-1' />
                 </div>
 
             </div>
         }
-    </section>
+    </section >
 }
 
 export default ChatDetail

@@ -28,4 +28,7 @@ export interface Chat {
     date: string
     time: Date
     status: string
+    replyId?: string
+    replyContent?: string
+    replyInfo?: string
 }
