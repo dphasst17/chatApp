@@ -5,6 +5,10 @@ import { Chat, ChatByUser } from '@/interface/chat'
 import { StateContext } from '@/context/state'
 import socket from '@/utils/socket'
 import { accountStore } from '@/stores/account'
+import { DeleteIcon } from '../icon/icon'
+import { Tooltip } from '@nextui-org/react'
+import { getToken } from '@/utils/cookie'
+import { updateChat } from '@/api/chat'
 
 const ListChat = () => {
     const { account } = accountStore()
@@ -17,15 +21,33 @@ const ListChat = () => {
             avatar: avatar,
         })
     }
+    const handleDelete = async (idChat: string) => {
+        const getData = list && list.filter((c: ChatByUser) => c._id !== idChat)
+        if (getData && account) {
+            const dataUpdate = getData[0].type === "group" ? {
+                user: getData[0].user.filter((c: string) => c !== account.idUser),
+            } : {
+                userAction: getData[0].userAction.map((c: any) => {
+                    return c.idUser !== account.idUser ? c : {
+                        ...c,
+                        date: new Date()
+                    }
+                })
+            }
+            const token = await getToken()
+            token && updateChat(token, idChat, dataUpdate).then((res) => {
+                if (res.status === 200) {
+                    list && setList(list.filter((c: ChatByUser) => c._id !== idChat))
+                }
+            })
+        }
+
+    }
     useEffect(() => {
         socket.on('s_g_r_create_group', (data: any) => {
             if (data.type && data.type === "add") {
                 const includesMessage = list && list.filter((c: ChatByUser) => c._id === data.data._id)
                 includesMessage?.length === 0 && list && setList([data.data, ...list])
-            }
-
-            if (data.type && data.type === "remove") {
-                list && setList(list.filter((c: ChatByUser) => c._id !== data.data._id))
             }
 
             !data.type && account && list
@@ -50,9 +72,16 @@ const ListChat = () => {
         <div className='w-[99%] h-full py-2 overflow-y-auto'>
             {list && list.length > 0 &&
                 list.map((c: ChatByUser) =>
-                    c.lastMessage && <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="w-full h-auto"
-                        title={c.name} avatar={c.avatar}
-                        content={c.lastMessage} />
+                    c.lastMessage && <div key={c._id} className='w-full h-auto grid grid-cols-12 gap-1'>
+                        <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="col-span-11 h-auto"
+                            title={c.name} avatar={c.avatar}
+                            content={c.lastMessage} />
+                        <Tooltip radius='sm' content="Delete chat" placement="left" color='danger' showArrow>
+                            <div className="col-span-1 h-auto flex items-center justify-center">
+                                <DeleteIcon onClick={() => handleDelete(c._id)} className='cursor-pointer w-6 h-6' />
+                            </div>
+                        </Tooltip>
+                    </div>
                 )
             }
         </div>

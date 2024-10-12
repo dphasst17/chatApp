@@ -1,24 +1,30 @@
-import { updateChat, uploadImages } from "@/api/chat"
+import { leaveGroup, updateChat, uploadImages } from "@/api/chat"
 import { StateContext } from "@/context/state"
 import { accountStore } from "@/stores/account"
 import { getToken } from "@/utils/cookie"
 import React, { use, useState } from "react"
 import { EditIcon, EditImageIcon } from "../icon/icon"
-import { Avatar, Badge, Button, Code, Input } from "@nextui-org/react"
+import { Avatar, Badge, Button, Code, Input, Modal, useDisclosure } from "@nextui-org/react"
 import { ChatInfoUser, Friend } from "@/interface/account"
 import socket from "@/utils/socket"
+import ConfirmModal from "../modal/confirm.modal"
 import { chatStore } from "@/stores/chat"
 import { ChatByUser } from "@/interface/chat"
 
 const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
     { info: any, dataImage: { total: number, read: number, data: any[] }, handleLoadMoreImage: () => void }
 ) => {
-    const { chat } = use(StateContext)
+    const { chat, setChat } = use(StateContext)
     const { account, friend } = accountStore()
-    const { list } = chatStore()
+    const { list, setList } = chatStore()
     const [edit, setEdit] = useState("")
+    const [modal, setModal] = useState("")
     const [addMember, setAddMember] = useState<boolean>(false)
     const [data, setData] = useState<{ [key: string]: string | File[] | any }>()
+    const [handle, setHandle] = useState<any>(null)
+    const [parameter, setParameter] = useState<any>(null)
+    const [contentBtn, setContentBtn] = useState<string>('')
+    const { isOpen, onOpenChange, onClose, onOpen } = useDisclosure()
     const handleChange = async () => {
         if (!data) {
             setEdit("")
@@ -46,11 +52,26 @@ const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
                 }
             })
     }
-    const handleChangeMember = async (type: "add" | "remove", id: string, userList: string[], name?: string, avatar?: string) => {
+    const handleChangeMember = async (data: { type: "add" | "remove", id: string, userList: string[], name?: string, avatar?: string }) => {
+        const type = data.type
+        const id = data.id
+        const userList = data.userList
+        const name = data.name
+        const avatar = data.avatar
         const userListData = type === "add" ? [...userList, id] : userList.filter((u: string) => u !== id)
+        const incluseUserAction = info.userAction.filter((u: any) => u.idUser === id)
+        const dataUpdate = incluseUserAction.length > 0 ? {
+            user: userListData
+        } : {
+            user: userListData,
+            userAction: [...info.userAction, {
+                idUser: id,
+                date: new Date()
+            }]
+        }
         const token = await getToken()
         const _id = chat?._id
-        token && updateChat(token, _id, { user: userListData })
+        token && updateChat(token, _id, dataUpdate)
             .then(res => {
                 if (res.status === 200) {
                     socket.emit('chat_info', {
@@ -60,17 +81,56 @@ const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
                                 idUser: id,
                                 name: name,
                                 avatar: avatar
-                            }] : info.user.filter((u: ChatInfoUser) => u.idUser !== id)
+                            }] : userListData
                         }
                     })
-                    const dataEmit = list && list.filter((c: ChatByUser) => c._id === _id)[0]
-                    socket.emit('u_create_group', {
-                        type: type === "add" ? "add" : "remove",
-                        data: type === "add" ? dataEmit && { ...dataEmit, user: [...dataEmit.user, id] } : {
-                            _id: _id
+
+                }
+                else {
+                    console.log(res.message)
+                }
+                setModal("")
+                setHandle(null)
+                onClose()
+            })
+    }
+    const handleUpdateOwner = async (data: { idUser: string }) => {
+        const { idUser } = data
+        const token = await getToken()
+        const _id = chat?._id
+        token && updateChat(token, _id, { owner: idUser })
+            .then(res => {
+                if (res.status === 200) {
+                    socket.emit('chat_info', {
+                        idChat: _id,
+                        data: {
+                            owner: idUser
                         }
                     })
                 }
+                else {
+                    console.log(res.message)
+                }
+                setModal("")
+                setHandle(null)
+                onClose()
+            })
+    }
+    const handleLeaveChat = async () => {
+        const token = await getToken()
+        const _id = chat?._id
+        token && leaveGroup(token, _id)
+            .then(res => {
+                if (res.status === 200) {
+                    list && setList(list.filter((c: ChatByUser) => c._id !== _id))
+                    setChat(null)
+                }
+                else {
+                    console.log(res.message)
+                }
+                setModal("")
+                setHandle(null)
+                onClose()
             })
     }
     return chat && <section className='w-[400px] h-auto max-h-screen sm:max-h-[500px]rounded-md p-2'>
@@ -117,24 +177,49 @@ const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
                     <div key={`member-${u.idUser}`} className={`h-full flex flex-col justify-center items-center`}>
                         <Avatar key={u.idUser} isBordered radius='sm' alt='avatar' src={u.avatar} size='lg' />
                         <Code className='my-1 cursor-pointer'>{u.name}</Code>
+                        {(info.owner === account?.idUser && info.owner !== u.idUser) ? <Button size="sm" color="primary"
+                            className="h-[20px]"
+                            onClick={() => {
+                                setModal("confirm")
+                                setHandle("updateOwner")
+                                setParameter({ idUser: u.idUser })
+                                setContentBtn("Set as owner")
+                                onOpen()
+
+                            }}
+                        >
+                            Set as owner
+                        </Button>
+                            : <div className="h-[20px]"></div>
+                        }
                     </div>
                 )}
                 {addMember && <div className="col-span-3 w-full h-auto grid grid-cols-3 gap-2">
                     {friend && friend.map((f: Friend) => <div key={f._id} className="w-full flex flex-wrap justify-around items-center">
-                        <div className="w-full flex justify-center items-center"><Avatar isBordered radius='sm' alt='avatar' src={f.friend.avatar} size='lg' /></div>
+                        <div className="w-full flex justify-center items-center">
+                            <Avatar isBordered radius='sm' alt='avatar' src={f.friend.avatar} size='lg' />
+                        </div>
                         <p className='my-1 cursor-pointer'>{f.friend.name}</p>
                         {info.user.filter((u: ChatInfoUser) =>
                             u.idUser === f.friend.idUser
                         ).length !== 0 ?
                             <Button
-                                onClick={() => handleChangeMember("remove", f.friend.idUser, info.user.map((u: ChatInfoUser) => u.idUser))}
+                                onClick={() => {
+                                    setModal("delete")
+                                    setHandle("updateMember")
+                                    setParameter({ type: "remove", id: f.friend.idUser, userList: info.user.map((u: ChatInfoUser) => u.idUser) })
+                                    setContentBtn("Remove")
+                                    onOpen()
+                                }}
                                 isIconOnly key={f._id} size="sm"
                                 color="danger" className="w-5 h-5 rounded-md">
                                 x
                             </Button>
                             :
                             <Button
-                                onClick={() => handleChangeMember("add", f.friend.idUser, info.user.map((u: ChatInfoUser) => u.idUser), f.friend.name, f.friend.avatar)}
+                                onClick={() => handleChangeMember({
+                                    type: "add", id: f.friend.idUser, userList: info.user.map((u: ChatInfoUser) => u.idUser), name: f.friend.name, avatar: f.friend.avatar
+                                })}
                                 isIconOnly key={f._id} size="sm"
                                 color="primary" className="w-5 h-5 rounded-md">
                                 +
@@ -149,7 +234,21 @@ const ChatInfoDetail = ({ info, dataImage, handleLoadMoreImage }:
                 {dataImage.data.map((i: any) => <img key={i._id} src={i.image} className='w-20 h-20 rounded-md cursor-pointer object-cover' />)}
                 {dataImage.total - dataImage.read > 0 && <Button className='w-full h-full rounded-md' onClick={handleLoadMoreImage}>Load more</Button>}
             </div>
+            {
+                info.type === "group" && <div className="w-full h-[100px] flex items-center justify-center">
+                    <Button color="danger" radius="sm" onClick={() => { setModal("delete"), setHandle("leaveGroup"), setContentBtn("Leave"), onOpen() }}>Leave a group</Button>
+                </div>
+            }
         </div>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
+            <ConfirmModal type={modal} onClose={onClose} handle={() =>
+                handle === "updateOwner" ? handleUpdateOwner(parameter)
+                    : (
+                        handle === "updateMember" ? handleChangeMember(parameter) : handleLeaveChat()
+                    )
+            }
+                contentBtn={contentBtn} />
+        </Modal>
     </section >
 }
 export default ChatInfoDetail

@@ -89,7 +89,7 @@ const ChatComponent = () => {
             </section>
                 : <section className='w-full h-[8%] min-h-[80px]'></section>
             }
-            <ChatDetail />
+            <ChatDetail info={info} />
         </div>
     </div >
 }

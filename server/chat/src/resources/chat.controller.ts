@@ -18,7 +18,10 @@ export class ChatController {
     async createChat(data: any) {
         return await this.chatService.createChat(data)
     }
-
+    @EventPattern({ cmd: 'user_leave_group_chat' })
+    async leaveGroupChat(data: { idUser: string, idChat: string }) {
+        return await this.chatService.leaveGroupChat(data)
+    }
     @EventPattern({ cmd: 'get_chat_by_user' })
     async getChatByUser(idUser: string) {
         const result = await this.chatService.getChatByUser(idUser)

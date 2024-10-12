@@ -1,20 +1,20 @@
-import { getChatById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat'
-import { StateContext } from '@/context/state'
-import React, { use, useEffect, useRef, useState } from 'react'
 import { CloseIcon, EmojiIcon, FileIcon, ImageIcon, MessageCircle, MessageUpload, ReactionIcon, TagMore } from '../icon/icon';
-import EmptyChat from './emptyChat'
-import { Button, Input, Tooltip } from '@nextui-org/react'
+import { getChatById, insertChat, insertImages, updateChat, uploadImages } from '@/api/chat';
+import React, { use, useEffect, useRef, useState } from 'react';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
-import { getToken } from '@/utils/cookie';
+import { Button, Input, Tooltip } from '@nextui-org/react';
 import { Chat, ChatByUser } from '@/interface/chat';
 import Message, { MessageReplyUI } from './message';
-import { formatDate } from '@/utils/util';
+import { StateContext } from '@/context/state';
 import { accountStore } from '@/stores/account';
-import socket from '@/utils/socket';
+import { getToken } from '@/utils/cookie';
+import { formatDate } from '@/utils/util';
 import { chatStore } from '@/stores/chat';
 import { isToday } from '@/utils/util';
 import { toast } from 'react-toastify';
-const ChatDetail = () => {
+import socket from '@/utils/socket';
+import EmptyChat from './emptyChat';
+const ChatDetail = ({ info }: { info: any }) => {
     const { chat, currentId, setCurrentId } = use(StateContext)
     const { account } = accountStore()
     const { list, setList } = chatStore()
@@ -26,7 +26,6 @@ const ChatDetail = () => {
     const [value, setValue] = useState<string>('')
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    /* const limitData = 20 */
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -186,7 +185,6 @@ const ChatDetail = () => {
 
                         // Kiểm tra nếu tìm thấy chat hiện tại
                         const includeCurrentChat = resData.some((d: Chat) => d._id === id);
-                        console.log(includeCurrentChat)
                         if (includeCurrentChat) {
                             isInclude = true; // Đánh dấu dữ liệu hợp lệ
                             break; // Thoát khỏi vòng lặp
@@ -232,7 +230,6 @@ const ChatDetail = () => {
     }
     //this is function for socket
     useEffect(() => {
-        data && console.log("Data", data)
         socket.on('s_g_r_chat', (message: any) => {
             if (message.idChat !== chat._id) return
             data && setData([...data, message])
@@ -311,7 +308,8 @@ const ChatDetail = () => {
             <div ref={messagesEndRef} />
         </div>
         {
-            chat && <div className={`message-input w-full ${!reply ? 'h-[8%]' : 'h-[15%]'} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
+            (account && info && info.userAction.filter((e: any) => e.idUser === account.idUser && e.date !== null).length === 0 && chat)
+            && <div className={`message-input w-full ${!reply ? 'h-[8%]' : 'h-[15%]'} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
                 {reply && <div className='relative bg-zinc-500 bg-opacity-70 col-span-12 row-span-3 h-full p-1 rounded-md overflow-hidden' >
                     <CloseIcon onClick={() => setReply(null)} className='absolute top-1 right-1 w-5 h-5 cursor-pointer' />
                     <p className='text-zinc-100 text-sm font-semibold'>Reply {reply.name} - {reply.time}</p>
@@ -349,6 +347,13 @@ const ChatDetail = () => {
                         className='text-white px-1' />
                 </div>
 
+            </div>
+
+        }
+        {
+            (account && info && info.userAction.filter((e: any) => e.idUser === account.idUser && e.date !== null).length !== 0 && chat)
+            && <div className={`message-input text-zinc-500 w-full ${!reply ? 'h-[8%]' : 'h-[15%]'} max-h-[15%] flex justify-center items-center pt-2 transition-all`}>
+                You have left the group
             </div>
         }
     </section >

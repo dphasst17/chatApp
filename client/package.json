@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "bs": "bun run build && bun start",
     "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start --port 3001",

@@ -24,6 +24,9 @@ export class ChatRepository {
         const chat = this.chat.create(data);
         return chat
     }
+    async userLeaveGroupChat(idUser: string, id: string) {
+        return await this.chatInfo.findByIdAndUpdate(id, { $pull: { user: idUser } })
+    }
     async getChatByUser(idUser: string) {
         const data = await this.chatInfo.aggregate([
             {
@@ -64,14 +67,24 @@ export class ChatRepository {
                                 as: 'message',
                                 cond: {
                                     $cond: {
+                                        /*if type chat is group 
+                                            => check delete date 
+                                                => if delete date is not null => get the lasted message before delete date 
+                                                => if delete date is null => get the lasted message after delete date
+                                        */
+                                        //if owner remove user => delete date is not null and get the lasted message before delete date
                                         if: { $eq: ['$type', 'group'] },
                                         then: {
                                             $cond: {
+                                                //if delete date is not null => get the lasted message before delete date
                                                 if: { $ne: ['$deleteDate', null] },
                                                 then: { $lt: ['$$message.date', '$deleteDate'] },
                                                 else: { $gte: ['$$message.date', '$deleteDate'] }
                                             }
                                         },
+                                        /*if type chat is not group 
+                                            => get the lasted message after delete date
+                                        */
                                         else: { $gte: ['$$message.date', '$deleteDate'] }
                                     }
                                 }
@@ -80,19 +93,19 @@ export class ChatRepository {
                     }
                 }
             },
-            // Thêm một trường mới "sortField" để sử dụng trong $sort
+            // add field sort
             {
                 $addFields: {
                     sortField: {
                         $cond: {
-                            if: { $eq: ['$lastMessage', null] }, // Nếu lastMessage là null
-                            then: '$created_at', // Lấy created_at của chính đối tượng chatInfo
-                            else: '$lastMessage.date'  // Ngày từ lastMessage
+                            if: { $eq: ['$lastMessage', null] }, // if lastMessage is null
+                            then: '$created_at', // get created_at from chatInfo
+                            else: '$lastMessage.date'  // get date from lastMessage
                         }
                     }
                 }
             },
-            { $sort: { sortField: -1, _id: -1 } },// Sort theo created_at giảm dần
+            { $sort: { sortField: -1, _id: -1 } },//sorted by created_at or lastMessage.date and _id
             {
                 $project: {
                     _id: 1,
@@ -107,7 +120,6 @@ export class ChatRepository {
                 }
             }
         ]);
-        /* console.log(data) */
         return data;
     }
     async getCountChatDetail(idChat: string, type: "chat" | "image") {
@@ -127,8 +139,6 @@ export class ChatRepository {
 
         return getItem.reverse();
     }
-
-
     async getChatImageById(idUser: string, id: string, page: number, limit: number) {
         const getInfo = await this.chatInfo.findOne({ _id: id }).exec();
         const dateFilter = getInfo.userAction.filter((item: any) => item.idUser === idUser)[0]
@@ -138,7 +148,7 @@ export class ChatRepository {
         return data
     }
     async getChatDetailInfo(idChat: string) {
-        const data = await this.chatInfo.findById({ _id: idChat }, { _id: 1, name: 1, avatar: 1, user: 1, time: 1, type: 1, notification: 1, owner: 1 })
+        const data = await this.chatInfo.findById({ _id: idChat }, { _id: 1, name: 1, avatar: 1, user: 1, time: 1, type: 1, notification: 1, owner: 1, userAction: 1 })
         return data
     }
 

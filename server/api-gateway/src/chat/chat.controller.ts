@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Response } from 'express';
 import { firstValueFrom } from 'rxjs';
@@ -89,5 +89,10 @@ export class ChatController {
         @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
         const update = await firstValueFrom(this.natsClient.send({ cmd: 'chat_update' }, { id: idChat, idUser: req.idUser, data }))
         return res.status(update.status).json(update)
+    }
+    @Put('leave/:id')
+    async leaveGroupChat(@Param('id') idChat: string, @Req() req: RequestCustom, @Res() res: Response) {
+        const leave = await firstValueFrom(this.natsClient.send({ cmd: 'user_leave_group_chat' }, { idUser: req.idUser, idChat }))
+        return res.status(leave.status).json(leave)
     }
 }

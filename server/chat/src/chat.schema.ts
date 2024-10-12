@@ -44,7 +44,6 @@ export class ChatInfo {
         type: [
             {
                 idUser: { type: String, required: false },
-                isDelete: { type: Boolean, default: false, required: false },
                 date: { type: Date || String, default: null, required: false },
             },
         ], required: false

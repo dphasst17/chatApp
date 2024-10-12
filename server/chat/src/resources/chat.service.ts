@@ -45,6 +45,13 @@ export class ChatService {
         const result = await this.chatRepository.chatInsert(data)
         return { status: 201, data: result }
     }
+    async leaveGroupChat(data: { idUser: string, idChat: string }) {
+        const result = await this.chatRepository.userLeaveGroupChat(data.idUser, data.idChat)
+        if (!result) {
+            return { status: 400, message: "Leave group chat is failed" }
+        }
+        return { status: 200, data: result }
+    }
     async getChatByUser(idUser: string) {
         try {
             const data = await this.chatRepository.getChatByUser(idUser)
@@ -74,6 +81,9 @@ export class ChatService {
     async getChatDetailInfo(idChat: string) {
         try {
             const data = await this.chatRepository.getChatDetailInfo(idChat)
+            const convertUserList = data.type !== "group"
+                ? data.user
+                : data.userAction.filter((u: any) => u.date === null).map((u: any) => u.idUser)
             const result = {
                 _id: data._id,
                 name: data.name,
@@ -83,7 +93,7 @@ export class ChatService {
                 type: data.type,
                 notification: data.notification,
                 user: await Promise.all(
-                    data.user.map(async (idUser: string) => {
+                    convertUserList.map(async (idUser: string) => {
                         const name = await this.getUserInfo(idUser, 'name');
                         const avatar = await this.getUserInfo(idUser, 'avatar');
                         return {
@@ -92,7 +102,8 @@ export class ChatService {
                             avatar: avatar
                         }
                     })
-                )
+                ),
+                userAction: data.userAction
             }
             return { status: 200, data: result }
         }

@@ -8,12 +8,6 @@ export const getChatList = async (token: string) => {
     })
         .then(res => res.json())
 }
-//remove it
-export const getChatDetail = async (id: string) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`)
-        .then(res => res.json())
-}
-//
 export const createChat = async (token: string, data: { [key: string]: string | number | boolean | [] | any }) => {
     return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, {
         method: "POST",
@@ -22,6 +16,16 @@ export const createChat = async (token: string, data: { [key: string]: string | 
             "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(data),
+    })
+        .then(res => res.json())
+}
+export const leaveGroup = async (token: string, id: string) => {
+    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/leave/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
     })
         .then(res => res.json())
 }
