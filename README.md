@@ -32,17 +32,13 @@ This is a chat application built with modern web technologies. The client side i
 1. Clone the repository:
    ```bash
    git clone https://github.com/dphasst17/chatApp.git
-   cd chat-app
+   cd chatApp
    ```
 2. Install dependencies for the client:
    ```bash
    cd client && bun install
    ```
-3. Install dependencies for the server:
-   ```bash
-   cd server && bun install
-   ```
-4. Create env file in server and client:
+3. Create env file in server and client:
    ```bash
     - client
      -> src
@@ -57,7 +53,7 @@ This is a chat application built with modern web technologies. The client side i
      -> .env
      -> docker-compose.yml
    ```
-5. Env Server :
+4. Env Server :
 
    ```bash
    NAME=name
@@ -77,6 +73,12 @@ This is a chat application built with modern web technologies. The client side i
 
 ```bash
 cd client && bun run dev
+```
+
+or build and start client with command
+
+```bash
+cd client && bun bs
 ```
 
 ### Server

@@ -26,6 +26,12 @@ const ListChat = () => {
         if (getData && account) {
             const dataUpdate = getData[0].type === "group" ? {
                 user: getData[0].user.filter((c: string) => c !== account.idUser),
+                userAction: getData[0].userAction.map((c: any) => {
+                    return c.idUser !== account.idUser ? c : {
+                        ...c,
+                        date: new Date()
+                    }
+                })
             } : {
                 userAction: getData[0].userAction.map((c: any) => {
                     return c.idUser !== account.idUser ? c : {
