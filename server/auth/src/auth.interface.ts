@@ -1,6 +1,9 @@
 export interface AuthRequest {
     username: string,
-    password: string
+    password: string,
+    email?: string,
+    name?: string,
+    picture?: string
 }
 export interface AuthResponse {
     a: string,

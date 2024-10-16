@@ -3,16 +3,17 @@ import { Avatar, Badge, Button, Input, Modal, Popover, PopoverContent, PopoverTr
 import React, { use, useEffect, useState } from 'react'
 import { EditImageIcon, FriendAdd, GroupLine, SearchIcon, UserEdit } from '../icon/icon'
 import { accountStore } from '@/stores/account'
-import { remove } from '@/utils/cookie'
+import { getToken, remove } from '@/utils/cookie'
 import { StateContext } from '@/context/state'
 import { useRouter } from 'next/navigation'
-import { friendRemove, friendUpdate, searchUser } from '@/api/account'
+import { friendRemove, friendUpdate, searchUser, updateUser } from '@/api/account'
 import { Friend, Search } from '@/interface/account'
 import socket from '@/utils/socket'
 import SearchModal from '../modal/search'
 import FriendList from '../modal/friend.list'
 import AccountEdit from '../modal/account.edit'
 import AvatarEdit from '../modal/account.avatar.edit'
+import { toast } from 'react-toastify'
 
 const UserInfo = () => {
     const { setIsLog } = use(StateContext)
@@ -30,14 +31,22 @@ const UserInfo = () => {
             account && data.idUser !== account.idUser && (data.idFriend === account.idUser) ? 'append data to friend pending' : ''
         })
     }, [])
-    const handleLogout = () => {
-        remove('c-atk')
-        remove('c-rtk')
-        remove('c-log')
-        setIsLog(false)
-        setAccount(null)
-        account && socket.emit('u_disconnect', account.idUser)
-        router.push('/auth')
+    const handleLogout = async () => {
+        const token = await getToken()
+        token && updateUser(token, { online: false })
+            .then((res) => {
+                if (res.status !== 200) {
+                    toast.error(res.message)
+                    return
+                }
+                remove('c-atk')
+                remove('c-rtk')
+                remove('c-log')
+                setIsLog(false)
+                setAccount(null)
+                account && socket.emit('u_disconnect', account.idUser)
+                router.push('/auth')
+            })
     }
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.target.value ? setIsOpen(true) : setIsOpen(false)
@@ -117,7 +126,7 @@ const UserInfo = () => {
                 <div className='relative col-span-6'>
                     <Input onChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' defaultValue={search}
                         endContent={<SearchIcon className='w-6 h-6 cursor-pointer  rounded-md' />} />
-                    {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] bg-zinc-800 rounded-md z-40'>
+                    {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] bg-zinc-100 rounded-md z-40'>
                         <Button size="sm" isIconOnly color='danger' className='m-1' onClick={() => { setSearch(''); setIsOpen(false) }}>X</Button>
                         {!searchData && <p className='text-center'>No data result</p>}
                         {searchData && searchData.slice(0, 5).map((s: Search) => <div className='w-[95%] h-[50px] grid grid-cols-5 mx-auto my-2 rounded-md hover:bg-zinc-700 cursor-pointer transition-all' key={`search-${s._id}`}>

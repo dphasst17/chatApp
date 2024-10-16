@@ -4,6 +4,7 @@ import "./globals.css";
 import { ApiProvider } from "@/context/api";
 import { StateProvider } from "@/context/state";
 import PrivateRoute from "./privateRoute";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 export const metadata: Metadata = {
   title: "Chat App",
   description: "Chat App",
@@ -21,7 +22,11 @@ export default function RootLayout({
         <StateProvider>
           <ApiProvider>
             <Providers>
-              <PrivateRoute>{children}</PrivateRoute>
+              <PrivateRoute>
+                <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GID as string}>
+                  {children}
+                </GoogleOAuthProvider>
+              </PrivateRoute>
             </Providers>
           </ApiProvider>
         </StateProvider>

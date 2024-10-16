@@ -32,15 +32,37 @@ export class AuthService {
         return "Auth service is up and running!";
     }
     async login(data: AuthLoginRequest) {
-        const { username, password } = data
+        const username = data.username || data.email
         const getData = await this.authRepository.getData(username)
-        if (!getData) {
+        if (!data.email && !getData) {
             return { status: 404, message: "Username does not exist" }
         }
-        if (!this.decodePass(password, getData.password)) {
+        const idUser = getData && getData.idUser || data.email.split('@')[0]
+        if (data.email && !getData) {
+            const hash = this.encodePass(idUser)
+            const register = await this.authRepository.register({ username: username, password: hash, idUser: idUser, createdAt: new Date(), action: 'active' })
+            const created_user = register && await firstValueFrom(this.natsClient.send(
+                { cmd: 'user_create' },
+                {
+                    name: data.name,
+                    email: data.email,
+                    phone: '',
+                    avatar: data.picture,
+                    idUser: idUser,
+                    online: false
+                }))
+            if (!created_user) {
+                await this.removeAccount(idUser)
+                return { status: 403, message: "Register is failed" }
+            }
+            if (!register) {
+                return { status: 403, message: "Register is failed" }
+            }
+        }
+        if (!data.email && !this.decodePass(data.password, getData.password)) {
             return { status: 401, message: "Password is incorrect" }
         }
-        const token = this.generateToken(getData.idUser, "a")
+        const token = this.generateToken(idUser, "a")
         const refreshToken = this.generateToken(getData.idUser, "r")
         return {
             status: 200, data: {
@@ -56,7 +78,6 @@ export class AuthService {
         if (getData) {
             return {
                 status: 403, message: "Username already exist"
-
             }
         }
         const hash = this.encodePass(password)
