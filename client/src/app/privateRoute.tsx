@@ -1,21 +1,33 @@
-'use client'
-import { StateContext } from '@/context/state'
-import { useRouter } from 'next/navigation'
-import React, { use, useEffect } from 'react'
+"use client";
+import Loader from "@/components/load/loader";
+import { StateContext } from "@/context/state";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-    const { isLog } = use(StateContext)
-    const router = useRouter()
-    useEffect(() => {
-        if (!isLog) {
-            router.push('/auth')
-        }
-        else {
-            router.push('/')
-        }
-    }, [isLog])
+  const { isLog } = useContext(StateContext); // Lấy thông tin đăng nhập
+  const router = useRouter();
+  const [loading, setLoading] = useState(true); // Trạng thái để xử lý khi đang kiểm tra đăng nhập
 
-    return children
-}
+  useEffect(() => {
+    if (typeof isLog === "undefined") {
+      return;
+    }
 
-export default PrivateRoute
+    setLoading(false);
+    if (!isLog) {
+      router.push("/auth");
+    } else {
+      const url = window.location.href;
+      url.split("3001")[1] === "/auth"
+        ? router.push("/")
+        : router.push(url.split("3001")[1]);
+    }
+  }, [isLog]);
+  if (loading) {
+    return <Loader />;
+  }
+  return children;
+};
+
+export default PrivateRoute;

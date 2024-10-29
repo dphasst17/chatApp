@@ -8,6 +8,7 @@ export const StateProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLog, setIsLog] = useState<boolean>(false)
     const [chat, setChat] = useState<ChatDetailInfo | null>(null)
     const [currentId, setCurrentId] = useState<string>('')
+    const [allowUser, setAllowUser] = useState<any[]>([])
     useEffect(() => {
         setIsLog(JSON.parse(get('c-log') || 'false'))
     }, [])
@@ -15,7 +16,8 @@ export const StateProvider = ({ children }: { children: React.ReactNode }) => {
         <StateContext.Provider value={{
             isLog, setIsLog,
             chat, setChat,
-            currentId, setCurrentId
+            currentId, setCurrentId,
+            allowUser, setAllowUser
         }}>
             {children}
         </StateContext.Provider>

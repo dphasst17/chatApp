@@ -42,6 +42,10 @@ export class SocketGateway {
             console.error('Error handling disconnect:', error);
         }
     }
+    @SubscribeMessage('video_call')
+    async handleVideoCall(client: Socket, data: { idChat: string, link: string }) {
+        this.socket.emit('s_g_r_vd_on', data);
+    }
     @SubscribeMessage('reaction')
     handleReaction(client: Socket, data: any) {
         this.socket.emit('s_g_r_reaction', data);

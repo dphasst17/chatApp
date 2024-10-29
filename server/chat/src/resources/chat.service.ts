@@ -81,9 +81,6 @@ export class ChatService {
     async getChatDetailInfo(idChat: string) {
         try {
             const data = await this.chatRepository.getChatDetailInfo(idChat)
-            const convertUserList = data.type !== "group"
-                ? data.user
-                : data.userAction.filter((u: any) => u.date === null).map((u: any) => u.idUser)
             const result = {
                 _id: data._id,
                 name: data.name,
@@ -93,7 +90,7 @@ export class ChatService {
                 type: data.type,
                 notification: data.notification,
                 user: await Promise.all(
-                    convertUserList.map(async (idUser: string) => {
+                    data.user.map(async (idUser: string) => {
                         const name = await this.getUserInfo(idUser, 'name');
                         const avatar = await this.getUserInfo(idUser, 'avatar');
                         return {
