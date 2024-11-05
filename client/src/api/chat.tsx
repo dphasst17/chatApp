@@ -1,97 +1,76 @@
+import axiosInstance from "@/lib/axios"
+const axios = axiosInstance
 export const getChatList = async (token: string) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, {
-        method: "GET",
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
     })
-        .then(res => res.json())
+    return result.data
 }
 export const createChat = async (token: string, data: { [key: string]: string | number | boolean | [] | any }) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, {
-        method: "POST",
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat`, data, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
     })
-        .then(res => res.json())
+    return result.data
 }
 export const leaveGroup = async (token: string, id: string) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/leave/${id}`, {
-        method: "PUT",
+    const result = await axios.put(`${process.env.NEXT_PUBLIC_PORT}/api/chat/leave/${id}`, {}, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
     })
-        .then(res => res.json())
+    return result.data
 }
 export const getChatInfoById = async (id: string) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/info/${id}`)
-        .then(res => res.json())
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/chat/info/${id}`)
+    return result.data
 }
 export const getChatById = async (token: string, id: string, page?: number, limit?: number) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page ? page : 1}&limit=${limit ? limit : 100}`,
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}?page=${page ? page : 1}&limit=${limit ? limit : 100}`,
         {
-            method: "GET",
             headers: {
-                "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
             }
         }
     )
-        .then(res => res.json())
+    return result.data
 }
 export const getChatImageById = async (token: string, id: string, page?: number, limit?: number) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/image/${id}?page=${page ? page : 1}&limit=${limit ? limit : 20}`, {
-        method: "GET",
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/chat/image/${id}?page=${page ? page : 1}&limit=${limit ? limit : 20}`, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         }
     })
-        .then(res => res.json())
+    return result.data
 }
 export const insertChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`, {
-        method: "POST",
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`, data, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
     })
-        .then(res => res.json())
+    return result.data
 }
 export const updateChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`, {
-        method: "PATCH",
+    const result = await axios.patch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/${id}`, data, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
     })
-        .then(res => res.json())
+    return result.data
 }
 export const uploadImages = async (files: FormData, folder?: string) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/${folder ? folder : "chat"}`, {
-        method: "POST",
-        body: files
-    })
-        .then(res => res.json())
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/${folder ? folder : "chat"}`, files)
+    return result.data
 }
 export const insertImages = async (token: string, id: string, data: { images: string[], name: string }) => {
-    return fetch(`${process.env.NEXT_PUBLIC_PORT}/api/chat/images/${id}`, {
-        method: "POST",
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat/images/${id}`, data, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
     })
-        .then(res => res.json())
+    return result.data
 }

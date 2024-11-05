@@ -1,74 +1,56 @@
 import { FriendRequest } from "@/interface/account"
-
+import axiosInstance from "@/lib/axios"
+const axios = axiosInstance
 export const getUser = async (token: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user`, {
-        method: "GET",
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/user`, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
     })
-        .then((res) => res.json())
+    return result.data
+}
+export const updateUser = async (token: string, data: any) => {
+    const result = await axios.patch(
+        `${process.env.NEXT_PUBLIC_PORT}/api/user/`,
+        data,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+        }
+    );
+    return result.data
 }
 
-export const updateUser = async (token: string, data: any) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ data }),
-    })
-        .then((res) => res.json())
-}
 export const searchUser = async (key: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/search/${key}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-        .then((res) => res.json())
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/user/search/${key}`)
+    return result.data
 }
 export const getFriendByUser = async (token: string, status: "pending" | "accepted") => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend/${status}`, {
-        method: "GET",
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend/${status}`, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
     })
-        .then((res) => res.json())
+    return result.data
 }
 export const addFriend = async (token: string, data: FriendRequest) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend`, {
-        method: "POST",
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend`, data, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
     })
-        .then((res) => res.json())
+    return result.data
 }
 
 export const friendUpdate = async (data: { [key: string]: string | Date | number | any }) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend`, {
-        method: "PATCH",
+    const result = await axios.patch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend`, data, {
         headers: {
-            "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
     })
-        .then((res) => res.json())
+    return result.data
 }
 export const friendRemove = async (id: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-        .then((res) => res.json())
+    const result = await axios.delete(`${process.env.NEXT_PUBLIC_PORT}/api/user/friend/${id}`)
+    return result.data
 }

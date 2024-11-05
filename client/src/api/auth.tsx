@@ -1,50 +1,33 @@
+import axiosInstance from "@/lib/axios"
+const axios = axiosInstance
 export const login = async (username: string, password: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/auth/login`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-    })
-        .then(res => res.json())
+    const data = { username, password }
+    const result = await axios.post(`/api/auth/login`, { username, password })
+    return result.data
 }
 export const socialLogin = async (email: string, name: string, picture: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/auth/login`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, name, picture }),
-    })
-        .then(res => res.json())
+    const data = { email, name, picture }
+    const result = await axios.post(`/api/auth/login`, data)
+    return result.data
 }
 export const registerAuth = async (data: { username: string, password: string, name: string, email: string }) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/auth/register`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(res => res.json())
+    const result = await axios.post(`/api/auth/register`, data)
+    return result.data
 }
 export const token = async (token: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/auth/token`, {
-        method: "PUT",
+    const result = await axios.put(`/api/auth/token`, {}, {
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
-        },
+        }
     })
-        .then(res => res.json())
+    return result.data
 }
-export const passwordUpdate = async (id: string, data: { current: string, password: string }) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_PORT}/api/auth/password`, {
-        method: "PATCH",
+export const passwordUpdate = async (id: string, dataUpdate: { current: string, password: string }) => {
+    const data = { id, dataUpdate }
+    const result = await axios.patch(`/api/auth/password`, data, {
         headers: {
             "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id, data }),
+        }
     })
-        .then(res => res.json())
+    return result.data
 }
