@@ -30,7 +30,7 @@ import { toast } from "react-toastify";
 import socket from "@/utils/socket";
 import EmptyChat from "./emptyChat";
 const ChatDetail = ({ info }: { info: any }) => {
-  const { chat, currentId, setCurrentId } = use(StateContext);
+  const { chat, mode, currentId, setCurrentId } = use(StateContext);
   const { account } = accountStore();
   const { list, setList } = chatStore();
   const [isPending, setIsPending] = useState<boolean>(false);
@@ -100,12 +100,12 @@ const ChatDetail = ({ info }: { info: any }) => {
         const dataMessage = {
           message: `<div class="w-[530xp] h-auto flex flex-wrap justify-between">
                             ${arrFile
-                              .map(
-                                (f: any) =>
-                                  `<img class="${arrFile.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${arrFile.length === 1 ? "w-full h-[300px] object-cover" : ""}"
+              .map(
+                (f: any) =>
+                  `<img class="${arrFile.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${arrFile.length === 1 ? "w-full h-[300px] object-cover" : ""}"
                             src="${process.env.NEXT_PUBLIC_S3}/chat/${f.name}" />`,
-                              )
-                              .join("")}
+              )
+              .join("")}
                         </div>`,
           date: new Date(),
           time: new Date().toLocaleTimeString(),
@@ -303,9 +303,9 @@ const ChatDetail = ({ info }: { info: any }) => {
               return d._id !== value._id
                 ? d
                 : {
-                    ...d,
-                    emoji: value.emoji,
-                  };
+                  ...d,
+                  emoji: value.emoji,
+                };
             }),
           );
       },
@@ -382,7 +382,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                   {c.emoji
                     .map((e: any) => e.idUser)
                     .filter((e: any) => e.includes(account.idUser)).length ===
-                  0 ? (
+                    0 ? (
                     <>
                       <Tooltip
                         placement={
@@ -410,7 +410,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                         <div
                           className={`w-6 cursor-pointer rounded-md transition-all`}
                         >
-                          <ReactionIcon className="w-6 h-6 mx-auto" />
+                          <ReactionIcon className={`w-6 h-6 mx-auto ${mode === "light" ? "text-zinc-900" : "text-zinc-100"}`} />
                         </div>
                       </Tooltip>
                       <div
@@ -449,7 +449,7 @@ const ChatDetail = ({ info }: { info: any }) => {
       {account &&
         info &&
         info.user.filter((e: any) => e.idUser === account.idUser).length !==
-          0 &&
+        0 &&
         chat && (
           <div
             className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}
@@ -535,7 +535,7 @@ const ChatDetail = ({ info }: { info: any }) => {
         info &&
         info.type === "group" &&
         info.user.filter((e: any) => e.idUser === account.idUser).length ===
-          0 &&
+        0 &&
         chat && (
           <div
             className={`message-input text-zinc-500 w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] flex justify-center items-center pt-2 transition-all`}

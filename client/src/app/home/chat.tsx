@@ -3,19 +3,20 @@ import { getChatImageById, getChatInfoById } from "@/api/chat";
 import ChatDetail from "@/components/chat/chat";
 import ChatInfoDetail from "@/components/chat/chat.info";
 import { BackIcon, ChatInfo, VideoCall } from "@/components/icon/icon";
+import ModalChatDetail from "@/components/modal/chat.detail";
 import { StateContext } from "@/context/state";
 import { ChatByUser } from "@/interface/chat";
 import { chatStore } from "@/stores/chat";
 import { getToken } from "@/utils/cookie";
 import socket from "@/utils/socket";
-import { Avatar, Badge, Tooltip } from "@nextui-org/react";
+import { Avatar, Badge, Tooltip, useDisclosure } from "@nextui-org/react";
 import CryptoJS from "crypto-js";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 const ChatComponent = () => {
   const router = useRouter();
-  const { chat, setChat, currentId } = use(StateContext);
+  const { mode, chat, setChat, currentId } = use(StateContext);
   const { list, setList } = chatStore();
   const [dataImage, setDataImage] = useState<{
     total: number;
@@ -26,6 +27,14 @@ const ChatComponent = () => {
   const [isCall, setIsCall] = useState<boolean>(false);
   const [link, setLink] = useState<string>("");
   const [isInfo, setIsInfo] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  //
+  const { isOpen: open, onOpenChange, onClose, onOpen } = useDisclosure();
+  const [handle, setHandle] = useState<any>(null);
+  const [parameter, setParameter] = useState<any>(null);
+  const [contentBtn, setContentBtn] = useState<string>("");
+  const [modal, setModal] = useState("");
+  //
   const endCode = (data: string[]) => {
     const convertData = JSON.stringify(data);
     const code = CryptoJS.AES.encrypt(
@@ -81,7 +90,7 @@ const ChatComponent = () => {
             ...chat,
             ...data.data,
           }),
-          setInfo({ ...info, ...data.data }));
+            setInfo({ ...info, ...data.data }));
         list &&
           setList(
             list.map((c: ChatByUser) =>
@@ -124,7 +133,7 @@ const ChatComponent = () => {
               </div>
               <div className="col-span-6 md:col-span-7 xl:col-span-10 h-full grid grid-cols-5 items-center">
                 <div className="col-span-3 h-2/4 sm:h-full flex justify-start items-center text-xl font-bold">
-                  <span className="truncate text-zinc-950">{chat.name}</span>
+                  <span className={`truncate ${mode === "light" ? "text-zinc-900" : "text-zinc-200"}`}>{chat.name}</span>
                 </div>
                 <div className="col-span-2 h-2/4 sm:h-full flex justify-end md:justify-end items-center">
                   {isCall ? (
@@ -142,13 +151,21 @@ const ChatComponent = () => {
                   )}
                   <Tooltip
                     placement="left-start"
+                    isOpen={isOpen}
+                    onOpenChange={(open) => setIsOpen(open)}
                     offset={-30}
                     crossOffset={100}
+                    color="default"
+                    classNames={{ base: "!z-30", content: "relative p-0 !z-30" }}
                     content={
                       <ChatInfoDetail
                         info={info}
                         dataImage={dataImage}
                         handleLoadMoreImage={handleLoadMoreImage}
+                        setIsOpen={setIsOpen}
+                        onClose={onClose}
+                        onOpen={onOpen}
+                        setHandle={setHandle} setModal={setModal} setParameter={setParameter} setContentBtn={setContentBtn}
                       />
                     }
                   >
@@ -162,15 +179,24 @@ const ChatComponent = () => {
                 </div>
               </div>
             </section>
-            {/* <div className="absolute top-0 mx-auto w-4/5 h-[30px]">
-              {link && link}
-            </div> */}
           </>
         ) : (
           <section className="w-full h-[8%] min-h-[80px]"></section>
         )}
         <ChatDetail info={info} />
       </div>
+      <ModalChatDetail
+        isOpen={open}
+        onOpenChange={onOpenChange}
+        onClose={onClose}
+        modal={modal}
+        handle={handle}
+        parameter={parameter}
+        contentBtn={contentBtn}
+        handleChangeMember={setModal}
+        setModal={setModal}
+        setHandle={setHandle}
+      />
     </div>
   );
 };

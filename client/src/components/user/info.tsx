@@ -1,29 +1,25 @@
 'use client'
 import { Avatar, Badge, Button, Input, Modal, Popover, PopoverContent, PopoverTrigger, useDisclosure } from '@nextui-org/react'
 import React, { use, useEffect, useState } from 'react'
-import { EditImageIcon, FriendAdd, GroupLine, SearchIcon, UserEdit } from '../icon/icon'
+import { EditImageIcon, FriendAdd, GroupLine, MoonIcon, SearchIcon, SunIcon, UserEdit } from '../icon/icon'
 import { accountStore } from '@/stores/account'
-import { getToken, remove } from '@/utils/cookie'
-import { StateContext } from '@/context/state'
-import { useRouter } from 'next/navigation'
-import { friendRemove, friendUpdate, searchUser, updateUser } from '@/api/account'
+import { friendRemove, friendUpdate, searchUser } from '@/api/account'
 import { Friend, Search } from '@/interface/account'
 import socket from '@/utils/socket'
 import SearchModal from '../modal/search'
 import FriendList from '../modal/friend.list'
 import AccountEdit from '../modal/account.edit'
 import AvatarEdit from '../modal/account.avatar.edit'
-import { toast } from 'react-toastify'
+import { StateContext } from '@/context/state'
 
 const UserInfo = () => {
-    const { setIsLog } = use(StateContext)
-    const { account, friend, friendPending, setAccount, setFriendPending, setFriend } = accountStore()
+    const { account, friend, friendPending, setFriendPending, setFriend } = accountStore()
+    const { mode, setMode } = use(StateContext)
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [search, setSearch] = useState<string>('')
     const [searchData, setSearchData] = useState<Search[] | null>(null)
     const { isOpen: isOpenModal, onOpen, onClose, onOpenChange } = useDisclosure()
     const [modal, setModal] = useState<string>('')
-    const router = useRouter()
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
     let timeout: any = null
     useEffect(() => {
@@ -31,23 +27,6 @@ const UserInfo = () => {
             account && data.idUser !== account.idUser && (data.idFriend === account.idUser) ? 'append data to friend pending' : ''
         })
     }, [])
-    const handleLogout = async () => {
-        const token = await getToken()
-        token && updateUser(token, { online: false })
-            .then((res) => {
-                if (res.status !== 200) {
-                    toast.error(res.message)
-                    return
-                }
-                remove('c-atk')
-                remove('c-rtk')
-                remove('c-log')
-                setIsLog(false)
-                setAccount(null)
-                account && socket.emit('u_disconnect', account.idUser)
-                router.push('/auth')
-            })
-    }
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.target.value ? setIsOpen(true) : setIsOpen(false)
         clearTimeout(timeout)
@@ -81,6 +60,10 @@ const UserInfo = () => {
                 })
         }
     }
+    const handleSetMode = (mode: "light" | "dark") => {
+        setMode(mode)
+        localStorage.setItem('mode', mode)
+    }
     return account && <div className='w-full h-full rounded-md flex flex-wrap justify-around items-center'>
         <Badge classNames={{ badge: 'rounded-md !ml-12 bg-transparent border-none' }}
             content={<EditImageIcon onClick={() => { setModal('avatar'), onOpen() }} className='w-7 h-7 cursor-pointer' />
@@ -88,9 +71,11 @@ const UserInfo = () => {
             shape='rectangle' placement='bottom-right'>
             <Avatar alt='' src={account.avatar ? account.avatar : emptyAvatar} radius='sm' size='lg' />
         </Badge>
-        <div className='w-4/5 min-w-[265px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
-            <div className='info w-full grid grid-cols-6 ssm:grid-cols-8 gap-x-2 mb-1 px-1'>
-                <p className='col-span-8 ssm:col-span-5 truncate text-center ssm:text-start text-lg font-semibold my-2 ssm:my-0'>{account.name}</p>
+        <div className='w-4/5 min-w-[240px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
+            <div className='info w-full grid grid-cols-8 ssm:grid-cols-10 gap-x-2 mb-1 px-1'>
+                <p className={`col-span-8 ssm:col-span-6 truncate text-center ssm:text-start ${mode === "light" ? "!text-zinc-700" : "!text-zinc-200"} text-lg font-semibold my-2 ssm:my-0`}>{account.name}</p>
+                {mode === "light" && <SunIcon onClick={() => handleSetMode("dark")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
+                {mode === "dark" && <MoonIcon onClick={() => handleSetMode("light")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
                 <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <Popover>
@@ -122,25 +107,27 @@ const UserInfo = () => {
                     </PopoverContent>
                 </Popover>
             </div>
-            <div className='icon w-full grid grid-cols-8 gap-x-2 px-1'>
-                <div className='relative col-span-6'>
+            <div className='icon w-full grid grid-cols-8 gap-x-1'>
+                <div className='relative col-span-8'>
                     <Input onChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' defaultValue={search}
                         endContent={<SearchIcon className='w-6 h-6 cursor-pointer  rounded-md' />} />
-                    {isOpen && <div className='absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] bg-zinc-100 rounded-md z-40'>
+                    {isOpen && <div className={`absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] 
+                        ${mode === "light" ? "bg-zinc-100 text-zinc-900" : "bg-zinc-800 text-zinc-50"} rounded-md z-40`}>
                         <Button size="sm" isIconOnly color='danger' className='m-1' onClick={() => { setSearch(''); setIsOpen(false) }}>X</Button>
                         {!searchData && <p className='text-center'>No data result</p>}
-                        {searchData && searchData.slice(0, 5).map((s: Search) => <div className='w-[95%] h-[50px] grid grid-cols-5 mx-auto my-2 rounded-md hover:bg-zinc-700 cursor-pointer transition-all' key={`search-${s._id}`}>
-                            <Avatar alt='' src={s.avatar ? s.avatar : emptyAvatar} radius='sm' size='md' className='col-span-1 m-auto' />
-                            <div className='col-span-4'>
-                                <p className='px-2 py-1 h-full flex items-center text-sm truncate cursor-pointer'>{s.name}</p>
-                            </div>
-                        </div>)}
+                        {searchData && searchData.slice(0, 5).map((s: Search) =>
+                            <div className='w-[95%] h-[50px] grid grid-cols-5 mx-auto my-2 rounded-md hover:bg-zinc-600 hover:text-zinc-100 cursor-pointer transition-all'
+                                key={`search-${s._id}`}>
+                                <Avatar alt='' src={s.avatar ? s.avatar : emptyAvatar} radius='sm' size='md' className='col-span-1 m-auto' />
+                                <div className='col-span-4'>
+                                    <p className='px-2 py-1 h-full flex items-center text-sm truncate cursor-pointer'>{s.name}</p>
+                                </div>
+                            </div>)}
                         {searchData && searchData.length > 1 && <div className='w-full flex justify-center'>
                             <Button onPress={() => { setModal('search'), onOpen() }} size="sm" className='!mx-auto mt-1 mb-4'>Show all</Button>
                         </div>}
                     </div>}
                 </div>
-                <Button onClick={handleLogout} color='danger' size="sm" className='col-span-1 text-sm font-semibold'>Logout</Button>
             </div>
         </div>
         <Modal isOpen={isOpenModal} onOpenChange={onOpenChange} size="3xl">

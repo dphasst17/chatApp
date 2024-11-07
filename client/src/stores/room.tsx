@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface IUser {
+interface User {
     fullName: string;
     setFullName: (name: string) => void;
 }
 
-const roomUser = create<IUser>((set) => ({
+const roomUser = create<User>((set) => ({
     fullName: "",
     setFullName: (name: string) => set({ fullName: name }),
 }));

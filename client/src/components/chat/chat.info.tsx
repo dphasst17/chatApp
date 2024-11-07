@@ -1,9 +1,7 @@
-import { leaveGroup, updateChat, uploadImages } from "@/api/chat";
+import { updateChat, uploadImages } from "@/api/chat";
 import { StateContext } from "@/context/state";
 import { ChatInfoUser, Friend } from "@/interface/account";
-import { ChatByUser } from "@/interface/chat";
 import { accountStore } from "@/stores/account";
-import { chatStore } from "@/stores/chat";
 import { getToken } from "@/utils/cookie";
 import socket from "@/utils/socket";
 import {
@@ -12,33 +10,32 @@ import {
   Button,
   Code,
   Input,
-  Modal,
-  useDisclosure,
 } from "@nextui-org/react";
 import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
-import ConfirmModal from "../modal/confirm.modal";
 
 const ChatInfoDetail = ({
   info,
   dataImage,
+  onOpen,
+  onClose,
   handleLoadMoreImage,
+  setIsOpen,
+  setModal, setHandle, setParameter, setContentBtn
 }: {
   info: any;
   dataImage: { total: number; read: number; data: any[] };
+  onOpen: () => void,
+  onClose: () => void
   handleLoadMoreImage: () => void;
+  setIsOpen: (isOpen: boolean) => void;
+  setModal: (modal: string) => void, setHandle: (handle: any) => void, setParameter: (parameter: any) => void, setContentBtn: (contentBtn: string) => void
 }) => {
-  const { chat, setChat } = use(StateContext);
+  const { mode, chat } = use(StateContext);
   const { account, friend } = accountStore();
-  const { list, setList } = chatStore();
   const [edit, setEdit] = useState("");
-  const [modal, setModal] = useState("");
   const [addMember, setAddMember] = useState<boolean>(false);
   const [data, setData] = useState<{ [key: string]: string | File[] | any }>();
-  const [handle, setHandle] = useState<any>(null);
-  const [parameter, setParameter] = useState<any>(null);
-  const [contentBtn, setContentBtn] = useState<string>("");
-  const { isOpen, onOpenChange, onClose, onOpen } = useDisclosure();
   const handleChange = async () => {
     if (!data) {
       setEdit("");
@@ -46,10 +43,10 @@ const ChatInfoDetail = ({
     }
     const convertData = data.avatar
       ? {
-          avatar: data.avatar
-            ? `${process.env.NEXT_PUBLIC_S3}/user/${data.avatar[0].name}`
-            : "",
-        }
+        avatar: data.avatar
+          ? `${process.env.NEXT_PUBLIC_S3}/user/${data.avatar[0].name}`
+          : "",
+      }
       : data;
     const images = new FormData();
     data.avatar && data.avatar.forEach((f: File) => images.append("files", f));
@@ -92,18 +89,18 @@ const ChatInfoDetail = ({
     const dataUpdate =
       incluseUserAction.length > 0
         ? {
-            user: userListData,
-          }
+          user: userListData,
+        }
         : {
-            user: userListData,
-            userAction: [
-              ...info.userAction,
-              {
-                idUser: id,
-                date: new Date(),
-              },
-            ],
-          };
+          user: userListData,
+          userAction: [
+            ...info.userAction,
+            {
+              idUser: id,
+              date: new Date(),
+            },
+          ],
+        };
     const token = await getToken();
     const _id = chat?._id;
     token &&
@@ -115,13 +112,13 @@ const ChatInfoDetail = ({
               user:
                 type === "add"
                   ? [
-                      ...info.user,
-                      {
-                        idUser: id,
-                        name: name,
-                        avatar: avatar,
-                      },
-                    ]
+                    ...info.user,
+                    {
+                      idUser: id,
+                      name: name,
+                      avatar: avatar,
+                    },
+                  ]
                   : info.user.filter((u: any) => u.idUser !== id),
             },
           });
@@ -133,47 +130,11 @@ const ChatInfoDetail = ({
         onClose();
       });
   };
-  const handleUpdateOwner = async (data: { idUser: string }) => {
-    const { idUser } = data;
-    const token = await getToken();
-    const _id = chat?._id;
-    token &&
-      updateChat(token, _id, { owner: idUser }).then((res) => {
-        if (res.status === 200) {
-          socket.emit("chat_info", {
-            idChat: _id,
-            data: {
-              owner: idUser,
-            },
-          });
-        } else {
-          console.log(res.message);
-        }
-        setModal("");
-        setHandle(null);
-        onClose();
-      });
-  };
-  const handleLeaveChat = async () => {
-    const token = await getToken();
-    const _id = chat?._id;
-    token &&
-      leaveGroup(token, _id).then((res) => {
-        if (res.status === 200) {
-          list && setList(list.filter((c: ChatByUser) => c._id !== _id));
-          setChat(null);
-        } else {
-          console.log(res.message);
-        }
-        setModal("");
-        setHandle(null);
-        onClose();
-      });
-  };
+
   return (
     chat && (
-      <section className="w-[400px] h-auto max-h-screen sm:max-h-[500px]rounded-md p-2">
-        <div className="title w-full flex flex-col justify-center items-center">
+      <section className={`w-[400px] h-auto max-h-screen sm:max-h-[500px] rounded-md p-4 ${mode === "light" ? "bg-white text-[#1e1e1e]" : "bg-[#1e1e1e] text-zinc-50"}`}>
+        <div className={`title w-full flex flex-col justify-center items-center`}>
           <div className="avatar w-full h-auto flex justify-center items-center">
             {(edit === "" || edit !== "avatar") &&
               info.owner === account?.idUser && (
@@ -240,7 +201,7 @@ const ChatInfoDetail = ({
           </div>
           <div className="w-full h-auto flex justify-evenly items-center mt-4 mb-2">
             {account && (edit === "" || edit !== "info") && (
-              <p className="flex items-center text-center text-black text-xl font-bold">
+              <p className="flex items-center text-center  text-xl font-bold">
                 {chat.name}
                 {info.owner === account?.idUser && (
                   <EditIcon
@@ -283,7 +244,7 @@ const ChatInfoDetail = ({
                   Add member
                 </Button>
               )}
-              <p className="col-span-3 text-black text-xl font-bold">Member</p>
+              <p className="col-span-3 text-xl font-bold">Member</p>
               {info.user.map(
                 (u: { idUser: string; name: string; avatar: string }) => (
                   <div
@@ -298,10 +259,10 @@ const ChatInfoDetail = ({
                       src={u.avatar}
                       size="lg"
                     />
-                    <Code className="my-1 cursor-pointer">{u.name}</Code>
+                    <Code className={`my-1 cursor-pointer ${mode === "light" ? "bg-white text-zinc-900" : "bg-zinc-900 text-zinc-50"}`}>{u.name}</Code>
                     {account &&
-                    info.owner === account.idUser &&
-                    account.idUser === u.idUser ? (
+                      info.owner === account.idUser &&
+                      account.idUser === u.idUser ? (
                       <div className="h-[20px]"></div>
                     ) : (
                       <Button
@@ -345,6 +306,7 @@ const ChatInfoDetail = ({
                         ).length !== 0 ? (
                           <Button
                             onClick={() => {
+                              setIsOpen(false)
                               setModal("delete");
                               setHandle("updateMember");
                               setParameter({
@@ -396,7 +358,7 @@ const ChatInfoDetail = ({
 
           {/* Image */}
           <div className="imgList w-full h-auto grid grid-cols-4 gap-2 px-4">
-            <p className="col-span-4 text-black text-xl font-bold">Image</p>
+            <p className="col-span-4 text-xl font-bold">Image</p>
             {dataImage.data.map((i: any) => (
               <img
                 key={i._id}
@@ -414,7 +376,7 @@ const ChatInfoDetail = ({
               </Button>
             )}
           </div>
-          {info.type === "group" && (
+          {account && info.type === "group" && info.owner !== account.idUser && (
             <div className="w-full h-[100px] flex items-center justify-center">
               <Button
                 color="danger"
@@ -431,7 +393,7 @@ const ChatInfoDetail = ({
             </div>
           )}
         </div>
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
+        {/* <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
           <ConfirmModal
             type={modal}
             onClose={onClose}
@@ -444,7 +406,7 @@ const ChatInfoDetail = ({
             }
             contentBtn={contentBtn}
           />
-        </Modal>
+        </Modal> */}
       </section>
     )
   );

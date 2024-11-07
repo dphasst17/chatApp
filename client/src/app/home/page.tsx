@@ -1,14 +1,16 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { use, useEffect } from 'react'
 import UserComponent from './user'
 import ChatComponent from './chat'
 import { accountStore } from '@/stores/account'
 import socket from '@/utils/socket'
 import { toast } from 'react-toastify'
 import { Friend } from '@/interface/account'
+import { StateContext } from '@/context/state'
 
 const Home = () => {
     const { account, friend, setFriend, friendPending, setFriendPending } = accountStore()
+    const { mode } = use(StateContext)
     useEffect(() => {
         socket.emit('s_g_r_checked', (text: string) => {
             console.log(text)
@@ -51,7 +53,7 @@ const Home = () => {
             socket.off('s_g_r_friend')
         }
     }, [account, friendPending])
-    return account ? <div className='w-full h-screen overflow-hidden grid grid-cols-8 gap-2 py-1 px-2'>
+    return account ? <div className={`${mode} w-full h-screen overflow-hidden grid grid-cols-8 gap-2 py-1 px-2 transition-all`}>
         <UserComponent />
         <ChatComponent />
     </div> : <div className='empty w-full h-screen'></div>

@@ -81,12 +81,13 @@ const ListChat = () => {
                     c.lastMessage && <div key={c._id} className='w-full h-auto grid grid-cols-12 gap-1'>
                         <Message onClick={() => handleClick(c._id, c.name, c.avatar)} key={c._id} reverse={false} classContent="col-span-11 h-auto"
                             title={c.name} avatar={c.avatar}
+                            truncate={true}
                             content={c.lastMessage} />
-                        <Tooltip radius='sm' content="Delete chat" placement="left" color='danger' showArrow>
+                        {account && c.owner !== account.idUser && <Tooltip radius='sm' content="Delete chat" placement="left" color='danger' showArrow>
                             <div className="col-span-1 h-auto flex items-center justify-center">
                                 <DeleteIcon onClick={() => handleDelete(c._id)} className='cursor-pointer w-6 h-6' />
                             </div>
-                        </Tooltip>
+                        </Tooltip>}
                     </div>
                 )
             }

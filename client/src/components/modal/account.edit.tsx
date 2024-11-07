@@ -43,7 +43,7 @@ const AccountEdit = ({ onClose, setModal }: {
                     required: true,
                     pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
                 })}
-                    defaultValue={account?.email} placeholder="Email" variant='bordered' radius='sm' size="lg" className='my-1' />
+                    value={account?.email} placeholder="Email" variant='bordered' radius='sm' size="lg" className='my-1' />
             </div>
         </ModalBody>
         <ModalFooter>
