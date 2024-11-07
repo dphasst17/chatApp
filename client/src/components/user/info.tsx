@@ -74,8 +74,8 @@ const UserInfo = () => {
         <div className='w-4/5 min-w-[240px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
             <div className='info w-full grid grid-cols-8 ssm:grid-cols-10 gap-x-2 mb-1 px-1'>
                 <p className={`col-span-8 ssm:col-span-6 truncate text-center ssm:text-start ${mode === "light" ? "!text-zinc-700" : "!text-zinc-200"} text-lg font-semibold my-2 ssm:my-0`}>{account.name}</p>
-                {mode === "light" && <SunIcon onClick={() => handleSetMode("dark")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
-                {mode === "dark" && <MoonIcon onClick={() => handleSetMode("light")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
+                {mode === "dark" && <SunIcon onClick={() => handleSetMode("light")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
+                {mode === "light" && <MoonIcon onClick={() => handleSetMode("dark")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
                 <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
                 <Popover>
