@@ -8,7 +8,7 @@ export class ChatRepository {
     @InjectModel('chat') private readonly chat: Model<Chat>,
     @InjectModel('chat-info') private readonly chatInfo: Model<ChatInfo>,
     @InjectModel('chat-image') private readonly chatImage: Model<ChatImage>,
-  ) {}
+  ) { }
   async chatChecked() {
     return 'Chat service is up and running!';
   }
@@ -123,6 +123,7 @@ export class ChatRepository {
           notification: 1,
           type: 1,
           deleteDate: 1,
+          owner: 1
         },
       },
     ]);
