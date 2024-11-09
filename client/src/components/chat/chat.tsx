@@ -317,12 +317,8 @@ const ChatDetail = ({ info }: { info: any }) => {
   }, [data, chat]);
   return (
     <section className="relative w-full h-[85%] sm:h-[91%] rounded-md flex flex-col justify-between overflow-hidden">
-      <div
-        ref={chatContainerRef}
-        onScroll={handleScroll}
-        className={`message-content w-full ${!reply ? "h-[92%]" : "h-[85%]"} max-h-[92%] py-2 rounded-md
-        overflow-y-auto overflow-x-hidden transition-all`}
-      >
+      <div ref={chatContainerRef} onScroll={handleScroll}
+        className={`message-content w-full ${!reply ? "h-[92%]" : "h-[85%]"} max-h-[92%] py-2 rounded-md overflow-y-auto overflow-x-hidden transition-all`}>
         {isPending && (
           <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-1 text-center">
             Loading...{" "}
@@ -338,16 +334,10 @@ const ChatDetail = ({ info }: { info: any }) => {
             </p>
           </div>
         )}
-        {account &&
-          data &&
-          data.length > 0 &&
+        {account && data && data.length > 0 &&
           data.map((c: Chat) => (
-            <div
-              key={c._id}
-              id={c._id}
-              className={`relative w-full h-auto my-6 flex ${c.sender === account.idUser ? "justify-end" : "justify-start"}`}
-            >
-              <div className="w-auto max-w-[70%] h-auto min-h-[20px]">
+            <div key={c._id} id={c._id} className={`relative w-full h-auto my-6 flex ${c.sender === account.idUser ? "justify-end" : "justify-start"}`}>
+              <div className="w-auto max-w-[70%] min-w-[325px] h-auto min-h-[20px]">
                 <Message
                   reverse={c.sender === account.idUser}
                   classContent={`w-full h-auto min-h-[20px] ${reply && reply.id === c._id ? "bg-blue-700 bg-opacity-30" : ""} rounded-md transition-all mb-4`}
@@ -364,9 +354,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                   }}
                   handleReply={() => handleScrollReply(c.replyId!)}
                 />
-                <div
-                  className={`block absolute -bottom-1 ${c.sender === account.idUser ? "right-12" : "left-12"} flex justify-start items-center`}
-                >
+                <div className={`block absolute -bottom-1 ${c.sender === account.idUser ? "right-12" : "left-12"} flex justify-start items-center`}>
                   {c.sender === account.idUser && (
                     <MessageReplyUI
                       click={() =>
@@ -385,9 +373,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                     0 ? (
                     <>
                       <Tooltip
-                        placement={
-                          c.sender === account.idUser ? "top-end" : "top-start"
-                        }
+                        placement={c.sender === account.idUser ? "top-end" : "top-start"}
                         content={
                           <EmojiPicker
                             reactions={[
@@ -407,36 +393,21 @@ const ChatDetail = ({ info }: { info: any }) => {
                           />
                         }
                       >
-                        <div
-                          className={`w-6 cursor-pointer rounded-md transition-all`}
-                        >
+                        <div className={`w-6 cursor-pointer rounded-md transition-all`}>
                           <ReactionIcon className={`w-6 h-6 mx-auto ${mode === "light" ? "text-zinc-900" : "text-zinc-100"}`} />
                         </div>
                       </Tooltip>
-                      <div
-                        className={`${c.emoji.length > 0 ? "block" : "hidden"} w-6 flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}
-                      >
+                      <div className={`${c.emoji.length > 0 ? "block" : "hidden"} w-6 flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
                         {c.emoji.map((e: any) => e.emoji)}
                       </div>
                     </>
                   ) : (
-                    <div
-                      className={`w-auto flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}
-                    >
+                    <div className={`w-auto flex justify-around items-center cursor-pointer rounded-md bg-zinc-500 transition-all`}>
                       {new Set(c.emoji.map((e: any) => e.emoji))}
                     </div>
                   )}
                   {c.sender !== account.idUser && (
-                    <MessageReplyUI
-                      click={() =>
-                        setReply({
-                          id: c._id!,
-                          content: c.message,
-                          name: c.name!,
-                          time: `${formatDate(c.time)} - ${isToday(c.date!)}`,
-                        })
-                      }
-                    />
+                    <MessageReplyUI click={() => setReply({ id: c._id!, content: c.message, name: c.name!, time: `${formatDate(c.time)} - ${isToday(c.date!)}` })} />
                   )}
                 </div>
               </div>
@@ -448,71 +419,44 @@ const ChatDetail = ({ info }: { info: any }) => {
 
       {account &&
         info &&
-        info.user.filter((e: any) => e.idUser === account.idUser).length !==
-        0 &&
-        chat && (
-          <div
-            className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}
-          >
+        info.user.filter((e: any) => e.idUser === account.idUser).length !== 0 && chat && (
+          <div className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
             {reply && (
               <div className="relative bg-zinc-500 bg-opacity-70 col-span-12 row-span-3 h-full p-1 rounded-md overflow-hidden">
-                <CloseIcon
-                  onClick={() => setReply(null)}
-                  className="absolute top-1 right-1 w-5 h-5 cursor-pointer"
-                />
+                <CloseIcon onClick={() => setReply(null)} className="absolute top-1 right-1 w-5 h-5 cursor-pointer" />
                 <p className="text-zinc-100 text-sm font-semibold">
                   Reply {reply.name} - {reply.time}
                 </p>
-                <div
-                  className="w-full h-full max-h-full text-zinc-100"
-                  dangerouslySetInnerHTML={{
-                    __html: reply.content.includes("<p>")
-                      ? reply.content
-                      : `<p>[Images]</p>`,
-                  }}
+                <div className="w-full h-full max-h-full text-zinc-100" dangerouslySetInnerHTML={{
+                  __html: reply.content.includes("<p>")
+                    ? reply.content
+                    : `<p>[Images]</p>`,
+                }}
                 />
               </div>
             )}
-            <div
-              className={`col-span-5 xl:col-span-2 rounded-md ${reply ? "row-span-4" : "row-span-7"} flex justify-evenly items-center border border-solid border-zinc-400`}
-            >
-              <EmojiIcon
-                onClick={() => setShowPicker(!showPicker)}
-                className="w-7 h-7 cursor-pointer"
-              />
+            <div className={`col-span-5 xl:col-span-2 rounded-md ${reply ? "row-span-4" : "row-span-7"} flex justify-evenly items-center border border-solid border-zinc-400`}>
+              <EmojiIcon onClick={() => setShowPicker(!showPicker)} className="w-7 h-7 cursor-pointer" />
               {
                 <label>
                   <ImageIcon className="w-7 h-7 cursor-pointer" />
                   <input
-                    multiple
-                    onChange={(e) => handleUploadImage(e)}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
+                    multiple onChange={(e) => handleUploadImage(e)}
+                    type="file" accept="image/*" className="hidden"
                   />
                 </label>
               }
-
               <FileIcon className="w-6 h-6 cursor-pointer" />
               <TagMore className="w-7 h-7 cursor-pointer" />
             </div>
             {showPicker && (
-              <EmojiPicker
-                style={{ position: "absolute", bottom: "60px", left: "0" }}
-                onEmojiClick={onEmojiClick}
-              />
+              <EmojiPicker style={{ position: "absolute", bottom: "60px", left: "0" }} onEmojiClick={onEmojiClick} />
             )}
-            <div
-              className={`col-span-7 xl:col-span-10 ${reply ? "row-span-4" : "row-span-7"}`}
-            >
+            <div className={`col-span-7 xl:col-span-10 ${reply ? "row-span-4" : "row-span-7"}`}>
               <Input
                 placeholder="Message..."
                 endContent={
-                  <Button
-                    isIconOnly
-                    className="h-full rounded-md text-white bg-zinc-950 px-1"
-                    onClick={handleSendMessage}
-                  >
+                  <Button isIconOnly className="h-full rounded-md text-white bg-zinc-950 px-1" onClick={handleSendMessage}>
                     <MessageUpload className="w-7 h-7 " />
                   </Button>
                 }
@@ -522,8 +466,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                 radius="sm"
                 type="text"
                 classNames={{
-                  inputWrapper:
-                    "w-full h-full rounded-md text-white px-1 border border-solid border-zinc-400 p-1",
+                  inputWrapper: "w-full h-full rounded-md text-white px-1 border border-solid border-zinc-400 p-1",
                   base: `w-full h-[99%]`,
                 }}
                 className="text-white px-1"
@@ -537,9 +480,7 @@ const ChatDetail = ({ info }: { info: any }) => {
         info.user.filter((e: any) => e.idUser === account.idUser).length ===
         0 &&
         chat && (
-          <div
-            className={`message-input text-zinc-500 w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] flex justify-center items-center pt-2 transition-all`}
-          >
+          <div className={`message-input text-zinc-500 w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] flex justify-center items-center pt-2 transition-all`}>
             You have left the group
           </div>
         )}
