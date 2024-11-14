@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ChatRepository } from './chat.repository';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ChatRequest } from 'src/chat.interface';
+import { ChatRequest, Notification } from 'src/chat.interface';
 import { Chat } from 'src/chat.schema';
 
 @Injectable()
@@ -23,7 +23,6 @@ export class ChatService {
     async chatChecked() {
         return this.chatRepository.chatChecked();
     }
-
     async createChat(data: any) {
         const _id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
         const dataCreate = {
@@ -40,9 +39,12 @@ export class ChatService {
         const result = await this.chatRepository.createChat(dataCreate)
         return { status: 201, data: result }
     }
-
     async chatInsert(data: ChatRequest) {
         const result = await this.chatRepository.chatInsert(data)
+        return { status: 201, data: result }
+    }
+    async notiInsert(data: Notification) {
+        const result = await this.chatRepository.notiInsert(data)
         return { status: 201, data: result }
     }
     async leaveGroupChat(data: { idUser: string, idChat: string }) {
@@ -127,7 +129,7 @@ export class ChatService {
         }
     }
     async getChatImageById(idUser: string, idChat: string, page: number, limit: number) {
-        const count = await this.chatRepository.getCountChatDetail(idChat, "image")
+        const count = await this.chatRepository.getCountChatDetail(idChat, "chatImage")
         const result = await this.chatRepository.getChatImageById(idUser, idChat, page, limit)
         return {
             status: 200, data: {
@@ -137,7 +139,26 @@ export class ChatService {
         }
 
     }
-
+    async getNotiByChat(idChat: string, page: number, limit: number) {
+        const count = await this.chatRepository.getCountChatDetail(idChat, "notification")
+        const result = await this.chatRepository.getNotiByChatId(idChat, page, limit)
+        return {
+            status: 200, data: {
+                total: count ? count[0]?.count : 0,
+                data: result ? await Promise.all(
+                    result.map(async (r: Notification) => {
+                        const actorName = await this.getUserInfo(r.actorId, 'name')
+                        const targetName = r.targetId && await this.getUserInfo(r.targetId, 'name')
+                        return {
+                            ...r,
+                            actorName: actorName,
+                            targetName: targetName ?? ""
+                        }
+                    })
+                ) : []
+            }
+        }
+    }
     /* 
         body data for reaction message:
         {

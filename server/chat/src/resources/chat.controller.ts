@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { EventPattern } from '@nestjs/microservices';
-import { ChatRequest } from 'src/chat.interface';
+import { ChatRequest, Notification } from 'src/chat.interface';
 
 @Controller('chat')
 export class ChatController {
@@ -17,6 +17,10 @@ export class ChatController {
     @EventPattern({ cmd: 'create_chat' })
     async createChat(data: any) {
         return await this.chatService.createChat(data)
+    }
+    @EventPattern({ cmd: 'noti_insert' })
+    async notiInsert(data: Notification) {
+        return await this.chatService.notiInsert(data)
     }
     @EventPattern({ cmd: 'user_leave_group_chat' })
     async leaveGroupChat(data: { idUser: string, idChat: string }) {
@@ -42,7 +46,10 @@ export class ChatController {
     async getChatImageById(data: { idUser: string, idChat: string, page: number, limit: number }) {
         return await this.chatService.getChatImageById(data.idUser, data.idChat, data.page, data.limit)
     }
-
+    @EventPattern({ cmd: 'get_noti_by_id' })
+    async getNotiByChat(data: { idChat: string, page: number, limit: number }) {
+        return await this.chatService.getNotiByChat(data.idChat, data.page, data.limit)
+    }
     @EventPattern({ cmd: 'chat_update' })
     async chatUpdate(data: { id: string, idUser: string, data: any }) {
         return await this.chatService.chatUpdate(data.id, data.idUser, data.data)

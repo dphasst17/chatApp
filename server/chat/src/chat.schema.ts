@@ -80,7 +80,23 @@ export class ChatImage {
     date: Date
 
 }
+@Schema({ collection: 'notification', versionKey: false })
+export class Notification {
+    @Prop({ required: true })
+    idChat: string
+    @Prop({ required: true })
+    actorId: string
+    @Prop({ required: false })
+    targetId: string
+    @Prop({ required: true })
+    notification: string
+    @Prop({ required: true })
+    date: Date
+    @Prop({ required: false })
+    watched: Array<string>
+}
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
 export const ChatInfoSchema = SchemaFactory.createForClass(ChatInfo);
 export const ChatImageSchema = SchemaFactory.createForClass(ChatImage);
+export const NotificationSchema = SchemaFactory.createForClass(Notification);

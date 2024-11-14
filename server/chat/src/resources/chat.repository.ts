@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChatInfoRequest, ChatRequest } from 'src/chat.interface';
+import { ChatInfoRequest, ChatRequest, Notification } from 'src/chat.interface';
 import { Chat, ChatImage, ChatInfo } from 'src/chat.schema';
 
 export class ChatRepository {
@@ -8,9 +8,16 @@ export class ChatRepository {
     @InjectModel('chat') private readonly chat: Model<Chat>,
     @InjectModel('chat-info') private readonly chatInfo: Model<ChatInfo>,
     @InjectModel('chat-image') private readonly chatImage: Model<ChatImage>,
+    @InjectModel('notification') private readonly notification: Model<Notification>,
   ) { }
   async chatChecked() {
     return 'Chat service is up and running!';
+  }
+  async getCountChatDetail(idChat: string, type: 'chat' | 'chatImage' | 'notification') {
+    const data = await this[type].aggregate(
+      [{ $match: { idChat: idChat } }, { $count: 'count' }],
+    );
+    return data;
   }
   async createChat(data: ChatInfoRequest) {
     const getChatInfo = await this.chatInfo.find({ user: data.user }).exec();
@@ -23,6 +30,19 @@ export class ChatRepository {
   async chatInsert(data: ChatRequest) {
     const chat = this.chat.create(data);
     return chat;
+  }
+  async notiInsert(data: Notification) {
+    const noti = this.notification.create(data);
+    return noti;
+  }
+  async getNotiByChatId(idChat: string, page: number, limit: number) {
+    const data = await this.notification.aggregate([
+      { $match: { idChat: idChat } },
+      { $sort: { date: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ]);
+    return data;
   }
   async userLeaveGroupChat(idUser: string, id: string) {
     return await this.chatInfo.findByIdAndUpdate(id, {
@@ -87,8 +107,8 @@ export class ChatRepository {
                         // }
                       },
                       /*if type chat is not group
-                                            => get the lasted message after delete date
-                                        */
+                        => get the lasted message after delete date
+                      */
                       else: { $gte: ['$$message.date', '$deleteDate'] },
                     },
                   },
@@ -127,12 +147,6 @@ export class ChatRepository {
         },
       },
     ]);
-    return data;
-  }
-  async getCountChatDetail(idChat: string, type: 'chat' | 'image') {
-    const data = await (type === 'chat' ? this.chat : this.chatImage).aggregate(
-      [{ $match: { idChat: idChat } }, { $count: 'count' }],
-    );
     return data;
   }
   async getChatDetail(idUser: string, id: string, page: number, limit: number) {
@@ -193,7 +207,6 @@ export class ChatRepository {
     );
     return data;
   }
-
   async chatUpdate(
     _id: string,
     data: { [key: string]: string | number | boolean | any },

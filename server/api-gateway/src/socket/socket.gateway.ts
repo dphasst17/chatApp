@@ -54,6 +54,10 @@ export class SocketGateway {
     handleChangeChatInfo(client: Socket, data: any) {
         this.socket.emit('s_g_r_chat_info', data);
     }
+    @SubscribeMessage('notification')
+    handleNotification(client: Socket, data: { idChat: string, detail: any }) {
+        this.socket.emit('s_g_r_notification', data);
+    }
     @SubscribeMessage('s_g_r_checked')
     checkSocket() {
         return "Connected is done"

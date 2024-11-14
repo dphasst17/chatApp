@@ -46,3 +46,13 @@ export interface ChatByUser {
     avatar: string
     name: string
 }
+
+export interface Notification {
+    idChat: string
+    actorId: string
+    actorName?: string
+    targetId?: string
+    targetName?: string
+    notification: string
+    date: Date
+}

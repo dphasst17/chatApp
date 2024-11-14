@@ -56,12 +56,27 @@ export class ChatController {
         const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_chat_image_by_id' }, { idUser, idChat, page, limit }))
         return res.status(result.status).json(result)
     }
+    @Get('notification/:id')
+    async getNotiById(
+        @Query('page') page: number | 1,
+        @Query('limit') limit: number | 20,
+        @Param('id') id: string,
+        @Res() res: Response
+    ) {
+        const result = await firstValueFrom(this.natsClient.send({ cmd: 'get_noti_by_id' }, { idChat: id, page, limit }))
+        return res.status(result.status).json(result)
+    }
     @Post('')
     async chatCreate(@Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
         const create = await firstValueFrom(this.natsClient.send({ cmd: 'create_chat' }, { ...data, user: [req.idUser, ...data.user] }))
         return res.status(create.status).json(create)
     }
-    @Post(':id')
+    @Post('/notification')
+    async notiInsert(@Res() res: Response, @Req() req: RequestCustom, @Body() data: { [key: string]: string | number | boolean | [] | {} | any }) {
+        const insert = await firstValueFrom(this.natsClient.send({ cmd: 'noti_insert' }, { ...data, actorId: req.idUser }))
+        return res.status(insert.status).json(insert)
+    }
+    @Post('/message/:id')
     async chatInsert(
         @Param('id') idChat: string,
         @Res() res: Response,
