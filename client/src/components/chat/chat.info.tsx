@@ -47,7 +47,10 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
       });
       resNoti.status === 201 && socket.emit('notification', {
         idChat: _id,
-        detail: resNoti.data
+        detail: {
+          ...resNoti.data,
+          actorName: account?.name
+        }
       })
       setEdit("");
     }
@@ -106,7 +109,11 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
       });
       resNoti.status === 201 && socket.emit('notification', {
         idChat: _id,
-        detail: resNoti.data
+        detail: {
+          ...resNoti.data,
+          actorName: account?.name,
+          targetName: name
+        }
       })
       setModal("");
       setHandle(null);
