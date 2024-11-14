@@ -2,6 +2,7 @@
 import { getChatImageById, getChatInfoById } from "@/api/chat";
 import ChatDetail from "@/components/chat/chat";
 import ChatInfoDetail from "@/components/chat/chat.info";
+import NotificationComponent from "@/components/chat/notification";
 import { BackIcon, ChatInfo, VideoCall } from "@/components/icon/icon";
 import ModalChatDetail from "@/components/modal/chat.detail";
 import { StateContext } from "@/context/state";
@@ -12,7 +13,7 @@ import socket from "@/utils/socket";
 import { Avatar, Badge, Tooltip, useDisclosure } from "@nextui-org/react";
 import CryptoJS from "crypto-js";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 const ChatComponent = () => {
   const router = useRouter();
@@ -27,7 +28,6 @@ const ChatComponent = () => {
   const [isCall, setIsCall] = useState<boolean>(false);
   const [link, setLink] = useState<string>("");
   const [isInfo, setIsInfo] = useState<boolean>(false);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   //
   const { isOpen: open, onOpenChange, onClose, onOpen } = useDisclosure();
   const [handle, setHandle] = useState<any>(null);
@@ -35,6 +35,7 @@ const ChatComponent = () => {
   const [contentBtn, setContentBtn] = useState<string>("");
   const [modal, setModal] = useState("");
   //
+  const ref = useRef<HTMLDivElement>(null);
   const endCode = (data: string[]) => {
     const convertData = JSON.stringify(data);
     const code = CryptoJS.AES.encrypt(
@@ -55,6 +56,7 @@ const ChatComponent = () => {
     router.replace(url);
     return;
   };
+
   useEffect(() => {
     const getData = async () => {
       const token = await getToken();
@@ -100,6 +102,17 @@ const ChatComponent = () => {
       },
     );
   }, [chat, currentId, list]);
+  const handleClickOutside = (event: MouseEvent) => {
+    if (ref.current && !ref.current.contains(event.target as Node)) {
+      setIsInfo(false);
+    }
+  }
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [])
   const handleLoadMoreImage = async () => {
     const token = await getToken();
     const unread = dataImage.total - dataImage.read;
@@ -116,7 +129,7 @@ const ChatComponent = () => {
   };
   return (
     <div
-      className={`fixed md:relative md:z-50 w-screen md:w-auto md:bg-transparent bg-white top-0 left-0 shadow-none md:shadow-2xl
+      className={`fixed md:relative md:z-50 w-screen md:w-auto top-0 left-0 md:bg-transparent ${mode === "dark" ? "bg-black" : "bg-white"} shadow-none md:shadow-2xl
         ${chat ? "translate-x-0" : "translate-x-[100%] md:translate-x-0"}
         col-span-0 md:col-span-5 xl:col-span-6 h-screen md:h-[99vh] rounded-none md:rounded-md text-red-500 overflow-x-hidden transition-all`}
     >
@@ -136,6 +149,7 @@ const ChatComponent = () => {
                   <span className={`truncate ${mode === "light" ? "text-zinc-900" : "text-zinc-200"}`}>{chat.name}</span>
                 </div>
                 <div className="col-span-2 h-2/4 sm:h-full flex justify-end md:justify-end items-center">
+                  {info && info.type === "group" && <NotificationComponent idChat={chat._id} />}
                   {isCall ? (
                     <Badge color="success" content="">
                       <VideoCall
@@ -151,8 +165,7 @@ const ChatComponent = () => {
                   )}
                   <Tooltip
                     placement="left-start"
-                    isOpen={isOpen}
-                    onOpenChange={(open) => setIsOpen(open)}
+                    isOpen={isInfo}
                     offset={-30}
                     crossOffset={100}
                     color="default"
@@ -162,14 +175,14 @@ const ChatComponent = () => {
                         info={info}
                         dataImage={dataImage}
                         handleLoadMoreImage={handleLoadMoreImage}
-                        setIsOpen={setIsOpen}
+                        setIsOpen={setInfo}
                         onClose={onClose}
                         onOpen={onOpen}
                         setHandle={setHandle} setModal={setModal} setParameter={setParameter} setContentBtn={setContentBtn}
                       />
                     }
                   >
-                    <div className="w-10 h-10 mx-1">
+                    <div ref={ref} className="w-10 h-10 mx-1">
                       <ChatInfo
                         className="w-10 h-10 cursor-pointer"
                         onClick={() => setIsInfo(!isInfo)}

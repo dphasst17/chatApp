@@ -33,3 +33,14 @@ export interface Chat {
     replyContent?: string
     replyInfo?: string
 }
+export interface Notification {
+    _id?: string
+    idChat: string,
+    actorId?: string,
+    actorName?: string,
+    targetId: string,
+    targetName?: string,
+    notification: string,
+    date: Date,
+    watched: string[] | []
+}

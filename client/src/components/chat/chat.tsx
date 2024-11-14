@@ -1,23 +1,8 @@
-import {
-  CloseIcon,
-  EmojiIcon,
-  FileIcon,
-  ImageIcon,
-  MessageCircle,
-  MessageUpload,
-  ReactionIcon,
-  TagMore,
-} from "../icon/icon";
-import {
-  getChatById,
-  insertChat,
-  insertImages,
-  updateChat,
-  uploadImages,
-} from "@/api/chat";
+import { ReactionIcon } from "../icon/icon";
+import { getChatById, insertChat, insertImages, updateChat, uploadImages } from "@/api/chat";
 import React, { use, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { Button, Input, Tooltip } from "@nextui-org/react";
+import { Tooltip } from "@nextui-org/react";
 import { Chat, ChatByUser } from "@/interface/chat";
 import Message, { MessageReplyUI } from "./message";
 import { StateContext } from "@/context/state";
@@ -29,6 +14,8 @@ import { isToday } from "@/utils/util";
 import { toast } from "react-toastify";
 import socket from "@/utils/socket";
 import EmptyChat from "./emptyChat";
+import EmptyMessage from "./emptyMessage";
+import MessagePanel from "./messagePanel";
 const ChatDetail = ({ info }: { info: any }) => {
   const { chat, mode, currentId, setCurrentId } = use(StateContext);
   const { account } = accountStore();
@@ -46,7 +33,6 @@ const ChatDetail = ({ info }: { info: any }) => {
     totalPage: number;
     read: number;
   }>({ total: 0, totalPage: 0, read: 0 });
-  const [showPicker, setShowPicker] = useState(false);
   const [value, setValue] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -189,24 +175,39 @@ const ChatDetail = ({ info }: { info: any }) => {
   };
   const handleScroll = async () => {
     if (chatContainerRef.current) {
-      const { scrollTop } = chatContainerRef.current;
+      const { scrollTop, scrollHeight } = chatContainerRef.current;
 
       if (scrollTop === 0) {
         const token = await getToken();
         const limit = 20;
         const readPage = Math.ceil(count.read / limit);
         const unread = count.total - count.read;
-        unread !== 0 &&
-          data &&
-          getChatById(token, chat._id, readPage + 1, limit).then((res) => {
-            data && res.status === 200 && setData([...res.data.data, ...data]);
-            res.status === 200 &&
-              setCount({
-                total: count.total,
-                totalPage: count.totalPage,
-                read: count.read + res.data.data.length,
-              });
-          });
+
+        if (unread !== 0 && data) {
+          // Lưu lại chiều cao của container trước khi fetch
+          const previousHeight = scrollHeight;
+
+          const res = await getChatById(token, chat._id, readPage + 1, limit);
+          if (res.status === 200) {
+            // Cập nhật dữ liệu
+            setData([...res.data.data, ...data]);
+
+            // Cập nhật count
+            setCount({
+              total: count.total,
+              totalPage: count.totalPage,
+              read: count.read + res.data.data.length,
+            });
+
+            // Đặt lại vị trí scroll
+            requestAnimationFrame(() => {
+              if (chatContainerRef.current) {
+                const newHeight = chatContainerRef.current.scrollHeight;
+                chatContainerRef.current.scrollTop = newHeight - previousHeight;
+              }
+            });
+          }
+        }
       }
     }
   };
@@ -324,16 +325,8 @@ const ChatDetail = ({ info }: { info: any }) => {
             Loading...{" "}
           </div>
         )}
-        {data && data.length === 0 && (
-          <div className="my-auto text-zinc-500 flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              Start the conversation by sending your first message to Contact
-              Name.
-            </p>
-          </div>
-        )}
+        {data && data.length === 0 && <EmptyMessage />}
+
         {account && data && data.length > 0 &&
           data.map((c: Chat) => (
             <div key={c._id} id={c._id} className={`relative w-full h-auto my-6 flex ${c.sender === account.idUser ? "justify-end" : "justify-start"}`}>
@@ -419,61 +412,11 @@ const ChatDetail = ({ info }: { info: any }) => {
 
       {account &&
         info &&
-        info.user.filter((e: any) => e.idUser === account.idUser).length !== 0 && chat && (
-          <div className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
-            {reply && (
-              <div className="relative bg-zinc-500 bg-opacity-70 col-span-12 row-span-3 h-full p-1 rounded-md overflow-hidden">
-                <CloseIcon onClick={() => setReply(null)} className="absolute top-1 right-1 w-5 h-5 cursor-pointer" />
-                <p className="text-zinc-100 text-sm font-semibold">
-                  Reply {reply.name} - {reply.time}
-                </p>
-                <div className="w-full h-full max-h-full text-zinc-100" dangerouslySetInnerHTML={{
-                  __html: reply.content.includes("<p>")
-                    ? reply.content
-                    : `<p>[Images]</p>`,
-                }}
-                />
-              </div>
-            )}
-            <div className={`col-span-5 xl:col-span-2 rounded-md ${reply ? "row-span-4" : "row-span-7"} flex justify-evenly items-center border border-solid border-zinc-400`}>
-              <EmojiIcon onClick={() => setShowPicker(!showPicker)} className="w-7 h-7 cursor-pointer" />
-              {
-                <label>
-                  <ImageIcon className="w-7 h-7 cursor-pointer" />
-                  <input
-                    multiple onChange={(e) => handleUploadImage(e)}
-                    type="file" accept="image/*" className="hidden"
-                  />
-                </label>
-              }
-              <FileIcon className="w-6 h-6 cursor-pointer" />
-              <TagMore className="w-7 h-7 cursor-pointer" />
-            </div>
-            {showPicker && (
-              <EmojiPicker style={{ position: "absolute", bottom: "60px", left: "0" }} onEmojiClick={onEmojiClick} />
-            )}
-            <div className={`col-span-7 xl:col-span-10 ${reply ? "row-span-4" : "row-span-7"}`}>
-              <Input
-                placeholder="Message..."
-                endContent={
-                  <Button isIconOnly className="h-full rounded-md text-white bg-zinc-950 px-1" onClick={handleSendMessage}>
-                    <MessageUpload className="w-7 h-7 " />
-                  </Button>
-                }
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                radius="sm"
-                type="text"
-                classNames={{
-                  inputWrapper: "w-full h-full rounded-md text-white px-1 border border-solid border-zinc-400 p-1",
-                  base: `w-full h-[99%]`,
-                }}
-                className="text-white px-1"
-              />
-            </div>
-          </div>
-        )}
+        info.user.filter((e: any) => e.idUser === account.idUser).length !== 0 && chat &&
+        <MessagePanel reply={reply} setReply={setReply}
+          value={value} setValue={setValue}
+          onEmojiClick={onEmojiClick} handleUploadImage={handleUploadImage} handleSendMessage={handleSendMessage} />
+      }
       {account &&
         info &&
         info.type === "group" &&

@@ -4,33 +4,17 @@ import { ChatInfoUser, Friend } from "@/interface/account";
 import { accountStore } from "@/stores/account";
 import { getToken } from "@/utils/cookie";
 import socket from "@/utils/socket";
-import {
-  Avatar,
-  Badge,
-  Button,
-  Code,
-  Input,
-} from "@nextui-org/react";
+import { Avatar, Badge, Button, Code, Input } from "@nextui-org/react";
 import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
+import { handleInsertNotification } from "@/utils/util";
 
-const ChatInfoDetail = ({
-  info,
-  dataImage,
-  onOpen,
-  onClose,
-  handleLoadMoreImage,
-  setIsOpen,
-  setModal, setHandle, setParameter, setContentBtn
-}: {
-  info: any;
-  dataImage: { total: number; read: number; data: any[] };
-  onOpen: () => void,
-  onClose: () => void
-  handleLoadMoreImage: () => void;
-  setIsOpen: (isOpen: boolean) => void;
-  setModal: (modal: string) => void, setHandle: (handle: any) => void, setParameter: (parameter: any) => void, setContentBtn: (contentBtn: string) => void
-}) => {
+const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage, setIsOpen, setModal, setHandle, setParameter, setContentBtn }
+  : {
+    info: any; dataImage: { total: number; read: number; data: any[] };
+    onOpen: () => void, onClose: () => void; handleLoadMoreImage: () => void; setIsOpen: (isOpen: boolean) => void;
+    setModal: (modal: string) => void, setHandle: (handle: any) => void, setParameter: (parameter: any) => void, setContentBtn: (contentBtn: string) => void
+  }) => {
   const { mode, chat } = use(StateContext);
   const { account, friend } = accountStore();
   const [edit, setEdit] = useState("");
@@ -42,12 +26,9 @@ const ChatInfoDetail = ({
       return;
     }
     const convertData = data.avatar
-      ? {
-        avatar: data.avatar
-          ? `${process.env.NEXT_PUBLIC_S3}/user/${data.avatar[0].name}`
-          : "",
-      }
+      ? { avatar: data.avatar ? `${process.env.NEXT_PUBLIC_S3}/user/${data.avatar[0].name}` : "" }
       : data;
+    const message = data.avatar ? "${actorId} has changed avatar " : "${actorId} has changed name";
     const images = new FormData();
     data.avatar && data.avatar.forEach((f: File) => images.append("files", f));
     const token = await getToken();
@@ -56,16 +37,23 @@ const ChatInfoDetail = ({
       uploadImages(images, "user").then((res) => {
         console.log(res);
       });
-    token &&
-      updateChat(token, _id, convertData).then((res) => {
-        if (res.status === 200) {
-          socket.emit("chat_info", {
-            idChat: _id,
-            data: convertData,
-          });
-          setEdit("");
-        }
+    try {
+      const resUpdate = token && await updateChat(token, _id, convertData)
+      const resNoti = token && await handleInsertNotification(token, _id, message)
+      if (resUpdate.status !== 200 && resNoti.status !== 201) return
+      socket.emit("chat_info", {
+        idChat: _id,
+        data: convertData,
       });
+      resNoti.status === 201 && socket.emit('notification', {
+        idChat: _id,
+        detail: resNoti.data
+      })
+      setEdit("");
+    }
+    catch (error) {
+      console.log(error)
+    }
   };
   const handleChangeMember = async (data: {
     type: "add" | "remove";
@@ -86,6 +74,7 @@ const ChatInfoDetail = ({
     const incluseUserAction = info.userAction.filter(
       (u: any) => u.idUser === id,
     );
+    const message = type === "add" ? "${actorId} has added ${targetId} to the group" : "${actorId} has removed ${targetId} from the group";
     const dataUpdate =
       incluseUserAction.length > 0
         ? {
@@ -103,32 +92,30 @@ const ChatInfoDetail = ({
         };
     const token = await getToken();
     const _id = chat?._id;
-    token &&
-      updateChat(token, _id, dataUpdate).then((res) => {
-        if (res.status === 200) {
-          socket.emit("chat_info", {
-            idChat: _id,
-            data: {
-              user:
-                type === "add"
-                  ? [
-                    ...info.user,
-                    {
-                      idUser: id,
-                      name: name,
-                      avatar: avatar,
-                    },
-                  ]
-                  : info.user.filter((u: any) => u.idUser !== id),
-            },
-          });
-        } else {
-          console.log(res.message);
+    try {
+      const resUpdate = token && await updateChat(token, _id, dataUpdate)
+      const resNoti = token && await handleInsertNotification(token, _id, message, id)
+      if (resUpdate.status !== 200 && resNoti.status !== 201) return
+      socket.emit("chat_info", {
+        idChat: _id,
+        data: {
+          user: type === "add"
+            ? [...info.user, { idUser: id, name: name, avatar: avatar, }]
+            : info.user.filter((u: any) => u.idUser !== id)
         }
-        setModal("");
-        setHandle(null);
-        onClose();
       });
+      resNoti.status === 201 && socket.emit('notification', {
+        idChat: _id,
+        detail: resNoti.data
+      })
+      setModal("");
+      setHandle(null);
+      onClose();
+    }
+    catch (error) {
+      console.log(error)
+    }
+
   };
 
   return (
@@ -172,11 +159,7 @@ const ChatInfoDetail = ({
                     isBordered
                     radius="sm"
                     alt="avatar"
-                    src={
-                      data && data.avatar
-                        ? URL.createObjectURL(data.avatar[0])
-                        : chat.avatar
-                    }
+                    src={data && data.avatar ? URL.createObjectURL(data.avatar[0]) : chat.avatar}
                     size="lg"
                   />
                 </div>
@@ -393,20 +376,6 @@ const ChatInfoDetail = ({
             </div>
           )}
         </div>
-        {/* <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
-          <ConfirmModal
-            type={modal}
-            onClose={onClose}
-            handle={() =>
-              handle === "updateOwner"
-                ? handleUpdateOwner(parameter)
-                : handle === "updateMember"
-                  ? handleChangeMember(parameter)
-                  : handleLeaveChat()
-            }
-            contentBtn={contentBtn}
-          />
-        </Modal> */}
       </section>
     )
   );
