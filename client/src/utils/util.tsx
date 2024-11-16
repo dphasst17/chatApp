@@ -1,6 +1,6 @@
 import { notiInsert } from "@/api/chat";
 import { Notification } from "@/interface/chat";
-
+import { v4 as uuid } from "uuid";
 export const formatDate = (date: Date) => {
     return date.toString().split("T")[0].split("-").reverse().join("/");
 }
@@ -25,4 +25,8 @@ export const handleInsertNotification = async (token: string, idChat: string, no
     }
     const result = await notiInsert(token, data)
     return result
+}
+export const renameImageFile = (file: File) => {
+    const name = `${uuid()}.${file.name.split(".").pop()}`;
+    return new File([file], name, { type: file.type });
 }

@@ -1,5 +1,5 @@
 import { ReactionIcon } from "../icon/icon";
-import { getChatById, insertChat, insertImages, updateChat, uploadImages } from "@/api/chat";
+import { getChatById, insertChat, updateChat, insertImages, uploadImages } from "@/api/chat";
 import React, { use, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Tooltip } from "@nextui-org/react";
@@ -8,7 +8,7 @@ import Message, { MessageReplyUI } from "./message";
 import { StateContext } from "@/context/state";
 import { accountStore } from "@/stores/account";
 import { getToken } from "@/utils/cookie";
-import { formatDate } from "@/utils/util";
+import { formatDate, renameImageFile } from "@/utils/util";
 import { chatStore } from "@/stores/chat";
 import { isToday } from "@/utils/util";
 import { toast } from "react-toastify";
@@ -77,22 +77,19 @@ const ChatDetail = ({ info }: { info: any }) => {
   const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const arrFile = Array.from(e.target.files!);
     if (arrFile.length === 0) return;
+    const renamedFiles = arrFile.map((file) => {
+      return renameImageFile(file);
+    });
     const dataImages = new FormData();
-    for (let i = 0; i < arrFile.length; i++) {
+    for (let i = 0; i < renamedFiles.length; i++) {
       dataImages.append("files", arrFile[i]);
     }
     uploadImages(dataImages).then((res) => {
       if (res.status === 201) {
         const dataMessage = {
-          message: `<div class="w-[530xp] h-auto flex flex-wrap justify-between">
-                            ${arrFile
-              .map(
-                (f: any) =>
-                  `<img class="${arrFile.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${arrFile.length === 1 ? "w-full h-[300px] object-cover" : ""}"
-                            src="${process.env.NEXT_PUBLIC_S3}/chat/${f.name}" />`,
-              )
-              .join("")}
-                        </div>`,
+          message: `<div class="w-[530xp] h-auto flex flex-wrap justify-between">${renamedFiles.map((f: any) =>
+            `<img class="${renamedFiles.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${renamedFiles.length === 1 ? "w-full h-[300px] object-cover" : ""}"
+            src="${process.env.NEXT_PUBLIC_S3}/chat/${f.name}" />`,).join("")}</div>`,
           date: new Date(),
           time: new Date().toLocaleTimeString(),
           emoji: [],
@@ -103,7 +100,7 @@ const ChatDetail = ({ info }: { info: any }) => {
           account &&
             token &&
             insertImages(token, chat._id, {
-              images: arrFile.map(
+              images: renamedFiles.map(
                 (f: any) => `${process.env.NEXT_PUBLIC_S3}/chat/${f.name}`,
               ),
               name: account.name,

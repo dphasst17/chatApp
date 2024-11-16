@@ -2,8 +2,9 @@ import { updateUser } from '@/api/account'
 import { uploadImages } from '@/api/chat'
 import { accountStore } from '@/stores/account'
 import { getToken } from '@/utils/cookie'
+import { renameImageFile } from '@/utils/util'
 import { Avatar, Button, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 const AvatarEdit = ({ onClose, setModal }: {
@@ -21,10 +22,11 @@ const AvatarEdit = ({ onClose, setModal }: {
             avatar: `${process.env.NEXT_PUBLIC_S3}/user/${data.name}`
         }
         const dataImage = new FormData()
-        dataImage.append('files', data)
+        data && dataImage.append('files', data)
         const token = await getToken()
         const isUpload = await uploadImages(dataImage, 'user')
-        if (!isUpload) return
+        console.log(isUpload)
+        if (isUpload.status !== 201) return
         token && updateUser(token, dataUpdate).then(res => {
             if (res.status === 200) {
                 account && setAccount({ ...account, ...dataUpdate })
@@ -33,6 +35,13 @@ const AvatarEdit = ({ onClose, setModal }: {
             }
         })
     }
+    const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        files && setData(renameImageFile(files[0]))
+    }
+    useEffect(() => {
+        console.log(data)
+    }, [data])
     return account && <ModalContent>
         <ModalHeader>Upload Avatar</ModalHeader>
         <ModalBody>
@@ -53,7 +62,7 @@ const AvatarEdit = ({ onClose, setModal }: {
                                 data-original="#000000" />
                         </svg>
                         Choose file to upload
-                        <input type="file" id='uploadFile1' onChange={(e) => setData(e.target.files ? e.target.files[0] : null)} className="hidden" />
+                        <input type="file" id='uploadFile1' onChange={handleChangeFile} className="hidden" />
                     </label>
                 </div>
             </div>

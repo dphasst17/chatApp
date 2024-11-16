@@ -7,7 +7,7 @@ import socket from "@/utils/socket";
 import { Avatar, Badge, Button, Code, Input } from "@nextui-org/react";
 import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
-import { handleInsertNotification } from "@/utils/util";
+import { handleInsertNotification, renameImageFile } from "@/utils/util";
 
 const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage, setIsOpen, setModal, setHandle, setParameter, setContentBtn }
   : {
@@ -25,19 +25,19 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
       setEdit("");
       return;
     }
-    const convertData = data.avatar
-      ? { avatar: data.avatar ? `${process.env.NEXT_PUBLIC_S3}/user/${data.avatar[0].name}` : "" }
+    const dataImages = data.avatar ? renameImageFile(data.avatar[0]) : null;
+    const convertData = dataImages
+      ? { avatar: dataImages ? `${process.env.NEXT_PUBLIC_S3}/user/${dataImages.name}` : "" }
       : data;
-    const message = data.avatar ? "${actorId} has changed avatar " : "${actorId} has changed name";
+    const message = dataImages ? "${actorId} has changed avatar " : "${actorId} has changed name";
     const images = new FormData();
-    data.avatar && data.avatar.forEach((f: File) => images.append("files", f));
+    dataImages && images.append("files", dataImages);
     const token = await getToken();
     const _id = chat?._id;
-    data.avatar &&
-      uploadImages(images, "user").then((res) => {
-        console.log(res);
-      });
     try {
+      const upload = data.avatar &&
+        uploadImages(images, "user")
+      if (!upload) return
       const resUpdate = token && await updateChat(token, _id, convertData)
       const resNoti = token && await handleInsertNotification(token, _id, message)
       if (resUpdate.status !== 200 && resNoti.status !== 201) return

@@ -102,17 +102,17 @@ const ChatComponent = () => {
       },
     );
   }, [chat, currentId, list]);
-  const handleClickOutside = (event: MouseEvent) => {
-    if (ref.current && !ref.current.contains(event.target as Node)) {
-      setIsInfo(false);
+  /*   const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsInfo(false);
+      }
     }
-  }
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [])
+    useEffect(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []) */
   const handleLoadMoreImage = async () => {
     const token = await getToken();
     const unread = dataImage.total - dataImage.read;

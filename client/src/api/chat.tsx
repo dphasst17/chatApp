@@ -88,7 +88,11 @@ export const updateChat = async (token: string, id: string, data: { [key: string
     return result.data
 }
 export const uploadImages = async (files: FormData, folder?: string) => {
-    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/${folder ? folder : "chat"}`, files)
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/images/upload/${folder ? folder : "chat"}`, files, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        }
+    })
     return result.data
 }
 export const insertImages = async (token: string, id: string, data: { images: string[], name: string }) => {
