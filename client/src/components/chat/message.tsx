@@ -28,7 +28,7 @@ const Message = ({ onClick, classContent, title, avatar, content, reverse, trunc
             <div className={`w-[39px] flex ${reverse ? 'justify-end' : 'justify-start'} items-center mx-1`}>
                 <Avatar alt={`avatar-${title}`} src={avatar} size='md' radius="sm" />
             </div>
-            <div className={`cursor-pointer w-[85%]`}>
+            <div className={`cursor-pointer w-[75%] ssm:w-[85%] md:w-[75%] lg:w-[85%] xl:w-[75%] 2xl:w-[85%]`}>
                 <Code className={`w-full h-auto ${mode === "light" ? "bg-white" : "bg-[#1e1e1e]"} shadow-md`}>
                     <p className={`${mode === "light" ? "!text-zinc-500" : "!text-zinc-200"} text-[13px]`}>{title} {time ? `- ${time}` : ''}</p>
                     <p className={`${truncate ? 'truncate' : 'text-wrap'} ${mode === "light" ? "!text-zinc-900" : "!text-zinc-100"}`} dangerouslySetInnerHTML={{ __html: content }} />

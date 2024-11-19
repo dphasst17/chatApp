@@ -8,7 +8,7 @@ import Message, { MessageReplyUI } from "./message";
 import { StateContext } from "@/context/state";
 import { accountStore } from "@/stores/account";
 import { getToken } from "@/utils/cookie";
-import { formatDate, renameImageFile } from "@/utils/util";
+import { decode, endCode, formatDate, renameImageFile } from "@/utils/util";
 import { chatStore } from "@/stores/chat";
 import { isToday } from "@/utils/util";
 import { toast } from "react-toastify";
@@ -138,7 +138,7 @@ const ChatDetail = ({ info }: { info: any }) => {
   const handleSendMessage = async () => {
     if (!value) return;
     const dataMessage = {
-      message: `<p>${value}</p>`,
+      message: endCode(`<p>${value}</p>`, process.env.NEXT_PUBLIC_K!),
       replyId: reply ? reply.id : "",
       replyContent: reply ? reply.content : "",
       replyInfo: reply ? `${reply.name} - ${reply.time}` : "",
@@ -152,7 +152,6 @@ const ChatDetail = ({ info }: { info: any }) => {
       if (res.status === 201) {
         data && setData([...data, res.data]);
         setReply(null);
-        scrollToBottom();
         const currentChat =
           list && list.filter((c: ChatByUser) => c._id === chat._id);
         const newChat =
@@ -162,10 +161,11 @@ const ChatDetail = ({ info }: { info: any }) => {
           setList([
             {
               ...currentChat[0],
-              lastMessage: dataMessage.message,
+              lastMessage: decode(dataMessage.message, process.env.NEXT_PUBLIC_K!),
             },
             ...newChat,
           ]);
+        scrollToBottom();
         setValue("");
       }
     });
@@ -289,7 +289,22 @@ const ChatDetail = ({ info }: { info: any }) => {
   useEffect(() => {
     socket.on("s_g_r_chat", (message: any) => {
       if (message.idChat !== chat._id) return;
+      if (account && message.sender === account.idUser) return
+      scrollToBottom()
       data && setData([...data, message]);
+      const currentChat =
+        list && list.filter((c: ChatByUser) => c._id === chat._id);
+      const newChat =
+        list && list.filter((c: ChatByUser) => c._id !== chat._id);
+      currentChat &&
+        newChat &&
+        setList([
+          {
+            ...currentChat[0],
+            lastMessage: decode(message.message, process.env.NEXT_PUBLIC_K!),
+          },
+          ...newChat,
+        ]);
     });
     socket.on(
       "s_g_r_reaction",
@@ -312,7 +327,7 @@ const ChatDetail = ({ info }: { info: any }) => {
       socket.off("s_g_r_chat");
       socket.off("s_g_r_reaction");
     };
-  }, [data, chat]);
+  }, [data, chat, list]);
   return (
     <section className="relative w-full h-[85%] sm:h-[91%] rounded-md flex flex-col justify-between overflow-hidden">
       <div ref={chatContainerRef} onScroll={handleScroll}
@@ -335,7 +350,7 @@ const ChatDetail = ({ info }: { info: any }) => {
                   avatar={
                     c.sender === account.idUser ? account.avatar : c.avatar!
                   }
-                  content={c.message}
+                  content={decode(c.message as string, process.env.NEXT_PUBLIC_K as string)}
                   time={`${formatDate(c.time)} - ${isToday(c.date!)}`}
                   reply={{
                     id: c.replyId!,

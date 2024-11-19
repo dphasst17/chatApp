@@ -10,8 +10,8 @@ import { ChatByUser } from "@/interface/chat";
 import { chatStore } from "@/stores/chat";
 import { getToken } from "@/utils/cookie";
 import socket from "@/utils/socket";
+import { endCode } from "@/utils/util";
 import { Avatar, Badge, Tooltip, useDisclosure } from "@nextui-org/react";
-import CryptoJS from "crypto-js";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -36,22 +36,13 @@ const ChatComponent = () => {
   const [modal, setModal] = useState("");
   //
   const ref = useRef<HTMLDivElement>(null);
-  const endCode = (data: string[]) => {
-    const convertData = JSON.stringify(data);
-    const code = CryptoJS.AES.encrypt(
-      convertData,
-      process.env.NEXT_PUBLIC_SK!,
-    ).toString();
-    const base64Encoded = CryptoJS.enc.Base64.stringify(
-      CryptoJS.enc.Utf8.parse(code),
-    );
-    return base64Encoded;
-  };
+
 
   const handleVideoCall = () => {
     const id = uuid();
-    const url = `/room/${id}?role=ch&&l=${endCode(info.user.map((u: any) => u.idUser))}`;
-    const urlEmit = `/room/${id}?role=u&&l=${endCode(info.user.map((u: any) => u.idUser))}`;
+    const k = process.env.NEXT_PUBLIC_SK!;
+    const url = `/room/${id}?role=ch&&l=${endCode(info.user.map((u: any) => u.idUser), k)}`;
+    const urlEmit = `/room/${id}?role=u&&l=${endCode(info.user.map((u: any) => u.idUser), k)}`;
     socket.emit("video_call", { idChat: info && info._id, link: urlEmit });
     router.replace(url);
     return;
@@ -102,17 +93,6 @@ const ChatComponent = () => {
       },
     );
   }, [chat, currentId, list]);
-  /*   const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsInfo(false);
-      }
-    }
-    useEffect(() => {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, []) */
   const handleLoadMoreImage = async () => {
     const token = await getToken();
     const unread = dataImage.total - dataImage.read;

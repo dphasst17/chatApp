@@ -1,6 +1,6 @@
 "use client";
 import { accountStore } from "@/stores/account";
-import CryptoJS from "crypto-js";
+import { decode } from "@/utils/util";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -15,14 +15,8 @@ const Room = ({
   const { account } = accountStore();
   const router = useRouter();
   const roomID = params.id;
-  const decode = (code: string) => {
-    const decoded = CryptoJS.enc.Base64.parse(code).toString(CryptoJS.enc.Utf8);
-    const result = CryptoJS.AES.decrypt(decoded, process.env.NEXT_PUBLIC_SK!);
-    const stringData = result.toString(CryptoJS.enc.Utf8);
-    return JSON.parse(stringData);
-  };
   useEffect(() => {
-    const list = decode(searchParams.l as string);
+    const list = decode(searchParams.l as string, process.env.NEXT_PUBLIC_SK!);
     const checkList = account && list.includes(account.idUser);
     if (!checkList) {
       router.push("/");

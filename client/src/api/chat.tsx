@@ -72,11 +72,12 @@ export const getChatImageById = async (token: string, id: string, page?: number,
     return result.data
 }
 export const insertChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {
-    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat/message/${id}`, data, {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        },
-    })
+    const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat/message/${id}`, data,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+        })
     return result.data
 }
 export const updateChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {

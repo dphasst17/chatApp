@@ -36,7 +36,7 @@ export class AppModule {
         { path: 'api/chat/image/:id', method: RequestMethod.GET },
         { path: 'api/chat/:id', method: RequestMethod.GET },
         { path: 'api/chat/:id', method: RequestMethod.PATCH },
-        { path: 'api/chat/:id', method: RequestMethod.POST },
+        { path: 'api/chat/message/:id', method: RequestMethod.POST },
         { path: 'api/chat/images/:id', method: RequestMethod.POST },
         { path: 'api/chat/leave/:id', method: RequestMethod.PUT },
       );

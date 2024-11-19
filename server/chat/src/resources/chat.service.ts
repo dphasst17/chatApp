@@ -4,7 +4,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ChatRequest, Notification } from 'src/chat.interface';
 import { Chat } from 'src/chat.schema';
-
 @Injectable()
 export class ChatService {
     constructor(
@@ -66,7 +65,7 @@ export class ChatService {
                     return {
                         ...item,
                         lastMessage: item.lastMessage
-                            ? item.lastMessage.message.includes('<p') ? item.lastMessage.message : 'Images'
+                            ? item.lastMessage.message
                             : (nullMessage),
                         name: item.name ? item.name : name,
                         avatar: item.avatar ? item.avatar : avatar
