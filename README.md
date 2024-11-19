@@ -17,6 +17,7 @@ This is a chat application built with modern web technologies. The client side i
 - **Zustand**: A small, fast, and scalable state-management solution.
 - **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
 - **Next UI**: A beautiful, fast, and modern React UI library.
+- **ZegoCloud**:
 
 ### Server Side
 
@@ -53,7 +54,7 @@ This is a chat application built with modern web technologies. The client side i
      -> .env
      -> docker-compose.yml
    ```
-4. Env Server :
+4. Env Server:
 
    ```bash
    NAME=name
@@ -65,6 +66,21 @@ This is a chat application built with modern web technologies. The client side i
    AWS_REGION=region
    NATS_URL=nats
    PORT=port
+   ```
+
+5. Env Client:
+
+   ```bash
+   NEXT_PUBLIC_PORT=url_server
+   NEXT_PUBLIC_S3=url_s3_images
+   NEXT_PUBLIC_FID=facebook_id
+   NEXT_PUBLIC_FSK=facebook_secret_key
+   NEXT_PUBLIC_GID=google_id
+   NEXT_PUBLIC_GSK=google_secret_ket
+   NEXT_PUBLIC_ZEGO_APP_ID=zegocloud_id_for_video_call
+   NEXT_PUBLIC_ZEGO_SERVER_SECRET=zego_server_scecret
+   NEXT_PUBLIC_SK=secret_key
+   NEXT_PUBLIC_K=key
    ```
 
 ## Running the Application
