@@ -17,7 +17,7 @@ This is a chat application built with modern web technologies. The client side i
 - **Zustand**: A small, fast, and scalable state-management solution.
 - **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
 - **Next UI**: A beautiful, fast, and modern React UI library.
-- **ZegoCloud**:
+- **ZegoCloud**: The library supports video calling
 
 ### Server Side
 
