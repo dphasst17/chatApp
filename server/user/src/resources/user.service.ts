@@ -1,8 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { UserRepository } from "./user.repository";
+import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom } from "rxjs";
 @Injectable()
 export class UserService {
     constructor(
+        @Inject('NATS_SERVICE') private natsClient: ClientProxy,
         private readonly userRepository: UserRepository
     ) { }
     async index() {
@@ -30,7 +33,10 @@ export class UserService {
         return { status: 200, data: data }
     }
     async getData(idUser: string) {
-        const data = await this.userRepository.getData(idUser)
+        const getRedis = await firstValueFrom(this.natsClient.send(
+            { cmd: 'redis_get' }, { key: `user_${idUser}` }
+        ))
+        const data = !getRedis ? await this.userRepository.getData(idUser) : getRedis
         const update = await this.userRepository.update(idUser, { online: true })
         if (!data) {
             return { status: 404, message: "User not found" }
@@ -40,6 +46,7 @@ export class UserService {
 
     async update(idUser: string, data: { [key: string]: string | number | boolean | any }) {
         const update = await this.userRepository.update(idUser, data)
+        update && await firstValueFrom(this.natsClient.send({ cmd: 'redis_update' }, { key: `user_${idUser}`, data: data }))
         if (!update) {
             return { status: 404, message: "Update is failed" }
         }

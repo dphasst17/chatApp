@@ -30,7 +30,21 @@ services:
     volumes:
       - ./images:/app/
     command: npm run start:dev
+  redis_service:
+    build: ./redis
+    volumes:
+      - ./redis:/app/
+    command: npm run start:dev
   nats:
     image: nats
     ports:
       - "4222:4222"
+  redis:
+    image: redis
+    container_name: nest-redis
+    volumes:
+      - ./redis.conf:/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "/etc/redis/redis.conf"]
+  

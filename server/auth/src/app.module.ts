@@ -9,7 +9,7 @@ import { AuthModule } from './resources/auth.module';
     ConfigModule.forRoot(),
     MongooseModule.forRoot(`mongodb+srv://${process.env.NAME}:${process.env.PASS}@tech.of4l8iy.mongodb.net/${process.env.DATABASE}?retryWrites=true&w=majority&ssl=true`),
     JwtModule.register({ global: true, secret: process.env.SECRET }),
-    AuthModule
+    AuthModule,
   ],
   controllers: [],
   providers: [],

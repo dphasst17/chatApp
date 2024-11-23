@@ -4,7 +4,6 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import mongoose from 'mongoose';
 
 async function bootstrap() {
-  console.log('User Microservice is Running!');
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -14,8 +13,10 @@ async function bootstrap() {
       },
     },
   );
-  //check connection mongodb
-  setTimeout(() => { console.log(mongoose.connection.readyState); }, 5000)
+  setTimeout(() => {
+    console.log(mongoose.connection.readyState === 0 ? 'Mongoose is connected' : 'Mongoose is not connected');
+  }, 1000)
+  console.log('User Microservice is Running!');
   await app.listen();
 }
 bootstrap();

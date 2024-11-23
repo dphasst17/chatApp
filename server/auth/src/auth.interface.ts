@@ -1,4 +1,5 @@
 export interface AuthRequest {
+    idUser?: string
     username: string,
     password: string,
     email?: string,

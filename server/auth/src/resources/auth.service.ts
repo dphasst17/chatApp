@@ -33,34 +33,41 @@ export class AuthService {
     }
     async login(data: AuthLoginRequest) {
         const username = data.username || data.email
-        const getData = await this.authRepository.getData(username)
+        const getRedis = await firstValueFrom(this.natsClient.send(
+            { cmd: 'redis_get' }, { key: `auth_${username}` }
+        ))
+        const getData = !getRedis ? await this.authRepository.getData(username) : getRedis
         if (!data.email && !getData) {
             return { status: 404, message: "Username does not exist" }
         }
-        const idUser = getData && getData.idUser || data.email.split('@')[0]
+        const idUser = getData.idUser || data.email.split('@')[0]
         if (data.email && !getData) {
-            const hash = this.encodePass(idUser)
-            const register = await this.authRepository.register({ username: username, password: hash, idUser: idUser, createdAt: new Date(), action: 'active' })
-            const created_user = register && await firstValueFrom(this.natsClient.send(
-                { cmd: 'user_create' },
-                {
-                    name: data.name,
-                    email: data.email,
-                    phone: '',
-                    avatar: data.picture,
-                    idUser: idUser,
-                    online: false
-                }))
-            if (!created_user) {
-                await this.removeAccount(idUser)
-                return { status: 403, message: "Register is failed" }
-            }
-            if (!register) {
-                return { status: 403, message: "Register is failed" }
-            }
+            const register = await this.register({ idUser, username, password: data.password, name: data.name, email: data.email })
+            const token = register.status === 201 && this.generateToken(idUser, "a")
+            const refreshToken = register.status === 201 && this.generateToken(getData.idUser, "r")
+            return register.status === 201 ? {
+                status: 200, data: {
+                    ...token,
+                    ...refreshToken
+                }
+            } : register
         }
         if (!data.email && !this.decodePass(data.password, getData.password)) {
             return { status: 401, message: "Password is incorrect" }
+        }
+        if (!getRedis) {
+            await firstValueFrom(this.natsClient.send(
+                { cmd: 'redis_set' },
+                {
+                    key: `auth_${username}`,
+                    value: {
+                        username: username,
+                        password: getData.password,
+                        action: 'active'
+
+                    }
+                }
+            ))
         }
         const token = this.generateToken(idUser, "a")
         const refreshToken = this.generateToken(getData.idUser, "r")
@@ -81,7 +88,7 @@ export class AuthService {
             }
         }
         const hash = this.encodePass(password)
-        const register = await this.authRepository.register({ username, password: hash, idUser: username, createdAt: new Date(), action: 'active' })
+        const register = await this.authRepository.register({ username, password: hash, idUser: data.idUser || username, createdAt: new Date(), action: 'active' })
         const created_user = register && await firstValueFrom(this.natsClient.send(
             { cmd: 'user_create' },
             {
@@ -89,7 +96,7 @@ export class AuthService {
                 email: email,
                 phone: '',
                 avatar: '',
-                idUser: username,
+                idUser: data.idUser || username,
                 online: false
             }))
         if (!created_user) {
@@ -99,6 +106,31 @@ export class AuthService {
         if (!register) {
             return { status: 403, message: "Register is failed" }
         }
+        await firstValueFrom(this.natsClient.send(
+            { cmd: 'redis_set' },
+            {
+                key: `auth_${username}`,
+                value: {
+                    username: username,
+                    password: hash,
+                    action: 'active'
+                }
+            }
+        ))
+        await firstValueFrom(this.natsClient.send(
+            { cmd: 'redis_set' },
+            {
+                key: `user_${username}`,
+                value: {
+                    name: name,
+                    email: email,
+                    phone: '',
+                    avatar: '',
+                    idUser: username,
+                    online: false
+                }
+            }
+        ))
         return {
             status: 201, message: "Register success"
         }

@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import mongoose from 'mongoose';
 
 async function bootstrap() {
-  console.log('Chat Microservice is Running!');
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -13,6 +13,12 @@ async function bootstrap() {
       },
     },
   );
+
+  setTimeout(() => {
+    console.log(mongoose.connection.readyState === 0 ? 'Mongoose is connected' : 'Mongoose is not connected');
+
+  }, 1000)
+  console.log('Chat Microservice is Running!');
   await app.listen();
 }
 bootstrap();
