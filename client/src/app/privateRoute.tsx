@@ -19,6 +19,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
       router.push("/auth");
     } else {
       const url = window.location.href;
+      console.log(url)
       url.split("3001")[1] === "/auth"
         ? router.push("/")
         : router.push(url.split("3001")[1]);
