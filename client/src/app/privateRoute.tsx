@@ -13,16 +13,14 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     if (typeof isLog === "undefined") {
       return;
     }
-    console.log(isLog)
     setLoading(false);
     if (!isLog) {
       router.push("/auth");
     } else {
       const url = window.location.href;
-      console.log(url)
-      url.split("3001")[1] === "/auth"
+      url.includes("/auth")
         ? router.push("/")
-        : router.push(url.split("3001")[1]);
+        : router.push(url);
     }
   }, [isLog]);
   if (loading) {
