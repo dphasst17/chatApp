@@ -13,7 +13,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     if (typeof isLog === "undefined") {
       return;
     }
-
+    console.log(isLog)
     setLoading(false);
     if (!isLog) {
       router.push("/auth");
@@ -27,7 +27,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) {
     return <Loader />;
   }
-  return children;
+  return isLog ? children : null;
 };
 
 export default PrivateRoute;
