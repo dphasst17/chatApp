@@ -26,7 +26,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) {
     return <Loader />;
   }
-  return isLog ? children : null;
+  return children;
 };
 
 export default PrivateRoute;
