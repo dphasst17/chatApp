@@ -1,8 +1,10 @@
 "use client";
+import { StateContext } from "@/context/state";
 import { accountStore } from "@/stores/account";
+import socket from "@/utils/socket";
 import { decode } from "@/utils/util";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { toast } from "react-toastify";
 import { v4 as uuid } from "uuid";
 const Room = ({
@@ -13,6 +15,7 @@ const Room = ({
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
   const { account } = accountStore();
+  const { chat } = use(StateContext)
   const router = useRouter();
   const roomID = params.id;
   useEffect(() => {
@@ -34,7 +37,7 @@ const Room = ({
       appID,
       serverSecret,
       roomID,
-      uuid(),
+      account ? account.idUser : uuid(),
       account ? account.name : "anonymous",
       720,
     );
@@ -69,19 +72,16 @@ const Room = ({
         showUserJoinAndLeave: true,
       },
       onReturnToHomeScreenClicked: () => {
+        socket.emit("video_call", { idChat: chat && chat._id, link: "" });
         router.push("/");
       },
       onUserJoin(users) {
-        toast.success(`${users[0].userName} has joined the room`);
-        /* if (users[0].userName === "anonymous") {
-                    toast.success("Anonymous user joined the room");
-                    console.log("Anonymous user joined the room");
-                } */
+        const i = searchParams.i ? decode(searchParams.i as string, process.env.NEXT_PUBLIC_SK!) : null;
+        (!i || i !== account?.idUser) && toast.success(`${users[0].userName} has joined the room`);
       },
 
       onUserLeave(users) {
         toast.error(`${users[0].userName} has left the room`);
-        console.log("Anonymous user left the room");
       },
     });
   };

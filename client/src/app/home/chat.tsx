@@ -1,5 +1,5 @@
 "use client";
-import { getChatImageById, getChatInfoById } from "@/api/chat";
+import { getChatImageById, getChatInfoById, getVideoCallById } from "@/api/chat";
 import ChatDetail from "@/components/chat/chat";
 import ChatInfoDetail from "@/components/chat/chat.info";
 import NotificationComponent from "@/components/chat/notification";
@@ -7,6 +7,7 @@ import { BackIcon, ChatInfo, VideoCall } from "@/components/icon/icon";
 import ModalChatDetail from "@/components/modal/chat.detail";
 import { StateContext } from "@/context/state";
 import { ChatByUser } from "@/interface/chat";
+import { accountStore } from "@/stores/account";
 import { chatStore } from "@/stores/chat";
 import { getToken } from "@/utils/cookie";
 import socket from "@/utils/socket";
@@ -18,6 +19,7 @@ import { v4 as uuid } from "uuid";
 const ChatComponent = () => {
   const router = useRouter();
   const { mode, chat, setChat, currentId } = use(StateContext);
+  const { account } = accountStore();
   const { list, setList } = chatStore();
   const [dataImage, setDataImage] = useState<{
     total: number;
@@ -54,6 +56,9 @@ const ChatComponent = () => {
       getChatInfoById(chat._id).then((res) => {
         res.status === 200 && setInfo(res.data);
       });
+      getVideoCallById(chat._id).then((res) => {
+        res.status === 200 && res.data && (setIsCall(true), setLink(res.data));
+      })
       token &&
         getChatImageById(token, chat._id, 1, 20).then((res) => {
           res.status === 200 &&
@@ -67,7 +72,7 @@ const ChatComponent = () => {
     chat && chat._id !== currentId && getData();
     socket.on("s_g_r_vd_on", (data: { idChat: string; link: string }) => {
       if (info && data.idChat === info._id) {
-        setIsCall(true);
+        data.link ? setIsCall(true) : setIsCall(false);
         setLink(data.link);
       }
     });
@@ -134,7 +139,7 @@ const ChatComponent = () => {
                     <Badge color="success" content="">
                       <VideoCall
                         className="w-10 h-10 mx-1 cursor-pointer text-green-500"
-                        onClick={() => router.replace(link)}
+                        onClick={() => router.replace(link + `&i=${endCode(account?.idUser as string, process.env.NEXT_PUBLIC_SK!)}`)}
                       />
                     </Badge>
                   ) : (

@@ -71,6 +71,10 @@ export const getChatImageById = async (token: string, id: string, page?: number,
     })
     return result.data
 }
+export const getVideoCallById = async (id: string) => {
+    const result = await axios.get(`${process.env.NEXT_PUBLIC_PORT}/api/chat/call/${id}`)
+    return result.data
+}
 export const insertChat = async (token: string, id: string, data: { [key: string]: string | number | boolean | [] | any }) => {
     const result = await axios.post(`${process.env.NEXT_PUBLIC_PORT}/api/chat/message/${id}`, data,
         {

@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isLog } = useContext(StateContext); // Lấy thông tin đăng nhập
+  const { isLog } = useContext(StateContext);
   const router = useRouter();
-  const [loading, setLoading] = useState(true); // Trạng thái để xử lý khi đang kiểm tra đăng nhập
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (typeof isLog === "undefined") {
