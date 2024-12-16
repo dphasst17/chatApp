@@ -9,7 +9,7 @@ import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
 import { handleInsertNotification, renameImageFile } from "@/utils/util";
 
-const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage, setIsOpen, setModal, setHandle, setParameter, setContentBtn }
+const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn }
   : {
     info: any; dataImage: { total: number; read: number; data: any[] };
     onOpen: () => void, onClose: () => void; handleLoadMoreImage: () => void; setIsOpen: (isOpen: boolean) => void;
@@ -20,6 +20,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
   const [edit, setEdit] = useState("");
   const [addMember, setAddMember] = useState<boolean>(false);
   const [data, setData] = useState<{ [key: string]: string | File[] | any }>();
+
   const handleChange = async () => {
     if (!data) {
       setEdit("");
@@ -296,7 +297,6 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                         ).length !== 0 ? (
                           <Button
                             onClick={() => {
-                              setIsOpen(false)
                               setModal("delete");
                               setHandle("updateMember");
                               setParameter({

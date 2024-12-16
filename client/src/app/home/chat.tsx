@@ -14,7 +14,7 @@ import socket from "@/utils/socket";
 import { endCode } from "@/utils/util";
 import { Avatar, Badge, Tooltip, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 const ChatComponent = () => {
   const router = useRouter();
@@ -31,14 +31,18 @@ const ChatComponent = () => {
   const [link, setLink] = useState<string>("");
   const [isInfo, setIsInfo] = useState<boolean>(false);
   //
-  const { isOpen: open, onOpenChange, onClose, onOpen } = useDisclosure();
+  const { isOpen: openModal, onOpenChange, onClose, onOpen } = useDisclosure();
   const [handle, setHandle] = useState<any>(null);
   const [parameter, setParameter] = useState<any>(null);
   const [contentBtn, setContentBtn] = useState<string>("");
   const [modal, setModal] = useState("");
   //
   const ref = useRef<HTMLDivElement>(null);
-
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (ref.current && !ref.current.contains(event.target as Node)) {
+      setIsInfo(false);
+    }
+  }, []);
 
   const handleVideoCall = () => {
     const id = uuid();
@@ -98,6 +102,12 @@ const ChatComponent = () => {
       },
     );
   }, [chat, currentId, list]);
+  useEffect(() => {
+    !openModal && document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      !openModal && document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [])
   const handleLoadMoreImage = async () => {
     const token = await getToken();
     const unread = dataImage.total - dataImage.read;
@@ -112,6 +122,9 @@ const ChatComponent = () => {
           });
       });
   };
+  useEffect(() => {
+    console.log("Info is: ", info)
+  }, [info])
   return (
     <div
       className={`fixed md:relative md:z-50 w-screen md:w-auto top-0 left-0 md:bg-transparent ${mode === "dark" ? "bg-black" : "bg-white"} shadow-none md:shadow-2xl
@@ -160,7 +173,7 @@ const ChatComponent = () => {
                         info={info}
                         dataImage={dataImage}
                         handleLoadMoreImage={handleLoadMoreImage}
-                        setIsOpen={setInfo}
+                        setIsOpen={setIsInfo}
                         onClose={onClose}
                         onOpen={onOpen}
                         setHandle={setHandle} setModal={setModal} setParameter={setParameter} setContentBtn={setContentBtn}
@@ -184,7 +197,7 @@ const ChatComponent = () => {
         <ChatDetail info={info} />
       </div>
       <ModalChatDetail
-        isOpen={open}
+        isOpen={openModal}
         onOpenChange={onOpenChange}
         onClose={onClose}
         modal={modal}
