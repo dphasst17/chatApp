@@ -67,7 +67,7 @@ const SearchModal = ({ data, setModal, onClose }: { data: any, setModal?: React.
         <ModalHeader>Friend Request</ModalHeader>
         <ModalBody>
             <div className='w-full h-full grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-2 gap-2 overflow-auto'>
-                {account && friendList && data.map((f: Search) => <div key={f._id} className='h-[60px] grid grid-cols-5 border border-solid border-zinc-200 rounded-md hover:bg-zinc-100 transition-all'>
+                {account && friendList && data?.map((f: Search) => <div key={f._id} className='h-[60px] grid grid-cols-5 border border-solid border-zinc-200 rounded-md hover:bg-zinc-100 transition-all'>
                     <Avatar alt='' src={f.avatar ? f.avatar : emptyAvatar} radius='sm' size='md' className='col-span-1 m-auto' />
                     <div className='col-span-4'>
                         <p className='px-2 py-1 h-2/4 flex items-center text-sm truncate cursor-pointer'>{f.name}</p>

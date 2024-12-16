@@ -1,6 +1,6 @@
 'use client'
 import { Avatar, Badge, Button, Input, Modal, Popover, PopoverContent, PopoverTrigger, useDisclosure } from '@nextui-org/react'
-import React, { use, useEffect, useState } from 'react'
+import React, { use, useCallback, useEffect, useRef, useState } from 'react'
 import { EditImageIcon, FriendAdd, GroupLine, MoonIcon, SearchIcon, SunIcon, UserEdit } from '../icon/icon'
 import { accountStore } from '@/stores/account'
 import { friendRemove, friendUpdate, searchUser } from '@/api/account'
@@ -22,17 +22,29 @@ const UserInfo = () => {
     const [modal, setModal] = useState<string>('')
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
     let timeout: any = null
+    const ref = useRef<HTMLDivElement>(null);
+    const handleClickOutside = useCallback((event: MouseEvent) => {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+            setIsOpen(false);
+            setSearchData(null);
+            setSearch('');
+        }
+    }, [isOpenModal]);
     useEffect(() => {
         socket.on('s_g_r_friend', (data: any) => {
             account && data.idUser !== account.idUser && (data.idFriend === account.idUser) ? 'append data to friend pending' : ''
         })
-    }, [])
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.target.value ? setIsOpen(true) : setIsOpen(false)
+        !isOpenModal && document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            !isOpenModal && document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpenModal])
+    const handleSearch = (e: string) => {
+        e ? setIsOpen(true) : setIsOpen(false)
+        e ? setSearch(e) : setSearch('')
         clearTimeout(timeout)
         timeout = setTimeout(() => {
-            e.target.value ? setSearch(e.target.value) : setSearch('')
-            e.target.value !== '' && searchUser(e.target.value).then((res) => {
+            e !== '' && searchUser(e).then((res) => {
                 if (res.status === 200) {
                     res.data.length !== 0 && setSearchData(res.data)
                     res.data.length === 0 && setSearchData(null)
@@ -108,8 +120,8 @@ const UserInfo = () => {
                 </Popover>
             </div>
             <div className='icon w-full grid grid-cols-8 gap-x-1'>
-                <div className='relative col-span-8'>
-                    <Input onChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' defaultValue={search}
+                <div ref={ref} className='relative col-span-8'>
+                    <Input onValueChange={handleSearch} size='sm' type="text" placeholder='Search' className='w-full' value={search}
                         endContent={<SearchIcon className='w-6 h-6 cursor-pointer  rounded-md' />} />
                     {isOpen && <div className={`absolute top-10 left-0 w-full h-auto min-h-[80px] max-h-[300px] 
                         ${mode === "light" ? "bg-zinc-100 text-zinc-900" : "bg-zinc-800 text-zinc-50"} rounded-md z-40`}>
