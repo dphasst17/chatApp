@@ -102,3 +102,14 @@ cd client && bun bs
 ```bash
 cd server && docker compose up -d && docker compose logs -f
 ```
+
+## Preview
+
+![preview](./images/Chat-App-12-16-2024_06_55_PM.png)
+![preview list friend](./images/Chat-App-12-16-2024_08_24_1_PM.png)
+![preview edit account](./images/edit_account.png)
+![preview edit avatar](./images/Chat-App-12-16-2024_08_25_PM.png)
+![preview create group](./images/Chat-App-12-16-2024_08_25_1_PM.png)
+![preview search](./images/Chat-App-12-16-2024_08_26_PM.png)
+![preview chat](./images/Chat-App-12-16-2024_08_37_PM.png)
+![preview group chat]()
