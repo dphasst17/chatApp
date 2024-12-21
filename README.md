@@ -109,7 +109,24 @@ cd server && docker compose up -d && docker compose logs -f
 ![preview list friend](./images/Chat-App-12-16-2024_08_24_1_PM.png)
 ![preview edit account](./images/edit_account.png)
 ![preview edit avatar](./images/Chat-App-12-16-2024_08_25_PM.png)
+
+### preview create group
+
 ![preview create group](./images/Chat-App-12-16-2024_08_25_1_PM.png)
+
+### preview search
+
 ![preview search](./images/Chat-App-12-16-2024_08_26_PM.png)
+
+### preview chat
+
 ![preview chat](./images/Chat-App-12-16-2024_08_37_PM.png)
+
+### preview group chat
+
 ![preview group chat](./images/preview_group_chat.png)
+
+### preview video call in group chat
+
+![preview video call](./images/vd.png)
+![preview video call 2](./images/vs-2.png)

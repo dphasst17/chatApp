@@ -73,7 +73,7 @@ const Room = ({
       },
       onReturnToHomeScreenClicked: () => {
         socket.emit("video_call", { idChat: chat && chat._id, link: "" });
-        router.push("/");
+        router.replace("/");
       },
       onUserJoin(users) {
         const i = searchParams.i ? decode(searchParams.i as string, process.env.NEXT_PUBLIC_SK!) : null;
