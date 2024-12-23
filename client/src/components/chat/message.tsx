@@ -14,7 +14,6 @@ interface MessageProps {
     onClick?: () => void
     handleReply?: () => void
 }
-/* grid grid-cols-10 gap-1 auto-cols-[40px] */
 const Message = ({ onClick, classContent, title, avatar, content, reverse, truncate, time, reply, handleReply }: MessageProps) => {
     const { mode } = use(StateContext)
     return <div onClick={onClick} className={classContent}>
@@ -25,11 +24,11 @@ const Message = ({ onClick, classContent, title, avatar, content, reverse, trunc
                     dangerouslySetInnerHTML={{ __html: reply.content.includes('<p>') ? reply.content : `<p>[Images]</p>` }}
                 />
             </div>}
-            <div className={`w-[39px] flex ${reverse ? 'justify-end' : 'justify-start'} items-center mx-1`}>
+            <div className={`w-[30px] ssm:w-[39px] flex ${reverse ? 'justify-end' : 'justify-start'} items-center mx-1`}>
                 <Avatar alt={`avatar-${title}`} src={avatar} size='md' radius="sm" />
             </div>
-            <div className={`cursor-pointer w-[75%] ssm:w-[85%] md:w-[75%] lg:w-[85%] xl:w-[75%] 2xl:w-[85%]`}>
-                <Code className={`w-full h-auto ${mode === "light" ? "bg-white" : "bg-[#1e1e1e]"} shadow-md`}>
+            <div className={`cursor-pointer w-[75%] sm:w-[85%] md:w-[75%] lg:w-[85%] xl:w-[75%] 2xl:w-[85%]`}>
+                <Code className={`w-full h-auto ${mode === "light" ? "bg-white" : "bg-[#1e1e1e]"} shadow-md my-1`}>
                     <p className={`${mode === "light" ? "!text-zinc-500" : "!text-zinc-200"} text-[13px]`}>{title} {time ? `- ${time}` : ''}</p>
                     <p className={`${truncate ? 'truncate' : 'text-wrap'} ${mode === "light" ? "!text-zinc-900" : "!text-zinc-100"}`} dangerouslySetInnerHTML={{ __html: content }} />
                 </Code>

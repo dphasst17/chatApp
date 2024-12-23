@@ -122,14 +122,11 @@ const ChatComponent = () => {
           });
       });
   };
-  useEffect(() => {
-    console.log("Info is: ", info)
-  }, [info])
   return (
     <div
       className={`fixed md:relative md:z-50 w-screen md:w-auto top-0 left-0 md:bg-transparent ${mode === "dark" ? "bg-black" : "bg-white"} shadow-none md:shadow-2xl
         ${chat ? "translate-x-0" : "translate-x-[100%] md:translate-x-0"}
-        col-span-0 md:col-span-5 xl:col-span-6 h-screen md:h-[99vh] rounded-none md:rounded-md text-red-500 overflow-x-hidden transition-all`}
+        col-span-0 md:col-span-5 xl:col-span-6 h-dvh md:h-[99vh] rounded-none md:rounded-md text-red-500 overflow-x-hidden transition-all`}
     >
       <div className="relative w-full h-full rounded-md flex flex-col justify-between p-1">
         {chat ? (
@@ -148,19 +145,21 @@ const ChatComponent = () => {
                 </div>
                 <div className="col-span-2 h-2/4 sm:h-full flex justify-end md:justify-end items-center">
                   {info && info.type === "group" && <NotificationComponent idChat={chat._id} />}
-                  {isCall ? (
-                    <Badge color="success" content="">
+                  <div className="w-10 h-10">
+                    {isCall ? (
+                      <Badge color="success" content="">
+                        <VideoCall
+                          className="w-10 h-10 mx-1 cursor-pointer text-green-500"
+                          onClick={() => router.replace(link + `&i=${endCode(account?.idUser as string, process.env.NEXT_PUBLIC_SK!)}`)}
+                        />
+                      </Badge>
+                    ) : (
                       <VideoCall
-                        className="w-10 h-10 mx-1 cursor-pointer text-green-500"
-                        onClick={() => router.replace(link + `&i=${endCode(account?.idUser as string, process.env.NEXT_PUBLIC_SK!)}`)}
+                        className="w-10 h-10 mx-1 cursor-pointer"
+                        onClick={handleVideoCall}
                       />
-                    </Badge>
-                  ) : (
-                    <VideoCall
-                      className="w-10 h-10 mx-1 cursor-pointer"
-                      onClick={handleVideoCall}
-                    />
-                  )}
+                    )}
+                  </div>
                   <Tooltip
                     placement="left-start"
                     isOpen={isInfo}
