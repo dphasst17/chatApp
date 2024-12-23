@@ -21,7 +21,7 @@ const getToken = async () => {
     const refresh = get('c-rtk')
     if (!access) {
         if (!refresh) {
-            remove('filmlogs')
+            remove('c-log')
             return false
         }
         const res = await token(refresh)
