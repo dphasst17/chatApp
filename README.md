@@ -60,7 +60,7 @@ This is a chat application built with modern web technologies. The client side i
    NAME=name
    PASS=passwordmongo
    DATABASE=database
-   SECRET=secretketJWT
+   SECRET=secretkeyJWT
    AWS_ACCESS_KEY_ID=key
    AWS_SECRET_ACCESS_KEY=key
    AWS_REGION=region
@@ -81,6 +81,10 @@ This is a chat application built with modern web technologies. The client side i
    NEXT_PUBLIC_ZEGO_SERVER_SECRET=zego_server_scecret
    NEXT_PUBLIC_SK=secret_key
    NEXT_PUBLIC_K=key
+   ```
+6. Source Server
+   ```bash
+   https://github.com/dphasst17/chat-server 
    ```
 
 ## Running the Application
