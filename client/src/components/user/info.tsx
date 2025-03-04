@@ -85,39 +85,45 @@ const UserInfo = () => {
         </Badge>
         <div className='w-4/5 min-w-[240px] md:h-2/4 lg:h-full flex flex-col items-center justify-center'>
             <div className='info w-full grid grid-cols-8 ssm:grid-cols-10 gap-x-2 mb-1 px-1'>
-                <p className={`col-span-8 ssm:col-span-6 truncate text-center ssm:text-start ${mode === "light" ? "!text-zinc-700" : "!text-zinc-200"} text-lg font-semibold my-2 ssm:my-0`}>{account.name}</p>
-                {mode === "dark" && <SunIcon onClick={() => handleSetMode("light")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
-                {mode === "light" && <MoonIcon onClick={() => handleSetMode("dark")} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
-                <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
-                <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='col-span-2 mx-auto ssm:col-span-1 w-8 h-8 rounded-md cursor-pointer' />
-                <Popover>
-                    <PopoverTrigger>
-                        <div className='col-span-2 mx-auto ssm:col-span-1 rounded-md cursor-pointer'>
-                            <Badge content={friendPending ? friendPending.filter((f: Friend) => f.idFriend === account.idUser).length : 0} color='danger' placement='top-right' classNames={{ badge: 'w-4 h-4 ml-10' }}>
-                                <FriendAdd className='w-8 h-8' />
-                            </Badge>
-                        </div>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                        {friendPending && friendPending.filter((f: Friend) => f.idFriend === account.idUser).map((f: Friend) => <div className='w-full h-[50px] grid grid-cols-12 gap-2' key={f._id}>
-                            <div className='col-span-2 flex justify-center items-center'>
-                                <Avatar isBordered color='success' alt={`avatar-${f.friend.name}`} src={f.friend.avatar} size='md' radius="sm" />
+                <p className={`col-span-5 truncate text-center ssm:text-start 
+                    ${mode === "light" ? "!text-zinc-700" : "!text-zinc-200"} text-lg font-semibold my-2 ssm:my-0`}>
+                    {account.name}
+                </p>
+                <div className='col-span-5 grid grid-cols-4'>
+                    {mode === "dark" && <SunIcon onClick={() => handleSetMode("light")} className='mx-auto col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
+                    {mode === "light" && <MoonIcon onClick={() => handleSetMode("dark")} className='mx-auto col-span-1 w-8 h-8 rounded-md cursor-pointer' />}
+                    <UserEdit onClick={() => { setModal('edit'), onOpen() }} className='mx-auto col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+                    <GroupLine onClick={() => { setModal('friend'), onOpen() }} className='mx-auto col-span-1 w-8 h-8 rounded-md cursor-pointer' />
+                    <Popover>
+                        <PopoverTrigger>
+                            <div className='mx-auto col-span-1 rounded-md cursor-pointer'>
+                                <Badge content={friendPending ? friendPending.filter((f: Friend) => f.idFriend === account.idUser).length : 0} color='danger' placement='top-right' classNames={{ badge: 'w-4 h-4 ml-10' }}>
+                                    <FriendAdd className='w-8 h-8' />
+                                </Badge>
                             </div>
-                            <div className='col-span-10'>
-                                <p className='truncate'>{f.friend.name}</p>
-                                {
-                                    f.idUser !== account.idUser ? <>
-                                        <Button size="sm" color="success" radius="sm" onClick={() => handleChangeStatusFriend(f._id, 'accept')}
-                                            className='max-h-[20px] text-white'>Accept</Button>
-                                    </>
-                                        : <Button size="sm" color="default" radius="sm" className='max-h-[20px] text-white'>Pending</Button>
-                                }
-                                <Button size="sm" color="danger" radius="sm" onClick={() => handleChangeStatusFriend(f._id, 'decline')}
-                                    className='max-h-[20px] ml-2'>Decline</Button>
-                            </div>
-                        </div>)}
-                    </PopoverContent>
-                </Popover>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            {friendPending && friendPending.filter((f: Friend) => f.idFriend === account.idUser).map((f: Friend) => <div
+                                className='w-full h-[50px] grid grid-cols-12 gap-2' key={f._id}>
+                                <div className='col-span-2 flex justify-center items-center'>
+                                    <Avatar isBordered color='success' alt={`avatar-${f.friend.name}`} src={f.friend.avatar} size='md' radius="sm" />
+                                </div>
+                                <div className='col-span-10'>
+                                    <p className='truncate'>{f.friend.name}</p>
+                                    {
+                                        f.idUser !== account.idUser ? <>
+                                            <Button size="sm" color="success" radius="sm" onClick={() => handleChangeStatusFriend(f._id, 'accept')}
+                                                className='max-h-[20px] text-white'>Accept</Button>
+                                        </>
+                                            : <Button size="sm" color="default" radius="sm" className='max-h-[20px] text-white'>Pending</Button>
+                                    }
+                                    <Button size="sm" color="danger" radius="sm" onClick={() => handleChangeStatusFriend(f._id, 'decline')}
+                                        className='max-h-[20px] ml-2'>Decline</Button>
+                                </div>
+                            </div>)}
+                        </PopoverContent>
+                    </Popover>
+                </div>
             </div>
             <div className='icon w-full grid grid-cols-8 gap-x-1'>
                 <div ref={ref} className='relative col-span-8'>
