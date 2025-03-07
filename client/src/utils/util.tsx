@@ -1,5 +1,5 @@
 import { notiInsert } from "@/api/chat";
-import { Notification } from "@/interface/chat";
+import { Chat, Notification } from "@/interface/chat";
 import { v4 as uuid } from "uuid";
 import CryptoJS from "crypto-js";
 export const formatDate = (date: Date) => {
@@ -48,3 +48,16 @@ export const decode = (code: string, key: string) => {
     const stringData = result.toString(CryptoJS.enc.Utf8);
     return JSON.parse(stringData);
 };
+
+export const convertDataChat = (data: Chat[]) => {
+    const listDate = Array.from(
+        new Set(data.map((d: Chat) => d.date.split("T")[0])),
+    )
+    const result = listDate.map((d: any) => {
+        return {
+            date: d,
+            data: data.filter((c: Chat) => c.date.split("T")[0] === d),
+        };
+    });
+    return result;
+}

@@ -1,64 +1,52 @@
 'use client'
-import { updateUser } from '@/api/account'
 import ModalCreateGroup from '@/components/modal/group.create'
 import ListChat from '@/components/user/chat'
 import UserInfo from '@/components/user/info'
 import { StateContext } from '@/context/state'
 import { Friend } from '@/interface/account'
 import { accountStore } from '@/stores/account'
-import { getToken, remove } from '@/utils/cookie'
-import socket from '@/utils/socket'
 import { Avatar, Button, Modal, useDisclosure } from '@nextui-org/react'
-import { useRouter } from 'next/navigation'
 import React, { use } from 'react'
-import { toast } from 'react-toastify'
-
+import { Fade } from 'react-awesome-reveal'
+import { motion } from 'framer-motion'
 const UserComponent = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
-    const { friend, account, setAccount } = accountStore()
-    const { mode, setIsLog } = use(StateContext)
-    const router = useRouter()
-    const handleLogout = async () => {
-        const token = await getToken()
-        token && updateUser(token, { online: false })
-            .then((res) => {
-                if (res.status !== 200) {
-                    toast.error(res.message)
-                    return
-                }
-                remove('c-atk')
-                remove('c-rtk')
-                remove('c-log')
-                setIsLog(false)
-                setAccount(null)
-                account && socket.emit('u_disconnect', account.idUser)
-                router.push('/auth')
-            })
-    }
-    return <div className='h-[99%] col-span-8 md:col-span-3 xl:col-span-2 
-    md:bg-transparent grid grid-cols-1 gap-y-1 md:p-0 p-1 rounded-md items-start z-0'>
-        <div className='user h-[22vh] ssm:h-[15vh] md:h-[18vh] lg:h-[15vh]'>
+    const { friend } = accountStore()
+    const { mode } = use(StateContext)
+    const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
+    return <div className='h-full col-span-8 md:col-span-3 xl:col-span-2 
+    md:bg-transparent grid-flow-row grid grid-rows-10 grid-cols-1 gap-y-4 rounded-md z-0 overflow-hidden'>
+        <div className='user row-span-2 col-span-1'>
             <UserInfo />
         </div>
-        <div className='chat h-[16vh] lg:h-[13vh] shadow-custom rounded-md p-2'>
-            <Button size="sm" color="primary" className='h-1/5 rounded-md' radius="none" onPress={onOpen}>Create group</Button>
-            <div className='friendOnline w-full h-4/5 flex overflow-y-auto'>
-                {friend && friend.map((f: Friend) => <div key={f._id} className='w-[100px] h-full flex flex-col justify-center items-center mx-1'>
-                    <Avatar isBordered radius='sm' alt='avatar' color={f.friend.online ? 'success' : 'default'} src={f.friend.avatar} size='md' />
-                    <p className={`text-center ${mode === "light" ? "!text-zinc-900" : "!text-zinc-100"} mt-1 truncate`}>{f.friend.name}</p>
-                </div>)}
+        <div className='chat row-span-3 md:row-span-2 col-span-1 flex flex-col justify-around rounded-md p-2'>
+            <motion.div drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2}
+                className='friendOnline w-full h-3/4 flex overflow-x-hidden py-2 cursor-grab select-none hiddenScrollbar'>
+                {friend && friend.map((f: Friend, i: number) => <Fade key={f._id} direction='down' delay={i * 100} className='w-[100px] min-w-[100px] h-full max-h-[152px] mx-1 overflow-x-hidden'>
+                    <div className='relative w-full h-full flex flex-col justify-end items-center'>
+                        {/* feature: add story, if user doesn't have story then show avatar */}
+                        <div className='absolute story w-full h-full z-0 rounded-md'>
+                            <img src={f.friend.avatar || emptyAvatar} className='w-full h-full object-cover rounded-md' alt={`story-${f.friend.name}`} />
+                            <div className='overlay absolute top-0 w-full h-full rounded-md bg-zinc-950 bg-opacity-55'></div>
+                        </div>
+                        <Avatar isBordered radius='sm' alt='avatar' color={f.friend.online ? 'success' : 'default'} src={f.friend.avatar} size='md' />
+                        <p className={`text-center ${mode === "light" ? "!text-zinc-900" : "!text-zinc-100"} mt-1 z-10 truncate`}>{f.friend.name}</p>
+                    </div>
+                </Fade>)}
+            </motion.div>
+            <div className='w-full h-1/4 flex justify-start items-center overflow-hidden'>
+                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md' radius="none" onPress={onOpen}>Create group</Button>
+                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md mx-2' radius="none" onPress={onOpen}>Create Story</Button>
             </div>
+
         </div>
-        <div className='friend h-[52vh] ssm:h-[59vh] md:h-[56vh] lg:h-[62vh] py-1'>
+        <div className='friend row-span-5 md:row-span-6 py-1'>
             <ListChat />
-        </div>
-        <div className='w-full h-[8vh] flex flex-col justify-around items-center py-1'>
-            <Button onClick={handleLogout} color='danger' size="sm" className='w-32 text-sm font-semibold'>Logout</Button>
         </div>
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl">
             <ModalCreateGroup onClose={onClose} />
         </Modal>
-    </div>
+    </div >
 }
 
 

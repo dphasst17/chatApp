@@ -12,6 +12,19 @@ const config: Config = {
 
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
+  safelist: [
+    "row-span-1",
+    "row-span-2",
+    "row-span-3",
+    "row-span-4",
+    "row-span-5",
+    "row-span-6",
+    "row-span-7",
+    "row-span-8",
+    "row-span-9",
+    "row-span-10",
+    "row-span-11",
+  ],
   theme: {
     extend: {
       screens: {

@@ -5,7 +5,7 @@ import { Chat, ChatByUser } from '@/interface/chat'
 import { StateContext } from '@/context/state'
 import socket from '@/utils/socket'
 import { accountStore } from '@/stores/account'
-import { DeleteIcon } from '../icon/icon'
+import { DeleteChatIcon, DeleteIcon } from '../icon/icon'
 import { Tooltip } from '@nextui-org/react'
 import { getToken } from '@/utils/cookie'
 import { updateChat } from '@/api/chat'
@@ -85,7 +85,7 @@ const ListChat = () => {
                             content={c.lastMessage} />
                         {account && c.owner !== account.idUser && <Tooltip radius='sm' content="Delete chat" placement="left" color='danger' showArrow>
                             <div className="col-span-1 h-auto flex items-center justify-center">
-                                <DeleteIcon onClick={() => handleDelete(c._id)} className='cursor-pointer w-6 h-6' />
+                                <DeleteChatIcon onClick={() => handleDelete(c._id)} className='cursor-pointer w-6 h-6' />
                             </div>
                         </Tooltip>}
                     </div>

@@ -17,131 +17,48 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
-.light{
+
+.light {
   background-color: #ffffff;
 }
-.dark{
+
+.dark {
   background-color: #171717;
 }
-.-shadow{
+
+.-shadow {
   box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
-.shadow-custom{
+
+.shadow-custom {
   box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset;
 }
+
 @keyframes effectMessage {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(0.5);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
+
 .effectItem {
-    animation-name: effectMessage;
-    animation-duration: 0.2s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: 1;
+  animation-name: effectMessage;
+  animation-duration: 0.2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
 }
+
 *::-webkit-scrollbar {
-  width: 4px; 
+  display: none;
+  /* Ẩn thanh cuộn trên Chrome, Safari */
 }
-
-*::-webkit-scrollbar-track {
-background-color: #ffffff;
-}
-
-*::-webkit-scrollbar-thumb {
-background: #00afce;
-border-radius: 0px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb:active {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-/* MOZILLA FIREFOX */
-*::-moz-scrollbar {
-  width: 4px; 
-}
-
-*::-moz-scrollbar-track {
-  background-color: #ffffff;
-}
-
-*::-moz-scrollbar-thumb {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-moz-scrollbar-thumb:hover {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-moz-scrollbar-thumb:active {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-
-/* MICROSOFT INTERNET EXPLORER */
-*::-ms-scrollbar {
-  width: 4px; 
-}
-
-*::-ms-scrollbar-track {
-background-color: #ffffff;
-}
-
-*::-ms-scrollbar-thumb {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-ms-scrollbar-thumb:hover {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-ms-scrollbar-thumb:active {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-/* OPERA */
-*::-o-scrollbar {
-  width: 4px; 
-}
-
-*::-o-scrollbar-track {
-background-color: #ffffff;
-}
-
-*::-o-scrollbar-thumb {
-background: #00afce;
-border-radius: 4px;
-}
-
-*::-o-scrollbar-thumb:hover {
-  background: #00afce;
-  border-radius: 4px;
-}
-
-*::-o-scrollbar-thumb:active {
-  background: #00afce;
-  border-radius: 4px;
-}
-

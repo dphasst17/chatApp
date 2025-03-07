@@ -139,8 +139,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                     <label>
                       <EditImageIcon className="w-6 h-6 cursor-pointer" />
                       <input
-                        type="file"
-                        className="hidden"
+                        type="file" className="hidden"
                         onChange={(e) => {
                           setData({ avatar: Array.from(e.target.files!) });
                           setEdit("avatar");
@@ -148,35 +147,17 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                       />
                     </label>
                   }
-                  shape="rectangle"
-                  placement="bottom-right"
+                  shape="rectangle" placement="bottom-right"
                 >
-                  <Avatar
-                    isBordered
-                    radius="sm"
-                    alt="avatar"
-                    src={chat.avatar}
-                    size="lg"
-                  />
+                  <Avatar isBordered radius="sm" alt="avatar" src={chat.avatar} size="lg" />
                 </Badge>
               )}
             {edit === "avatar" && (
               <div className="w-full h-auto flex flex-wrap justify-center items-center">
                 <div className="w-full flex justify-center items-center my-1">
-                  <Avatar
-                    isBordered
-                    radius="sm"
-                    alt="avatar"
-                    src={data && data.avatar ? URL.createObjectURL(data.avatar[0]) : chat.avatar}
-                    size="lg"
-                  />
+                  <Avatar isBordered radius="sm" alt="avatar" src={data && data.avatar ? URL.createObjectURL(data.avatar[0]) : chat.avatar} size="lg" />
                 </div>
-                <Button
-                  size="sm"
-                  color="primary"
-                  className="m-1"
-                  onClick={handleChange}
-                >
+                <Button size="sm" color="primary" className="m-1" onClick={handleChange}>
                   Save
                 </Button>
                 <Button
@@ -283,13 +264,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                         className="w-full flex flex-wrap justify-around items-center"
                       >
                         <div className="w-full flex justify-center items-center">
-                          <Avatar
-                            isBordered
-                            radius="sm"
-                            alt="avatar"
-                            src={f.friend.avatar}
-                            size="lg"
-                          />
+                          <Avatar isBordered radius="sm" alt="avatar" src={f.friend.avatar} size="lg" />
                         </div>
                         <p className="my-1 cursor-pointer">{f.friend.name}</p>
                         {info.user.filter(
@@ -309,11 +284,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                               setContentBtn("Remove");
                               onOpen();
                             }}
-                            isIconOnly
-                            key={f._id}
-                            size="sm"
-                            color="danger"
-                            className="w-5 h-5 rounded-md"
+                            isIconOnly key={f._id} size="sm" color="danger" className="w-5 h-5 rounded-md"
                           >
                             x
                           </Button>
@@ -330,11 +301,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
                                 avatar: f.friend.avatar,
                               })
                             }
-                            isIconOnly
-                            key={f._id}
-                            size="sm"
-                            color="primary"
-                            className="w-5 h-5 rounded-md"
+                            isIconOnly key={f._id} size="sm" color="primary" className="w-5 h-5 rounded-md"
                           >
                             +
                           </Button>

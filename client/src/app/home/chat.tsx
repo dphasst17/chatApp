@@ -131,31 +131,33 @@ const ChatComponent = () => {
       <div className="relative w-full h-full rounded-md flex flex-col justify-between p-1">
         {chat ? (
           <>
-            <section className="w-full h-[14%] sm:h-[8%] min-h-[80px] grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 items-center shadow-custom rounded-md">
-              <div className="col-span-2 h-full flex items-center justify-around">
+            <section className={`w-full h-[10%] sm:h-[4%] min-h-[80px] grid grid-rows-1 grid-cols-10 rounded-md ${mode === "dark" ? "bg-zinc-800" : "bg-zinc-200"}`}>
+              <div className="col-span-1 h-full flex items-center justify-around">
                 <BackIcon
-                  className="w-10 h-10 block md:hidden cursor-pointer"
+                  className="w-8 h-8 lg:w-10 lg:h-10 block md:hidden cursor-pointer"
                   onClick={() => setChat(null)}
                 />
-                <Avatar radius="sm" alt="avatar" src={chat.avatar} size="lg" />
+                <div className="avatar hidden sm:block"><Avatar radius="sm" alt="avatar" src={chat.avatar} size="md" /></div>
               </div>
-              <div className="col-span-6 md:col-span-7 xl:col-span-10 h-full grid grid-cols-5 items-center">
-                <div className="col-span-3 h-2/4 sm:h-full flex justify-start items-center text-xl font-bold">
+              <div className="col-span-9 h-full grid grid-cols-6 items-center">
+                {/* Chat Name */}
+                <div className="col-span-2 sm:col-span-5 md:col-span-3 xl:col-span-5  h-2/4 sm:h-full flex justify-start items-center truncate text-xl font-bold">
                   <span className={`truncate ${mode === "light" ? "text-zinc-900" : "text-zinc-200"}`}>{chat.name}</span>
                 </div>
-                <div className="col-span-2 h-2/4 sm:h-full flex justify-end md:justify-end items-center">
+                {/* Icon */}
+                <div className="col-span-4 sm:col-span-1 md:col-span-3 xl:col-span-1 h-2/4 sm:h-full flex items-center justify-evenly">
                   {info && info.type === "group" && <NotificationComponent idChat={chat._id} />}
                   <div className="w-10 h-10">
                     {isCall ? (
                       <Badge color="success" content="">
                         <VideoCall
-                          className="w-10 h-10 mx-1 cursor-pointer text-green-500"
+                          className="w-8 h-8 lg:w-10 lg:h-10 mx-1 cursor-pointer text-green-500"
                           onClick={() => router.replace(link + `&i=${endCode(account?.idUser as string, process.env.NEXT_PUBLIC_SK!)}`)}
                         />
                       </Badge>
                     ) : (
                       <VideoCall
-                        className="w-10 h-10 mx-1 cursor-pointer"
+                        className="w-8 h-8 lg:w-10 lg:h-10 mx-1 cursor-pointer"
                         onClick={handleVideoCall}
                       />
                     )}
@@ -179,9 +181,9 @@ const ChatComponent = () => {
                       />
                     }
                   >
-                    <div ref={ref} className="w-10 h-10 mx-1">
+                    <div ref={ref} className="w-8 h-8 lg:w-10 lg:h-10 mx-1">
                       <ChatInfo
-                        className="w-10 h-10 cursor-pointer"
+                        className="w-8 h-8 lg:w-10 lg:h-10 cursor-pointer"
                         onClick={() => setIsInfo(!isInfo)}
                       />
                     </div>
@@ -191,10 +193,11 @@ const ChatComponent = () => {
             </section>
           </>
         ) : (
-          <section className="w-full h-[8%] min-h-[80px]"></section>
-        )}
+          <section className="w-full h-[4%] min-h-[80px]"></section>
+        )
+        }
         <ChatDetail info={info} />
-      </div>
+      </div >
       <ModalChatDetail
         isOpen={openModal}
         onOpenChange={onOpenChange}
@@ -207,7 +210,7 @@ const ChatComponent = () => {
         setModal={setModal}
         setHandle={setHandle}
       />
-    </div>
+    </div >
   );
 };
 

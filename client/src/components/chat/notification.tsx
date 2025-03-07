@@ -43,10 +43,10 @@ const NotificationComponent = ({ idChat }: { idChat: string }) => {
         classNames={{ base: "!z-30", content: "relative p-0 !z-30" }}
         content={<NotiContent data={data} />}
     >
-        <div ref={ref} className='w-10 h-10 flex justify-center items-center'>
+        <div ref={ref} className='w-8 h-8 lg:w-10 lg:h-10'>
             <NotificationIcon
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-10 h-10 cursor-pointer"
+                className="w-8 h-8 lg:w-10 lg:h-10 cursor-pointer"
             />
         </div>
     </Tooltip>

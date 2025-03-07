@@ -25,7 +25,7 @@ const MessagePanel = ({ reply, setReply, value, setValue, onEmojiClick, handleUp
     },
 ) => {
     const [showPicker, setShowPicker] = React.useState<boolean>(false)
-    return <div className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 pt-2 transition-all`}>
+    return <div className={`message-input w-full ${!reply ? "h-[8%]" : "h-[15%]"} max-h-[15%] grid grid-cols-12 grid-rows-7 gap-1 p-1 transition-all bg-zinc-800 rounded-md`}>
         {reply && (
             <div className="relative bg-zinc-500 bg-opacity-70 col-span-12 row-span-3 h-full p-1 rounded-md overflow-hidden">
                 <CloseIcon onClick={() => setReply(null)} className="absolute top-1 right-1 w-5 h-5 cursor-pointer" />
@@ -40,8 +40,8 @@ const MessagePanel = ({ reply, setReply, value, setValue, onEmojiClick, handleUp
                 />
             </div>
         )}
-        <div className={`col-span-5 xl:col-span-2 rounded-md ${reply ? "row-span-4" : "row-span-7"} flex justify-evenly items-center border border-solid border-zinc-400`}>
-            <EmojiIcon onClick={() => setShowPicker(!showPicker)} className="w-7 h-7 cursor-pointer" />
+        <div className={`col-span-5 xl:col-span-2 rounded-md ${reply ? "row-span-4" : "row-span-7"} flex justify-evenly items-center`}>
+            <EmojiIcon onClick={() => setShowPicker(!showPicker)} className="w-6 h-6 cursor-pointer" />
             {
                 <label>
                     <ImageIcon className="w-7 h-7 cursor-pointer" />
@@ -51,7 +51,7 @@ const MessagePanel = ({ reply, setReply, value, setValue, onEmojiClick, handleUp
                     />
                 </label>
             }
-            <FileIcon className="w-6 h-6 cursor-pointer" />
+            <FileIcon className="w-7 h-7 cursor-pointer" />
             <TagMore className="w-7 h-7 cursor-pointer" />
         </div>
         {showPicker && (

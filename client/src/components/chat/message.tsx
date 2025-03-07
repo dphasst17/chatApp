@@ -29,7 +29,7 @@ const Message = ({ onClick, classContent, title, avatar, content, reverse, trunc
             </div>
             <div className={`cursor-pointer w-[75%] sm:w-[85%] md:w-[75%] lg:w-[85%] xl:w-[75%] 2xl:w-[85%]`}>
                 <Code className={`w-full h-auto ${mode === "light" ? "bg-white" : "bg-[#1e1e1e]"} shadow-md my-1`}>
-                    <p className={`${mode === "light" ? "!text-zinc-500" : "!text-zinc-200"} text-[13px]`}>{title} {time ? `- ${time}` : ''}</p>
+                    <p className={`truncate ${mode === "light" ? "!text-zinc-500" : "!text-zinc-200"} text-[13px]`}>{title} {time ? `- ${time}` : ''}</p>
                     <p className={`${truncate ? 'truncate' : 'text-wrap'} ${mode === "light" ? "!text-zinc-900" : "!text-zinc-100"}`} dangerouslySetInnerHTML={{ __html: content }} />
                 </Code>
             </div>
