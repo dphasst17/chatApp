@@ -62,7 +62,7 @@ const ModalCreateGroup = ({ onClose }: { onClose: () => void }) => {
                     <input type="file" id='uploadFile1' onChange={(e) => setAvatar(Array.from(e.target.files!))} className="hidden" />
                 </label>
                 <p className='col-span-4 font-bold'>Avatar preview</p>
-                {avatar && <img src={URL.createObjectURL(avatar[0])} className='w-40 h-40 col-span-4 mx-auto rounded-md cursor-pointer object-cover' />}
+                {avatar && <img src={URL.createObjectURL(avatar[0])} alt="" className='w-40 h-40 col-span-4 mx-auto rounded-md cursor-pointer object-cover' />}
                 <p className='col-span-4 font-bold'>Add member</p>
                 <CheckboxGroup
                     onChange={setIsSelected}
