@@ -38,8 +38,11 @@ const ChatComponent = () => {
   const [modal, setModal] = useState("");
   //
   const ref = useRef<HTMLDivElement>(null);
+  const childRef = useRef<HTMLDivElement>(null);
   const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (ref.current && !ref.current.contains(event.target as Node)) {
+    const condition = ref.current && !ref.current.contains(event.target as Node);
+    const child_condition = childRef.current && !childRef.current.contains(event.target as Node);
+    if (condition && child_condition) {
       setIsInfo(false);
     }
   }, []);
@@ -173,11 +176,13 @@ const ChatComponent = () => {
                       <ChatInfoDetail
                         info={info}
                         dataImage={dataImage}
+                        childRef={childRef}
                         handleLoadMoreImage={handleLoadMoreImage}
                         setIsOpen={setIsInfo}
                         onClose={onClose}
                         onOpen={onOpen}
                         setHandle={setHandle} setModal={setModal} setParameter={setParameter} setContentBtn={setContentBtn}
+                        setIsInfo={setIsInfo}
                       />
                     }
                   >

@@ -9,18 +9,19 @@ import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
 import { handleInsertNotification, renameImageFile } from "@/utils/util";
 
-const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn }
+const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn, setIsInfo }
   : {
     info: any; dataImage: { total: number; read: number; data: any[] };
+    childRef: any;
     onOpen: () => void, onClose: () => void; handleLoadMoreImage: () => void; setIsOpen: (isOpen: boolean) => void;
     setModal: (modal: string) => void, setHandle: (handle: any) => void, setParameter: (parameter: any) => void, setContentBtn: (contentBtn: string) => void
+    setIsInfo: (isInfo: boolean) => void
   }) => {
   const { mode, chat } = use(StateContext);
   const { account, friend } = accountStore();
   const [edit, setEdit] = useState("");
   const [addMember, setAddMember] = useState<boolean>(false);
   const [data, setData] = useState<{ [key: string]: string | File[] | any }>();
-
   const handleChange = async () => {
     if (!data) {
       setEdit("");
@@ -128,7 +129,7 @@ const ChatInfoDetail = ({ info, dataImage, onOpen, onClose, handleLoadMoreImage,
 
   return (
     chat && (
-      <section className={`w-[400px] h-auto max-h-screen sm:max-h-[500px] rounded-md p-4 ${mode === "light" ? "bg-white text-[#1e1e1e]" : "bg-[#1e1e1e] text-zinc-50"}`}>
+      <section ref={childRef} className={`w-[400px] h-auto max-h-screen sm:max-h-[500px] rounded-md p-4 ${mode === "light" ? "bg-white text-[#1e1e1e]" : "bg-[#1e1e1e] text-zinc-50"}`}>
         <div className={`title w-full flex flex-col justify-center items-center`}>
           <div className="avatar w-full h-auto flex justify-center items-center">
             {(edit === "" || edit !== "avatar") &&

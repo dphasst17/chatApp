@@ -44,17 +44,17 @@ const UserInfo = () => {
         };
     }, [isOpenModal])
     const handleSearch = (e: string) => {
-        e ? setIsOpen(true) : setIsOpen(false)
         e ? setSearch(e) : setSearch('')
         clearTimeout(timeout)
         timeout = setTimeout(() => {
             e !== '' && searchUser(e).then((res) => {
                 if (res.status === 200) {
-                    res.data.length !== 0 && setSearchData(res.data)
-                    res.data.length === 0 && setSearchData(null)
+                    res.data.length !== 0 ? setSearchData(res.data) : setSearchData(null)
+                    res.data.length !== 0 ? setIsOpen(true) : setIsOpen(false)
+
                 }
             })
-        }, 1000)
+        }, 500)
     }
     const handleChangeStatusFriend = (id: string, status: string) => {
         if (status === "accept") {
@@ -98,7 +98,7 @@ const UserInfo = () => {
             })
     }
     return account && <>
-        <div className='max-h-[200px] rounded-md grid grid-cols-1 grid-rows-3 py-1 overflow-y-hidden'>
+        <div className='max-h-[200px] rounded-md grid grid-cols-1 grid-rows-3 py-1'>
             <div className='row-span-1 h-full flex items-center justify-center'>
                 <Badge classNames={{ badge: 'rounded-md !ml-12 bg-transparent border-none' }}
                     content={<EditImageIcon onClick={() => { setModal('avatar'), onOpen() }} className='w-7 h-7 cursor-pointer' />
