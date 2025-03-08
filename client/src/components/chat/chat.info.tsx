@@ -9,13 +9,12 @@ import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
 import { handleInsertNotification, renameImageFile } from "@/utils/util";
 
-const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn, setIsInfo }
+const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn }
   : {
     info: any; dataImage: { total: number; read: number; data: any[] };
     childRef: any;
     onOpen: () => void, onClose: () => void; handleLoadMoreImage: () => void; setIsOpen: (isOpen: boolean) => void;
     setModal: (modal: string) => void, setHandle: (handle: any) => void, setParameter: (parameter: any) => void, setContentBtn: (contentBtn: string) => void
-    setIsInfo: (isInfo: boolean) => void
   }) => {
   const { mode, chat } = use(StateContext);
   const { account, friend } = accountStore();

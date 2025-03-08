@@ -182,7 +182,6 @@ const ChatComponent = () => {
                         onClose={onClose}
                         onOpen={onOpen}
                         setHandle={setHandle} setModal={setModal} setParameter={setParameter} setContentBtn={setContentBtn}
-                        setIsInfo={setIsInfo}
                       />
                     }
                   >
