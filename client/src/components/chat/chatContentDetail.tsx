@@ -2,7 +2,7 @@ import { Chat } from '@/interface/chat'
 import React, { use, useEffect, useState } from 'react'
 import Message, { MessageReplyUI } from './message'
 import { convertDataChat, decode, formatDate, isToday } from '@/utils/util'
-import { Tooltip, useDisclosure } from '@nextui-org/react'
+import { Tooltip } from '@nextui-org/react'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { ReactionIcon } from '../icon/icon'
 import { StateContext } from '@/context/state'
@@ -16,7 +16,6 @@ const ChatContentDetail = ({ props, account, handleScrollReply, handleReaction, 
     }) => {
     const { mode } = use(StateContext)
     const [result, setResult] = useState<{ date: string, data: Chat[] }[] | null>()
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     useEffect(() => {
         setResult(convertDataChat(props))
     }, [props])

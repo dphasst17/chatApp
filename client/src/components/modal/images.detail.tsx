@@ -1,4 +1,4 @@
-import { ModalBody, ModalContent, ModalHeader } from '@nextui-org/react'
+import { ModalBody, ModalContent } from '@nextui-org/react'
 import React from 'react'
 
 const ImagesDetail = ({ src }: { src: string }) => {

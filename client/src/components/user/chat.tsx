@@ -1,7 +1,7 @@
 import React, { use, useEffect } from 'react'
 import Message from '../chat/message'
 import { chatStore } from '@/stores/chat'
-import { Chat, ChatByUser } from '@/interface/chat'
+import { ChatByUser } from '@/interface/chat'
 import { StateContext } from '@/context/state'
 import socket from '@/utils/socket'
 import { accountStore } from '@/stores/account'

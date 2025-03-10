@@ -1,7 +1,7 @@
 import { Avatar, Code, Modal, Tooltip, useDisclosure } from "@nextui-org/react"
 import { MessageReply } from "../icon/icon"
 import { StateContext } from "@/context/state"
-import { use, useEffect, useState } from "react"
+import { use, useState } from "react"
 import { extractImagesAndText } from "@/utils/util"
 import ImagesDetail from "../modal/images.detail"
 interface MessageProps {
