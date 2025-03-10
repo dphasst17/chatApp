@@ -62,3 +62,11 @@ body {
   display: none;
   /* Ẩn thanh cuộn trên Chrome, Safari */
 }
+
+#\:rl\: {
+  z-index: 50 !important;
+}
+
+#\:rk\: {
+  z-index: 50 !important;
+}

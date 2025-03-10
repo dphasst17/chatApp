@@ -82,14 +82,15 @@ const ChatDetail = ({ info }: { info: any }) => {
     });
     const dataImages = new FormData();
     for (let i = 0; i < renamedFiles.length; i++) {
-      dataImages.append("files", arrFile[i]);
+      dataImages.append("files", renamedFiles[i]);
     }
+    const messageData = `<div class="w-[530xp] h-auto flex flex-wrap justify-between">${renamedFiles.map((f: any) =>
+      `<img class="${renamedFiles.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${renamedFiles.length === 1 ? "w-full h-[300px] object-cover" : ""}"
+            src="${process.env.NEXT_PUBLIC_S3}/chat/${f.name}" />`,).join("")}</div>`
     uploadImages(dataImages).then((res) => {
       if (res.status === 201) {
         const dataMessage = {
-          message: `<div class="w-[530xp] h-auto flex flex-wrap justify-between">${renamedFiles.map((f: any) =>
-            `<img class="${renamedFiles.length >= 2 ? "w-[49%] h-[150px] object-cover" : ""} ${renamedFiles.length === 1 ? "w-full h-[300px] object-cover" : ""}"
-            src="${process.env.NEXT_PUBLIC_S3}/chat/${f.name}" />`,).join("")}</div>`,
+          message: endCode(messageData, process.env.NEXT_PUBLIC_K!),
           date: new Date(),
           time: new Date().toLocaleTimeString(),
           emoji: [],
@@ -106,7 +107,11 @@ const ChatDetail = ({ info }: { info: any }) => {
               name: account.name,
             }).then((res) => {
               if (res.status === 201) {
-                console.log(res);
+                socket.emit("push_image", {
+                  list: res.data,
+                  idChat: chat._id,
+                  dataLength: renamedFiles.length,
+                })
               }
             });
           token &&
@@ -131,6 +136,10 @@ const ChatDetail = ({ info }: { info: any }) => {
               }
             });
         };
+        socket.emit("push_image", {
+          idChat: chat._id,
+          message: dataMessage,
+        });
         insertData();
       }
     });
@@ -290,7 +299,9 @@ const ChatDetail = ({ info }: { info: any }) => {
     socket.on("s_g_r_chat", (message: any) => {
       if (message.idChat !== chat._id) return;
       if (account && message.sender === account.idUser) return
-      scrollToBottom()
+      setTimeout(() => {
+        scrollToBottom();
+      }, 150);
       data && setData([...data, message]);
       const currentChat =
         list && list.filter((c: ChatByUser) => c._id === chat._id);
@@ -301,7 +312,7 @@ const ChatDetail = ({ info }: { info: any }) => {
         setList([
           {
             ...currentChat[0],
-            lastMessage: decode(message.message, process.env.NEXT_PUBLIC_K!),
+            lastMessage: decode(message.message, process.env.NEXT_PUBLIC_K!).include("<img") ? "Sent images" : decode(message.message, process.env.NEXT_PUBLIC_K!),
           },
           ...newChat,
         ]);
@@ -328,6 +339,7 @@ const ChatDetail = ({ info }: { info: any }) => {
       socket.off("s_g_r_reaction");
     };
   }, [data, chat, list]);
+
   return (
     <section className="relative w-full h-[89%] sm:h-[95%] rounded-md flex flex-col justify-between overflow-hidden">
       <div ref={chatContainerRef} onScroll={handleScroll}

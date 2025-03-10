@@ -64,7 +64,7 @@ const SearchModal = ({ data, setModal, onClose }: { data: any, setModal?: React.
     }
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
     return <ModalContent>
-        <ModalHeader>Friend Request</ModalHeader>
+        <ModalHeader>Search User</ModalHeader>
         <ModalBody>
             <div className='w-full h-full grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-2 gap-2 overflow-auto'>
                 {account && friendList && data?.map((f: Search) => <div key={f._id} className='h-[60px] grid grid-cols-5 border border-solid border-zinc-200 rounded-md hover:bg-zinc-100 transition-all'>

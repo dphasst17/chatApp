@@ -6,8 +6,8 @@ import { StateProvider } from "@/context/state";
 import PrivateRoute from "./privateRoute";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 export const metadata: Metadata = {
-  title: "Chat App",
-  description: "Chat App",
+  title: "Fastssenger",
+  description: "Fastssenger",
 };
 
 export default function RootLayout({

@@ -8,6 +8,7 @@ import { Avatar, Badge, Button, Code, Input } from "@nextui-org/react";
 import { use, useState } from "react";
 import { EditIcon, EditImageIcon } from "../icon/icon";
 import { handleInsertNotification, renameImageFile } from "@/utils/util";
+import ImagesList from "./images.list";
 
 const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoadMoreImage, setModal, setHandle, setParameter, setContentBtn }
   : {
@@ -128,7 +129,7 @@ const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoad
 
   return (
     chat && (
-      <section ref={childRef} className={`w-[400px] h-auto max-h-screen sm:max-h-[500px] rounded-md p-4 ${mode === "light" ? "bg-white text-[#1e1e1e]" : "bg-[#1e1e1e] text-zinc-50"}`}>
+      <section ref={childRef} className={`w-[400px] h-auto max-h-screen sm:max-h-[700px] xl:max-h-[1000px] rounded-md !z-20 p-4 ${mode === "light" ? "bg-white text-[#1e1e1e]" : "bg-[#1e1e1e] text-zinc-50"}`}>
         <div className={`title w-full flex flex-col justify-center items-center`}>
           <div className="avatar w-full h-auto flex justify-center items-center">
             {(edit === "" || edit !== "avatar") &&
@@ -314,25 +315,7 @@ const ChatInfoDetail = ({ info, dataImage, childRef, onOpen, onClose, handleLoad
           )}
 
           {/* Image */}
-          <div className="imgList w-full h-auto grid grid-cols-4 gap-2 px-4">
-            <p className="col-span-4 text-xl font-bold">Image</p>
-            {dataImage.data.map((i: any) => (
-              <img
-                key={i._id}
-                src={i.image}
-                className="w-20 h-20 rounded-md cursor-pointer object-cover"
-                alt=""
-              />
-            ))}
-            {dataImage.total - dataImage.read > 0 && (
-              <Button
-                className="w-full h-full rounded-md"
-                onClick={handleLoadMoreImage}
-              >
-                Load more
-              </Button>
-            )}
-          </div>
+          <ImagesList data={dataImage} handleLoadMoreImage={handleLoadMoreImage} />
           {account && info.type === "group" && info.owner !== account.idUser && (
             <div className="w-full h-[100px] flex items-center justify-center">
               <Button

@@ -104,6 +104,15 @@ const ChatComponent = () => {
           );
       },
     );
+    socket.on('s_g_r_push_image', (result: { idChat: string, list: any[], dataLength: number }) => {
+      if (result && chat && result.idChat === chat._id) {
+        setDataImage({
+          total: result.dataLength + dataImage.total,
+          read: result.dataLength + dataImage.read,
+          data: result.list ? [...result.list, ...dataImage.data] : dataImage.data,
+        })
+      }
+    })
   }, [chat, currentId, list]);
   useEffect(() => {
     !openModal && document.addEventListener("mousedown", handleClickOutside);
@@ -171,7 +180,8 @@ const ChatComponent = () => {
                     offset={-30}
                     crossOffset={100}
                     color="default"
-                    classNames={{ base: "!z-30", content: "relative p-0 !z-30" }}
+                    classNames={{ base: "!z-40", content: "relative p-0 !z-10" }}
+                    className="!z-40"
                     content={
                       <ChatInfoDetail
                         info={info}

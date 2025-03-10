@@ -28,8 +28,9 @@ export const handleInsertNotification = async (token: string, idChat: string, no
     return result
 }
 export const renameImageFile = (file: File) => {
-    const name = `${uuid()}.${file.name.split(".").pop()}`;
-    return new File([file], name, { type: file.type });
+    const originalName = `${uuid()}.${file.name.split(".").pop()}`;
+    const renameFile = new File([file], originalName, { type: file.type });
+    return renameFile;
 }
 export const endCode = (data: string[] | string, key: string) => {
     const convertData = JSON.stringify(data);
@@ -61,3 +62,16 @@ export const convertDataChat = (data: Chat[]) => {
     });
     return result;
 }
+export const extractImagesAndText = (content: string) => {
+    const imgTag = content.match(/<img[^>]+>/g);
+    if (!imgTag) return { text: content, images: [] };
+
+    let remainingText = content;
+    const images = imgTag.map((img) => {
+        const src = img.match(/src="([^"]*)"/);
+        remainingText = remainingText.replace(img, "");
+        return src ? src[1] : null;
+    }).filter(Boolean);
+
+    return { text: remainingText, images };
+};

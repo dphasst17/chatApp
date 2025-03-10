@@ -60,17 +60,7 @@ const ListChat = () => {
                 && list.filter((c: ChatByUser) => c._id === data._id).length === 0
                 && data.user.includes(account.idUser) && setList([data, ...list])
         })
-        socket.on('s_g_r_chat', (data: Chat) => {
-            const currentChat = list && list.filter((c: ChatByUser) => c._id === data.idChat)
-            const newChat = list && list.filter((c: ChatByUser) => c._id !== data.idChat)
-            currentChat && newChat && setList([{
-                ...currentChat[0],
-                lastMessage: data.message
-            }, ...newChat])
-
-        })
         return () => {
-            socket.off('s_g_r_chat')
             socket.off('s_g_r_create_group')
         }
     }, [list, account])

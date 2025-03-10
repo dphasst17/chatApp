@@ -46,7 +46,10 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
                                 return {
                                     ...c,
                                     lastMessage: c.lastMessage ?
-                                        (c.lastMessage.includes("<p>") ? c.lastMessage : decode(c.lastMessage, process.env.NEXT_PUBLIC_K!))
+                                        (c.lastMessage.includes("<p>")
+                                            ? c.lastMessage
+                                            : decode(c.lastMessage, process.env.NEXT_PUBLIC_K!).includes("<img") ? "Image" : decode(c.lastMessage, process.env.NEXT_PUBLIC_K!)
+                                        )
                                         : null
                                 }
                             }))
