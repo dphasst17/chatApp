@@ -53,7 +53,7 @@ const Home = () => {
             socket.off('s_g_r_friend')
         }
     }, [account, friendPending])
-    return account ? <div className={`${mode} w-full h-screen overflow-hidden grid grid-cols-8 gap-2 py-1 px-2 transition-all`}>
+    return account ? <div className={`${mode} w-full h-[100dvh] overflow-hidden grid grid-cols-8 gap-2 py-1 px-2 transition-all`}>
         <UserComponent />
         <ChatComponent />
     </div> : <div className='empty w-full h-screen'></div>

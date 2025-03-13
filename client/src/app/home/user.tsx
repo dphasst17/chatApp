@@ -6,20 +6,25 @@ import { StateContext } from '@/context/state'
 import { Friend } from '@/interface/account'
 import { accountStore } from '@/stores/account'
 import { Avatar, Button, Modal, useDisclosure } from '@nextui-org/react'
-import React, { use } from 'react'
+import React, { use, useState } from 'react'
 import { Fade } from 'react-awesome-reveal'
 import { motion } from 'framer-motion'
 const UserComponent = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const { friend } = accountStore()
     const { mode } = use(StateContext)
+    const [modalName, setModalName] = useState<string>()
     const emptyAvatar = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png'
+    const handleOnpenModal = (name: string) => {
+        onOpen()
+        setModalName(name)
+    }
     return <div className='h-full col-span-8 md:col-span-3 xl:col-span-2 
-    md:bg-transparent grid-flow-row grid grid-rows-10 grid-cols-1 gap-y-4 rounded-md z-0 overflow-hidden'>
-        <div className='user row-span-2 col-span-1'>
+    md:bg-transparent grid-flow-row grid grid-rows-12 lg:grid-rows-11 grid-cols-1 gap-y-4 rounded-md z-0 overflow-hidden'>
+        <div className='user row-span-3 lg:row-span-2 col-span-1'>
             <UserInfo />
         </div>
-        <div className='chat row-span-3 md:row-span-2 col-span-1 flex flex-col justify-around rounded-md p-2'>
+        <div className='chat row-span-4 lg:row-span-3 col-span-1 flex flex-col justify-around rounded-md p-2'>
             <motion.div drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2}
                 className='friendOnline w-full h-3/4 flex overflow-x-hidden py-2 cursor-grab select-none hiddenScrollbar'>
                 {friend && friend.map((f: Friend, i: number) => <Fade key={f._id} direction='down' delay={i * 100} className='w-[100px] min-w-[100px] h-full max-h-[152px] mx-1 overflow-x-hidden'>
@@ -35,16 +40,16 @@ const UserComponent = () => {
                 </Fade>)}
             </motion.div>
             <div className='w-full h-1/4 flex justify-start items-center overflow-hidden'>
-                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md' radius="none" onPress={onOpen}>Create group</Button>
-                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md mx-2' radius="none" onPress={onOpen}>Create Story</Button>
+                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md' radius="none" onClick={() => handleOnpenModal('chat')}>Create group</Button>
+                <Button size="sm" color="primary" className='w-28 h-[30px] rounded-md mx-2' radius="none" onClick={() => handleOnpenModal('story')}>Create Story</Button>
             </div>
 
         </div>
-        <div className='friend row-span-5 md:row-span-6 py-1'>
+        <div className='friend row-span-5 lg:row-span-6 py-1'>
             <ListChat />
         </div>
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl">
-            <ModalCreateGroup onClose={onClose} />
+            {modalName === "chat" && <ModalCreateGroup onClose={onClose} />}
         </Modal>
     </div >
 }

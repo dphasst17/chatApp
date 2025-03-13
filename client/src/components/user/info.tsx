@@ -98,7 +98,7 @@ const UserInfo = () => {
             })
     }
     return account && <>
-        <div className='max-h-[200px] rounded-md grid grid-cols-1 grid-rows-3 py-1'>
+        <div className='rounded-md grid grid-cols-1 grid-rows-3 py-1'>
             <div className='row-span-1 h-full flex items-center justify-center'>
                 <Badge classNames={{ badge: 'rounded-md !ml-12 bg-transparent border-none' }}
                     content={<EditImageIcon onClick={() => { setModal('avatar'), onOpen() }} className='w-7 h-7 cursor-pointer' />
